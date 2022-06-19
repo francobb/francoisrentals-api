@@ -1,0 +1,24 @@
+###
+# User Signup
+POST {{ baseURL }}/signup
+Content-Type: application/json
+
+{
+    "email": "Jim@email.com",
+    "password": "pp123"
+}
+
+###
+# User Login
+POST {{ baseURL }}/login
+Content-Type: application/json
+
+{
+    "email": "example@email.com",
+    "password": "password"
+}
+
+###
+# User Logout
+POST {{ baseURL }}/logout
+Content-Type: application/json
