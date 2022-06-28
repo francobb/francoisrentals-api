@@ -4,8 +4,8 @@ POST {{ baseURL }}/signup
 Content-Type: application/json
 
 {
-    "email": "Jim@email.com",
-    "password": "pp123"
+    "email": "rizzle@email.com",
+    "password": "password"
 }
 
 ###

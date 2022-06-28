@@ -49,7 +49,9 @@ class App {
       set('debug', true);
     }
 
-    connect(dbConnection.url, dbConnection.options);
+    connect(dbConnection.url, dbConnection.options)
+      .then(() => logger.info('Database Connected'))
+      .catch(err => console.log(err));
   }
 
   private initializeMiddlewares() {
