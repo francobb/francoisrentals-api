@@ -33,6 +33,7 @@ class App {
   }
 
   public listen() {
+    console.log({ prc: process.env });
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
