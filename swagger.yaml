@@ -6,6 +6,8 @@ paths:
 # [GET] users
   /users:
     get:
+      security:
+        - cookieAUth: [ ]
       tags:
       - users
       summary: Find All Users
@@ -27,6 +29,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/users'
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/users'
       responses:
         201:
           description: 'Created'
@@ -100,14 +109,15 @@ paths:
         500:
           description: 'Server Error'
 
-# definitions
 definitions:
   users:
     type: object
     required:
         - email
-        - password
     properties:
+      name:
+        type: string
+        description: user Name
       email:
         type: string
         description: user Email
@@ -118,3 +128,25 @@ definitions:
 schemes:
  - https
  - http
+
+openapi: 3.0.0
+info:
+  title: LMS API Specification
+  version: 1.0.0
+  description: Open documentation for LMS API
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAUth:
+      type: apiKey
+      in: cookie
+      name: Authorization
+security:
+  - cookieAUth: []
+  - basicAuth: []
+  - bearerAuth: []

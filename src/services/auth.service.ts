@@ -7,6 +7,7 @@ import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
+import { GoogleUserDto } from '@dtos/gusers.dto';
 
 class AuthService {
   public users = userModel;
@@ -23,14 +24,16 @@ class AuthService {
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto | GoogleUserDto): Promise<{ cookie: string; findUser: User }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ email: userData.email });
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
+    if (userData instanceof CreateUserDto) {
+      const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+      if (!isPasswordMatching) throw new HttpException(409, 'Your password not matching');
+    }
 
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);

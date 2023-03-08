@@ -2,6 +2,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+// import csrf from 'csurf';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
@@ -72,19 +73,49 @@ class App {
   }
 
   private initializeSwagger() {
-    const options = {
-      swaggerDefinition: {
-        info: {
-          title: 'REST API',
-          version: '1.0.0',
-          description: 'Example docs',
+    const swaggerDefinition = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Express API for JSONPlaceholder',
+        version: '1.0.0',
+        description: 'This is a REST API application made with Express. It retrieves data from JSONPlaceholder.',
+        license: {
+          name: 'Licensed Under MIT',
+          url: 'https://spdx.org/licenses/MIT.html',
+        },
+        contact: {
+          name: 'JSONPlaceholder',
+          url: 'https://jsonplaceholder.typicode.com',
         },
       },
+      servers: [
+        {
+          url: 'http://localhost:3000',
+          description: 'Development server',
+        },
+      ],
       apis: ['swagger.yaml'],
     };
-
+    const options = {
+      swaggerDefinition,
+      apis: ['swagger.yaml'],
+    };
+    const swaggerUiOptions = {
+      explorer: true,
+    };
     const specs = swaggerJSDoc(options);
-    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+    this.app.use(
+      '/api-docs',
+      (req, res, next) => {
+        // const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+        // if (!Authorization) console.log('You nee to authenticate, Hor');
+        // res.redirect('/error');
+        next();
+      },
+      swaggerUi.serve,
+      swaggerUi.setup(specs, swaggerUiOptions),
+    );
   }
 
   private initializeErrorHandling() {
