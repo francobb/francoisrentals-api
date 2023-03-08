@@ -19,6 +19,13 @@ Content-Type: application/json
 }
 
 ###
+# User Login With Google
+GET {{ baseURL }}/getAuthUrl
+Content-Type: application/json
+
+
+
+###
 # User Logout
 POST {{ baseURL }}/logout
 Content-Type: application/json

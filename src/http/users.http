@@ -29,3 +29,7 @@ Content-Type: application/json
 ###
 # Delete User By Id
 DELETE {{ baseURL }}/users/1
+
+
+###
+GET {{ baseURL}}/listFiles

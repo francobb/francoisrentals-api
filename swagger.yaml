@@ -145,9 +145,6 @@ definitions:
     required:
         - email
     properties:
-      name:
-        type: string
-        description: user Name
       email:
         type: string
         description: user Email
