@@ -8,7 +8,8 @@
     "node": "18.x || 16.x"
   },
   "scripts": {
-    "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
+    "start": "NODE_ENV=production node dist/server.js",
+    "heroku-postbuild" : "cross-env NODE_ENV=production",
     "dev": "cross-env NODE_ENV=development nodemon",
     "debug": "nodemon --inspect src/server.ts",
     "build": "swc src -d dist --source-maps --copy-files",
