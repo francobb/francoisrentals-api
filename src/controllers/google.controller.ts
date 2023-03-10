@@ -58,6 +58,7 @@ class GoogleController {
   listFiles = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.googleService.listDriveFiles();
+      res.status(200).json({ message: 'ran get files from drive' });
     } catch (err: any) {
       console.log('Failed to get files', err);
       next(err);
