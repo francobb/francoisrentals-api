@@ -91,7 +91,7 @@ class App {
       },
       servers: [
         {
-          url: 'http://localhost:3000',
+          url: 'https://www.francoisrentals.com',
           description: 'Development server',
         },
       ],
