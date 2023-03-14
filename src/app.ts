@@ -9,7 +9,7 @@ import morgan from 'morgan';
 import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, ROOT_URI } from '@config';
 import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
@@ -91,7 +91,7 @@ class App {
       },
       servers: [
         {
-          url: 'https://www.francoisrentals.com',
+          url: `${ROOT_URI}`,
           description: 'Development server',
         },
       ],

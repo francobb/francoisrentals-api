@@ -1,6 +1,6 @@
 ###
 # Find All Users
-GET {{ baseURL }}/users
+GET https://shielded-journey-50822.herokuapp.com/users
 
 ###
 # Find User By Id
@@ -32,4 +32,4 @@ DELETE {{ baseURL }}/users/1
 
 
 ###
-GET {{ baseURL}}/listFiles
+GET https://shielded-journey-50822.herokuapp.com/listFiles

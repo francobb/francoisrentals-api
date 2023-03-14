@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import GoogleService from '@services/google.service';
 import AuthService from '@services/auth.service';
-import userModel from '@models/users.model';
+import { ROOT_URI } from '@config';
 
 class GoogleController {
   public authService = new AuthService();
   public googleService = new GoogleService();
-  public users = userModel;
+  // public users = userModel;
 
   public getAuthUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -44,10 +44,18 @@ class GoogleController {
           message: 'Google account not verified',
         });
       }
-
       const { cookie, findUser } = await this.authService.login({ email, name });
-
-      res.setHeader('Set-Cookie', [cookie]);
+      const COOKIE_NAME = 'Authorization';
+      const COOKIE_VALUE = cookie.replace('Authorization=', '');
+      res
+        .setHeader('set-cookie', ['cookie2=value2; SameSite=None; Secure'])
+        .cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true });
+      const hdrs = res.getHeaders();
+      console.log({ hdrs });
+      // res
+      //   .send();
+      // res.cookie(COOKIE_NAME, cookie, { path: '/', maxAge: 900000, httpOnly: true, domain: `${ROOT_URI.replace('http://', '.')}` });
+      // res.redirect('/');
       res.status(200).json({ data: findUser, message: 'login' });
     } catch (err: any) {
       console.log('Failed to authorize Google User', err);
