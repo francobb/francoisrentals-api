@@ -46,16 +46,10 @@ class GoogleController {
       }
       const { cookie, findUser } = await this.authService.login({ email, name });
       const COOKIE_NAME = 'Authorization';
-      const COOKIE_VALUE = cookie.replace('Authorization=', '');
-      res
-        .setHeader('set-cookie', ['cookie2=value2; SameSite=None; Secure'])
-        .cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true });
-      const hdrs = res.getHeaders();
-      console.log({ hdrs });
-      // res
-      //   .send();
-      // res.cookie(COOKIE_NAME, cookie, { path: '/', maxAge: 900000, httpOnly: true, domain: `${ROOT_URI.replace('http://', '.')}` });
-      // res.redirect('/');
+      const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
+      res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
+
+      // res.redirect(ROOT_URI);
       res.status(200).json({ data: findUser, message: 'login' });
     } catch (err: any) {
       console.log('Failed to authorize Google User', err);
