@@ -14,6 +14,7 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { frAscii } from '@utils/frAscii';
 
 class App {
   public app: express.Application;
@@ -25,6 +26,7 @@ class App {
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
+    this.readInAsciiFile();
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
@@ -33,7 +35,6 @@ class App {
   }
 
   public listen() {
-    console.log({ prc: process.env });
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
@@ -52,7 +53,10 @@ class App {
     }
 
     connect(dbConnection.url, dbConnection.options)
-      .then(() => logger.info('Database Connected'))
+      .then(() => {
+        logger.info(`🗄 Database Connected`);
+        logger.info(`=================================`);
+      })
       .catch(err => console.log(err));
   }
 
@@ -110,7 +114,7 @@ class App {
       '/api-docs',
       (req, res, next) => {
         // const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-        // if (!Authorization) console.log('You nee to authenticate, Hor');
+        // if (!Authorization) console.log('You need to authenticate, Hor');
         // res.redirect('/error');
         next();
       },
@@ -121,6 +125,10 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
+  }
+
+  private readInAsciiFile() {
+    console.info(frAscii);
   }
 }
 

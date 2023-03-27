@@ -1,9 +1,13 @@
-import { google } from 'googleapis';
-import { OAuth2Client, Credentials } from 'google-auth-library';
 import axios from 'axios';
+import { google } from 'googleapis';
+import { Credentials } from 'google-auth-library';
+import pdfParse from 'pdf-parse';
 import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
-import qs from 'qs';
 import googleModel from '@models/google.model';
+import reportModel from '@models/report.model';
+import { logger } from '@utils//logger';
+import { collectReportData } from '@utils/reportParser';
+import entryModel from '@models/entry.model';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -25,6 +29,7 @@ interface GoogleUserResult {
   locale: string;
 }
 class GoogleService {
+  public files = [];
   public googleUser = googleModel;
   public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
 
@@ -45,29 +50,6 @@ class GoogleService {
       include_granted_scopes: true,
     });
   }
-  getGoogleOauthToken = async ({ code }: { code: string }): Promise<GoogleOauthToken> => {
-    const rootURl = 'https://oauth2.googleapis.com/token';
-
-    const options = {
-      code,
-      client_id: APP_ID,
-      client_secret: APP_SECRET,
-      redirect_uri: REDIRECT_URI,
-      grant_type: 'authorization_code',
-    };
-    try {
-      const { data } = await axios.post<GoogleOauthToken>(rootURl, qs.stringify(options), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      return data;
-    } catch (err: any) {
-      console.log('Failed to fetch Google Oauth Tokens');
-      throw new Error(err);
-    }
-  };
 
   getGoogleUser = async ({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> => {
     try {
@@ -121,7 +103,6 @@ class GoogleService {
   }
 
   async listDriveFiles() {
-    // Create a new Drive client
     const drive = google.drive({ version: 'v3', auth: this.oauth2Client });
     const ID_OF_THE_FOLDER = '1jXtb1PHlAoHtHs3vfmSIgQF5rofvzO3Y';
 
@@ -133,15 +114,104 @@ class GoogleService {
     });
 
     // Log the file names and IDs
-    console.log('Files:');
-    const files = data.files;
-    if (files && files.length) {
-      files.forEach(file => {
-        console.log(`${file.name} (${file.id})`);
-      });
+    this.files = data.files;
+    if (this.files && this.files.length) {
+      for (const file of this.files) {
+        // if (file.name.includes('2023.pdf')) {
+        //
+        // }
+        file['pdf'] = await this.exportFile(file.id);
+        await this.saveReport(file)
+          .then(() =>
+            pdfParse(file['pdf'])
+              .then(pdf => {
+                file['text'] = pdf.text;
+                logger.info(` :::: START Parsing Data: ${file.name} :::: `);
+                file.data = collectReportData(pdf.text);
+                entryModel.insertMany(file.data, (error, result) => {
+                  if (error) {
+                    logger.error(error);
+                  } else {
+                    logger.info('Report inserted');
+                  }
+                });
+                logger.info(` :::: END Parsing Data: ${file.name} :::: `);
+              })
+              .catch(err => {
+                logger.error('Error parsing report' + err);
+              }),
+          )
+          .catch(err => {
+            logger.error(err);
+          });
+      }
     } else {
       console.log('No files found.');
     }
+  }
+
+  async exportFile(documentId) {
+    let buffer;
+    let buffer2;
+
+    // const drive = google.drive({ version: 'v3', auth: this.oauth2Client });
+
+    await google
+      .drive('v3')
+      .files.get({ auth: this.oauth2Client, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
+      .then(res => {
+        return new Promise((resolve, reject) => {
+          // {
+          // const filePath = path.join(os.tmpdir(), uuid.v4());
+          // console.log(`writing to ${filePath}`);
+          // const dest = fs.createWriteStream(filePath);
+          // const dest = fs.createWriteStream(`./pdfs/${uuid.v4()}.pdf`);
+          // }
+          let progress = 0;
+          const buf = [];
+
+          res.data
+            .on('error', err => {
+              console.error('Error downloading file.');
+              reject(err);
+            })
+            .on('end', () => {
+              buffer = Buffer.concat(buf);
+              buffer2 = Buffer.from(buffer).toString('base64');
+
+              // dest.close();
+              resolve(buffer);
+            })
+            .on('data', d => {
+              progress += d.length;
+              buf.push(d);
+              if (process.stdout.isTTY) {
+                process.stdout.clearLine(0);
+                process.stdout.cursorTo(0);
+                process.stdout.write(`Downloaded ${progress} bytes `);
+              }
+            });
+          // .pipe(dest)
+        });
+      })
+      .catch(err => logger.error({ err }));
+    return buffer;
+  }
+
+  async saveReport(file: { name: { split: (arg0: string) => [any, any] }; id: any; pdf: any }) {
+    logger.info(`${file.name} (${file.id})`);
+    const [month, year] = file.name.split('_');
+    const report = new reportModel({ month, year: year.replace(/.pdf/gi, ''), data: file.pdf });
+    return new Promise((resolve, reject) => {
+      report.save((error, result) => {
+        if (error) {
+          // logger.error(error);
+          // throw error;
+          reject(error);
+        }
+        resolve(result);
+      });
+    });
   }
 }
 
