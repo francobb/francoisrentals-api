@@ -1,7 +1,6 @@
 import { logger } from '@utils/logger';
-import {CreateEntryDto} from "@dtos/entries.dto";
 
-function getObjectFromData(loc: string, ogBalance: number, date: any, desc: any) {
+export function getObjectFromData(loc: string, ogBalance: number, date: any, desc: any) {
   // remove year
   const currentYear = new Date().getFullYear();
   const d_mm_yyRegexPattern = /^([1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.](21|22)/gi;
@@ -44,7 +43,7 @@ function getObjectFromData(loc: string, ogBalance: number, date: any, desc: any)
     .match(/-?\d{1,3}(,\d{3})*(\.\d{2})/gi); ///\$\d+(?:\.\d{2})?/gi
 
   const outcome =
-    payeePayer === ('Buteau Francois, Jr.' || 'Francois Rentals, LLC.')
+    payeePayer === 'Buteau Francois, Jr.' || 'Francois Rentals, LLC.'
       ? 'payout'
       : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance
       ? 'income'
@@ -73,7 +72,7 @@ function getObjectFromData(loc: string, ogBalance: number, date: any, desc: any)
   };
 }
 
-function getTransactionsPerHouse(info, location) {
+export function getTransactionsPerHouse(info, location) {
   let item = '';
   const [first_line, last_line] = ['Beginning Cash Balance as of', 'Ending Cash Balance'];
   const first_column = 'Date';
@@ -110,7 +109,6 @@ function getTransactionsPerHouse(info, location) {
 }
 
 export function collectReportData(info: string) {
-  const obj = { transactions: [] };
   // const houses = ['23 Paradis Avenue Woonsocket, RI', '212 Welles St']
 
   // find 212 DATA
@@ -124,9 +122,8 @@ export function collectReportData(info: string) {
   } else return collectAllObjectsPerHouse(wellesData, '212 Welles St');
 }
 
-function collectAllObjectsPerHouse(houseData: string | any[], loc: string) {
-  // const obj = { transactions: [] };
-  const totalTransactions: CreateEntryDto[] = [];
+export function collectAllObjectsPerHouse(houseData: string | any[], loc: string) {
+  const totalTransactions = [];
   let ogBalance = 0;
 
   for (let i = 0; i < houseData.length; i += 2) {
