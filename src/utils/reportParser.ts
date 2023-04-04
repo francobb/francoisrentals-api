@@ -42,12 +42,8 @@ export function getObjectFromData(loc: string, ogBalance: number, date: any, des
     .replaceAll(currentYear - 1, '')
     .match(/-?\d{1,3}(,\d{3})*(\.\d{2})/gi); ///\$\d+(?:\.\d{2})?/gi
 
-  const outcome =
-    payeePayer === 'Buteau Francois, Jr.' || 'Francois Rentals, LLC.'
-      ? 'payout'
-      : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance
-      ? 'income'
-      : 'expense';
+  const isPayout = payeePayer === 'Buteau Francois, Jr.' || payeePayer === 'Francois Rentals, LLC.';
+  const outcome = isPayout ? 'payout' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
 
   if (!outcome) {
     logError('outcome', desc);
