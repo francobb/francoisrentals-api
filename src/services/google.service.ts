@@ -6,8 +6,10 @@ import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
 import googleModel from '@models/google.model';
 import reportModel from '@models/report.model';
 import { logger } from '@utils//logger';
-import { collectReportData } from '@utils/reportParser';
 import entryModel from '@models/entry.model';
+import payeePayerModel from '@models/payeePayer.model';
+import { PayeePayer } from '@interfaces/payeePayer.interface';
+import ParserService from '@services/parser.service';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -30,8 +32,15 @@ interface GoogleUserResult {
 }
 class GoogleService {
   public files = [];
+  public payeesPayers = payeePayerModel;
   public googleUser = googleModel;
+  public parserService: ParserService = new ParserService();
   public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
+
+  public async getAllPayeesAndPayers() {
+    const pp: PayeePayer[] = await this.payeesPayers.find();
+    return pp;
+  }
 
   getAuthUrl() {
     return this.oauth2Client.generateAuthUrl({
@@ -113,6 +122,8 @@ class GoogleService {
       fields: 'nextPageToken, files(id, name)',
     });
 
+    const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
+
     // Log the file names and IDs
     this.files = data.files;
     if (this.files && this.files.length) {
@@ -127,7 +138,7 @@ class GoogleService {
               .then(pdf => {
                 file['text'] = pdf.text;
                 logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-                file.data = collectReportData(pdf.text);
+                file.data = this.parserService.collectReportData(pdf.text, pp);
                 entryModel.insertMany(file.data, (error, result) => {
                   if (error) {
                     logger.error(error);

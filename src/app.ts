@@ -15,7 +15,8 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { frAscii } from '@utils/frAscii';
-
+import payeePayerJson from './assets/payeePayer.json';
+import payeePayerModel from "@models/payeePayer.model";
 class App {
   public app: express.Application;
   public env: string;
@@ -28,6 +29,7 @@ class App {
 
     this.readInAsciiFile();
     this.connectToDatabase();
+    this.initPayeePayerData();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -58,6 +60,17 @@ class App {
         logger.info(`=================================`);
       })
       .catch(err => console.log(err));
+  }
+  private initPayeePayerData() {
+    const payeePayerMap = payeePayerJson.map(p => {
+      return { name: p };
+    });
+
+    console.log({ payeePayerMap });
+    payeePayerModel
+      .insertMany(payeePayerMap)
+      .then(r => logger.info(`��� Saved payees to database`))
+      .catch(err => logger.error(`Error from saving payees & payers ${err}`));
   }
 
   private initializeMiddlewares() {
