@@ -1,5 +1,5 @@
 import { model, Schema, Document } from 'mongoose';
-import { Entry } from '@interfaces/entry.interface';
+import { IEntry } from '@interfaces/entry.interface';
 
 const entrySchema: Schema = new Schema({
   balance: {
@@ -35,6 +35,6 @@ const entrySchema: Schema = new Schema({
 });
 
 // entrySchema.index({ date: 1, desc: 1 }, { unique: true });
-const entryModel = model<Entry & Document>('Entry', entrySchema);
+const entryModel = model<IEntry & Document>('Entry', entrySchema);
 
 export default entryModel;

@@ -5,12 +5,14 @@ import pdfParse from 'pdf-parse';
 import Parser from '@utils/parser';
 import entryModel from '@models/entry.model';
 import googleModel from '@models/google.model';
+import reportModel from '@models/report.model';
+import { logger } from '@utils//logger';
 import payeePayerModel from '@models/payeePayer.model';
 import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
-import { logger } from '@utils/logger';
 import ReportsService from '@services/reports.service';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 import GoogleClient from '@services/gauth.service';
+import TransactionService from '@services/transactions.service';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -34,14 +36,15 @@ interface GoogleUserResult {
 class GoogleService {
   public files = [];
   public googleUser = googleModel;
-  // public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
   public oauth2Client = GoogleClient.initialize();
   public parser: Parser = new Parser();
   public payeesPayers = payeePayerModel;
   public reportService = new ReportsService();
+  public transactionService: TransactionService = new TransactionService();
   constructor() {
     //
   }
+
   public async getAllPayeesAndPayers() {
     const pp: PayeePayer[] = await this.payeesPayers.find();
     return pp;
@@ -147,7 +150,7 @@ class GoogleService {
                 file['text'] = pdf.text;
                 logger.info(` :::: START Parsing Data: ${file.name} :::: `);
                 file.data = this.parser.collectReportData(pdf.text, pp);
-                // file.data = this.parser.collectReportData(pdf.text, this.payeesPayers);
+                this.transactionService.addManyTransactions(file.data);
                 entryModel.insertMany(file.data, (error, result) => {
                   if (error) {
                     logger.error(error);

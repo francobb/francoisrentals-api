@@ -12,6 +12,8 @@ class Parser {
     // find 23 DATA
     const paradisData = this.getTransactionsPerHouse(info, '23 Paradis Avenue Woonsocket, RI');
 
+    // const carringtonData = getTransactionsPerHouse(info, '346 Carrington Avenue Woonsocket');
+
     if (paradisData) {
       return [...this.collectAllObjectsPerHouse(wellesData, '212 Welles St'), ...this.collectAllObjectsPerHouse(paradisData, '23 Paradis Ave')];
     } else return this.collectAllObjectsPerHouse(wellesData, '212 Welles St');
@@ -41,7 +43,7 @@ class Parser {
       TODO: MOVE THIS To An API
      */
 
-    const payeePayer = this.payeesPayers.find(v => desc.includes(v.name)).name; // extract Payee / Payer
+    let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
 
     const balanceArray = desc
       .replaceAll(d_mm_yyRegexPattern, '')
@@ -58,8 +60,11 @@ class Parser {
       throw new Error(`Outcome is missing for: ${desc}`);
     }
     if (!payeePayer) {
-      this._logError('payeePayer', desc);
-      throw new Error(`payeePayer is missing for: ${desc}`);
+      if (outcome === 'income') payeePayer = 'Francois Rentals, LLC.';
+      else {
+        this._logError('payeePayer', desc);
+        throw new Error(`payeePayer is missing for: ${desc}`);
+      }
     }
     if (!balanceArray || balanceArray.length < 2) {
       this._logError('balanceArray', desc);
@@ -68,7 +73,7 @@ class Parser {
 
     return {
       balance: balanceArray,
-      date,
+      date: new Date(date),
       desc,
       location: loc,
       outcome,

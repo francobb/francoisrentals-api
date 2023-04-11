@@ -6,9 +6,18 @@ import SessionRoute from '@routes/session.route';
 import TwilioRoute from '@routes/twilio.route';
 import validateEnv from '@utils/validateEnv';
 import TenantsRoute from '@routes/tenants.route';
+import TransactionsRoute from '@routes/transactions.route';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new SessionRoute(), new TwilioRoute(), new TenantsRoute()]);
+const app = new App([
+  new IndexRoute(),
+  new UsersRoute(),
+  new AuthRoute(),
+  new SessionRoute(),
+  new TwilioRoute(),
+  new TenantsRoute(),
+  new TransactionsRoute(),
+]);
 
 app.listen();
