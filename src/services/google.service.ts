@@ -6,10 +6,10 @@ import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
 import googleModel from '@models/google.model';
 import reportModel from '@models/report.model';
 import { logger } from '@utils//logger';
-import entryModel from '@models/entry.model';
 import payeePayerModel from '@models/payeePayer.model';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 import ParserService from '@services/parser.service';
+import TransactionService from '@services/transactions.service';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -35,6 +35,7 @@ class GoogleService {
   public payeesPayers = payeePayerModel;
   public googleUser = googleModel;
   public parserService: ParserService = new ParserService();
+  public transactionService: TransactionService = new TransactionService();
   public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
 
   public async getAllPayeesAndPayers() {
@@ -128,33 +129,27 @@ class GoogleService {
     this.files = data.files;
     if (this.files && this.files.length) {
       for (const file of this.files) {
-        // if (file.name.includes('2023.pdf')) {
-        //
-        // }
-        file['pdf'] = await this.exportFile(file.id);
-        await this.saveReport(file)
-          .then(() =>
-            pdfParse(file['pdf'])
-              .then(pdf => {
-                file['text'] = pdf.text;
-                logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-                file.data = this.parserService.collectReportData(pdf.text, pp);
-                entryModel.insertMany(file.data, (error, result) => {
-                  if (error) {
-                    logger.error(error);
-                  } else {
-                    logger.info('Report inserted');
-                  }
-                });
-                logger.info(` :::: END Parsing Data: ${file.name} :::: `);
-              })
-              .catch(err => {
-                logger.error('Error parsing report' + err);
-              }),
-          )
-          .catch(err => {
-            logger.error(err);
-          });
+        if (file.name.includes('Mar_2023.pdf')) {
+          file['pdf'] = await this.exportFile(file.id);
+          await this.transactionService
+            .addReport(file)
+            .then(() =>
+              pdfParse(file['pdf'])
+                .then(pdf => {
+                  file['text'] = pdf.text;
+                  logger.info(` :::: START Parsing Data: ${file.name} :::: `);
+                  file.data = this.parserService.collectReportData(pdf.text, pp);
+                  this.transactionService.addManyTransactions(file.data);
+                  logger.info(` :::: END Parsing Data: ${file.name} :::: `);
+                })
+                .catch(err => {
+                  logger.error('Error parsing report' + err);
+                }),
+            )
+            .catch(err => {
+              logger.error(err);
+            });
+        }
       }
     } else {
       console.log('No files found.');

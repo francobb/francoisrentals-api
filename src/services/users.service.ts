@@ -1,15 +1,18 @@
 import { hash } from 'bcrypt';
+import userModel from '@models/users.model';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
-import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
 
 class UserService {
   public users = userModel;
 
   public async findAllUser(): Promise<User[]> {
-    const users: User[] = await this.users.find();
+    // const users: User[] = await this.users.find();
+    // return users;
+
+    const [users] = await Promise.all([this.users.find()]);
     return users;
   }
 

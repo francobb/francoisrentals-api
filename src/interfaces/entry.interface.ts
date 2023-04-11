@@ -1,4 +1,4 @@
-export interface Entry {
+export interface IEntry {
   _id: string;
   balance: Array<string>;
   date: Date;

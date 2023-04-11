@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { Report } from '@interfaces/report.interface';
+import { IReport } from '@interfaces/report.interface';
 
 const reportSchema = new Schema({
   month: {
@@ -18,5 +18,5 @@ const reportSchema = new Schema({
 
 reportSchema.index({ month: 1, year: 1 }, { unique: true });
 
-const reportModel = mongoose.model<Report & Document>('Report', reportSchema);
+const reportModel = mongoose.model<IReport & Document>('Report', reportSchema);
 export default reportModel;

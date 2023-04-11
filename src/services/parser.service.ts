@@ -1,9 +1,11 @@
+import pdfParse from 'pdf-parse';
 import { getTransactionsPerHouse } from '@utils/reportParser';
 import { logger } from '@utils/logger';
 
 class ParserService {
   public payeesPayers = [];
 
+  // public parsePdf(pdf: string) {}
   public collectReportData(info: string, listOfPeople: any[]) {
     this.payeesPayers = listOfPeople;
 
@@ -12,6 +14,8 @@ class ParserService {
 
     // find 23 DATA
     const paradisData = getTransactionsPerHouse(info, '23 Paradis Avenue Woonsocket, RI');
+
+    // const carringtonData = getTransactionsPerHouse(info, '346 Carrington Avenue Woonsocket');
 
     if (paradisData) {
       return [...this.collectAllObjectsPerHouse(wellesData, '212 Welles St'), ...this.collectAllObjectsPerHouse(paradisData, '23 Paradis Ave')];
@@ -28,7 +32,7 @@ class ParserService {
       TODO: MOVE THIS To An API
      */
 
-    const payeePayer = this.payeesPayers.find(v => desc.includes(v.name)).name; // extract Payee / Payer
+    let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
 
     const balanceArray = desc
       .replaceAll(d_mm_yyRegexPattern, '')
@@ -45,8 +49,11 @@ class ParserService {
       throw new Error(`Outcome is missing for: ${desc}`);
     }
     if (!payeePayer) {
-      this.logError('payeePayer', desc);
-      throw new Error(`payeePayer is missing for: ${desc}`);
+      if (outcome === 'income') payeePayer = 'Francois Rentals, LLC.';
+      else {
+        this.logError('payeePayer', desc);
+        throw new Error(`payeePayer is missing for: ${desc}`);
+      }
     }
     if (!balanceArray || balanceArray.length < 2) {
       this.logError('balanceArray', desc);
@@ -55,7 +62,7 @@ class ParserService {
 
     return {
       balance: balanceArray,
-      date,
+      date: new Date(date),
       desc,
       location: loc,
       outcome,

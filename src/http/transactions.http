@@ -1,0 +1,6 @@
+# Get transactions for a given month
+GET {{ baseURL }}/transactions?year=2023&month=03
+
+### GET request with parameter
+GET {{ baseURL }}/listFiles
+Accept: application/json
