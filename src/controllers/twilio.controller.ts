@@ -2,10 +2,9 @@
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
 import { NextFunction, Request, Response } from 'express';
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '@config';
 
-const accountSid = 'ACd2bed8c8566ac11b83949bd10cff458d';
-const authToken = '4b71f01ebb418c6f93eb049da21bdf14';
-const client = require('twilio')(accountSid, authToken);
+const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 interface IRequest extends Request {
   query: { [key: string]: string };
