@@ -1,10 +1,11 @@
 import { model, Schema, Document } from 'mongoose';
-import { ITenant } from '@interfaces/tenants.interface';
+import { Tenant } from '@interfaces/tenants.interface';
 
-const tenantsSchema = new Schema({
+const tenantsSchema: Schema = new Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
   },
   lease_to: {
     type: Date,
@@ -32,7 +33,7 @@ const tenantsSchema = new Schema({
   },
 });
 
-const tenantsModel = model<ITenant & Document>('tenants', tenantsSchema);
+const tenantsModel = model<Tenant & Document>('Tenant', tenantsSchema);
 
-tenantsSchema.index({ name: 1, email: 1 }, { unique: true });
+// tenantsSchema.index({ name: 1, email: 1 }, { unique: true });
 export default tenantsModel;

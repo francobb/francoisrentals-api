@@ -1,4 +1,4 @@
-export interface ITenant {
+export interface Tenant {
   _id: string;
   email: string;
   lease_to: Date;

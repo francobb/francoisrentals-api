@@ -19,4 +19,4 @@ class TenantsRoute implements Routes {
   }
 }
 
-export default new TenantsRoute();
+export default TenantsRoute;
