@@ -4,7 +4,7 @@ import { Tenant } from '@interfaces/tenants.interface';
 const tenantsSchema: Schema = new Schema({
   email: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
   },
   lease_to: {

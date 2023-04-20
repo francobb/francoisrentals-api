@@ -1,12 +1,11 @@
 {
-  "name": "nba-stats-comparison",
-  "version": "0.0.0",
+  "author": "bfrancoisjr",
   "description": "TypeScript + Mongoose + MongoDB + Express API Server",
-  "author": "",
-  "license": "ISC",
   "engines": {
     "node": "18.x || 19.x"
   },
+  "license": "ISC",
+  "name": "nba-stats-comparison",
   "scripts": {
     "build": "swc src -d dist --source-maps --copy-files",
     "build:tsc": "tsc && tsc-alias",
@@ -15,8 +14,10 @@
     "deploy:dev": "pm2 start ecosystem.config.js --only dev",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "dev": "cross-env NODE_ENV=development nodemon",
+    "heroku:local": "heroku local -e .env.development.local ",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
+    "mongodb:up": "mongod --dbpath data",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "test": "jest --forceExit --detectOpenHandles"
   },
@@ -87,5 +88,6 @@
     "tsc-alias": "^1.4.1",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.5.2"
-  }
+  },
+  "version": "0.0.0"
 }

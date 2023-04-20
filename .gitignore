@@ -116,6 +116,9 @@ dist
 # DynamoDB Local files
 .dynamodb/
 
+#mongodb
+data/
+
 # TernJS port file
 .tern-port
 
@@ -129,3 +132,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 /.idea/
+
+req/

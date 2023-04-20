@@ -53,19 +53,19 @@ class App {
       set('debug', true);
     }
 
+    set('strictQuery', false);
     connect(dbConnection.url, dbConnection.options)
       .then(() => {
         logger.info(`🗄 Database Connected`);
         logger.info(`=================================`);
       })
-      .catch(err => console.log(err));
+      .catch(err => logger.error(`🔻 Database Connection Error: ${err}`));
   }
   private initPayeePayerData() {
     const payeePayerMap = payeePayerJson.map(p => {
       return { name: p };
     });
 
-    console.log({ payeePayerMap });
     payeePayerModel
       .insertMany(payeePayerMap)
       .then(r => logger.info(`��� Saved payees to database`))
