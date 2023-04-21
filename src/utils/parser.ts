@@ -3,6 +3,7 @@ import { logger } from '@utils/logger';
 class Parser {
   public payeesPayers = [];
 
+  // public parsePdf(pdf: string) {}
   public collectReportData(info: string, listOfPeople: any[]) {
     this.payeesPayers = listOfPeople;
 
@@ -11,6 +12,8 @@ class Parser {
 
     // find 23 DATA
     const paradisData = this.getTransactionsPerHouse(info, '23 Paradis Avenue Woonsocket, RI');
+
+    // const carringtonData = getTransactionsPerHouse(info, '346 Carrington Avenue Woonsocket');
 
     // const carringtonData = getTransactionsPerHouse(info, '346 Carrington Avenue Woonsocket');
 
