@@ -30,9 +30,6 @@ class GoogleController {
 
       const { id_token, access_token } = await this.googleService.authenticateWithGoogle(code);
 
-      console.log({ idToken: id_token, acT: access_token });
-      // const { id_token, access_token } = await this.googleService.getGoogleOauthToken({ code });
-
       const { name, verified_email, email, picture } = await this.googleService.getGoogleUser({
         id_token,
         access_token,
@@ -49,7 +46,6 @@ class GoogleController {
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
       res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
 
-      // res.redirect(ROOT_URI);
       res.status(200).json({ data: findUser, message: 'login' });
     } catch (err: any) {
       console.log('Failed to authorize Google User', err);
