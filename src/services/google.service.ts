@@ -2,14 +2,15 @@ import axios from 'axios';
 import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import pdfParse from 'pdf-parse';
-import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
-import googleModel from '@models/google.model';
-import reportModel from '@models/report.model';
-import { logger } from '@utils//logger';
+import Parser from '@utils/parser';
 import entryModel from '@models/entry.model';
+import googleModel from '@models/google.model';
 import payeePayerModel from '@models/payeePayer.model';
+import { APP_SECRET, APP_ID, REDIRECT_URI } from '@config';
+import { logger } from '@utils/logger';
+import ReportsService from '@services/reports.service';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
-import ParserService from '@services/parser.service';
+import GoogleClient from '@services/gauth.service';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -32,11 +33,15 @@ interface GoogleUserResult {
 }
 class GoogleService {
   public files = [];
-  public payeesPayers = payeePayerModel;
   public googleUser = googleModel;
-  public parserService: ParserService = new ParserService();
-  public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
-
+  // public oauth2Client = new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
+  public oauth2Client = GoogleClient.initialize();
+  public parser: Parser = new Parser();
+  public payeesPayers = payeePayerModel;
+  public reportService = new ReportsService();
+  constructor() {
+    //
+  }
   public async getAllPayeesAndPayers() {
     const pp: PayeePayer[] = await this.payeesPayers.find();
     return pp;
@@ -126,19 +131,23 @@ class GoogleService {
 
     // Log the file names and IDs
     this.files = data.files;
+
     if (this.files && this.files.length) {
       for (const file of this.files) {
         // if (file.name.includes('2023.pdf')) {
         //
         // }
         file['pdf'] = await this.exportFile(file.id);
-        await this.saveReport(file)
+        // await this.saveReport(file)
+        this.reportService
+          .saveReport(file)
           .then(() =>
             pdfParse(file['pdf'])
               .then(pdf => {
                 file['text'] = pdf.text;
                 logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-                file.data = this.parserService.collectReportData(pdf.text, pp);
+                file.data = this.parser.collectReportData(pdf.text, pp);
+                // file.data = this.parser.collectReportData(pdf.text, this.payeesPayers);
                 entryModel.insertMany(file.data, (error, result) => {
                   if (error) {
                     logger.error(error);
@@ -207,22 +216,6 @@ class GoogleService {
       })
       .catch(err => logger.error({ err }));
     return buffer;
-  }
-
-  async saveReport(file: { name: { split: (arg0: string) => [any, any] }; id: any; pdf: any }) {
-    logger.info(`${file.name} (${file.id})`);
-    const [month, year] = file.name.split('_');
-    const report = new reportModel({ month, year: year.replace(/.pdf/gi, ''), data: file.pdf });
-    return new Promise((resolve, reject) => {
-      report.save((error, result) => {
-        if (error) {
-          // logger.error(error);
-          // throw error;
-          reject(error);
-        }
-        resolve(result);
-      });
-    });
   }
 }
 
