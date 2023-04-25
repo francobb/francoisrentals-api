@@ -1,5 +1,5 @@
-import entryModel from '@models/entry.model';
-import { IEntry } from '@interfaces/entry.interface';
+import transactionsModel from '@models/transactions.model';
+import { ITransaction } from '@interfaces/transactions.interface';
 import { logger } from '@utils/logger';
 import { IReport } from '@interfaces/report.interface';
 import reportModel from '@models/report.model';
@@ -11,9 +11,9 @@ interface IFile {
 }
 
 class TransactionService {
-  public transactions = entryModel;
+  public transactions = transactionsModel;
   public reports = reportModel;
-  public async getAllTransactionsByMonth(month?: number, year?: number): Promise<IEntry[]> {
+  public async getAllTransactionsByMonth(month?: number, year?: number): Promise<ITransaction[]> {
     month = month ?? new Date().getMonth() + 1;
     year = year ?? new Date().getFullYear();
 
@@ -33,7 +33,7 @@ class TransactionService {
     return transactions;
   }
 
-  public async getAllTransactions(): Promise<IEntry[]> {
+  public async getAllTransactions(): Promise<ITransaction[]> {
     const [transactions] = await Promise.all([this.transactions.find().lean()]);
     return transactions;
   }
@@ -58,12 +58,12 @@ class TransactionService {
     return firstDayOfMonth;
   }
 
-  public async addTransaction(transaction: IEntry): Promise<IEntry> {
+  public async addTransaction(transaction: ITransaction): Promise<ITransaction> {
     return this.transactions.create(transaction);
   }
 
-  public async addManyTransactions(transactions: IEntry[]) {
-    entryModel.insertMany(transactions, (error, result) => {
+  public async addManyTransactions(transactions: ITransaction[]) {
+    transactionsModel.insertMany(transactions, (error, result) => {
       if (error) {
         logger.error(error);
       } else {

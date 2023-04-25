@@ -1,6 +1,6 @@
 import { IsString, IsDateString, IsArray } from 'class-validator';
 
-export class CreateEntryDto {
+export class CreateTransactionDto {
   @IsArray()
   public balance: string;
 

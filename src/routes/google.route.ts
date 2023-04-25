@@ -3,7 +3,7 @@ import { Routes } from '@interfaces/routes.interface';
 import GoogleController from '@controllers/google.controller';
 import authMiddleware from '@middlewares/auth.middleware';
 
-class SessionRoute implements Routes {
+class GoogleRoute implements Routes {
   public path = '/';
   public router = Router();
 
@@ -19,4 +19,4 @@ class SessionRoute implements Routes {
   }
 }
 
-export default SessionRoute;
+export default GoogleRoute;

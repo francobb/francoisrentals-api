@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import pdfParse from 'pdf-parse';
 import Parser from '@utils/parser';
-import entryModel from '@models/entry.model';
+import transactionsModel from '@models/transactions.model';
 import googleModel from '@models/google.model';
 import { logger } from '@utils//logger';
 import payeePayerModel from '@models/payeePayer.model';
@@ -39,6 +39,7 @@ class GoogleService {
   public payeesPayers = payeePayerModel;
   public reportService = new ReportsService();
   public transactionService: TransactionService = new TransactionService();
+
   constructor() {
     //
   }
@@ -133,38 +134,36 @@ class GoogleService {
     // Log the file names and IDs
     this.files = data.files;
 
-    if (this.files && this.files.length) {
-      for (const file of this.files) {
-        // if (file.name.includes('2023.pdf')) {
-        //
-        // }
-        file['pdf'] = await this.exportFile(file.id);
-        // await this.saveReport(file)
-        this.reportService
-          .saveReport(file)
-          .then(() =>
-            pdfParse(file['pdf'])
-              .then(pdf => {
-                file['text'] = pdf.text;
-                logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-                file.data = this.parser.collectReportData(pdf.text, pp);
-                this.transactionService.addManyTransactions(file.data);
-                entryModel.insertMany(file.data, (error, result) => {
-                  if (error) {
-                    logger.error(error);
-                  } else {
-                    logger.info('Report inserted');
-                  }
-                });
-                logger.info(` :::: END Parsing Data: ${file.name} :::: `);
-              })
-              .catch(err => {
-                logger.error('Error parsing report' + err);
-              }),
-          )
-          .catch(err => {
-            logger.error(err);
-          });
+    if (data.files && data.files.length) {
+      for (const file of data.files as any) {
+        if (file.name.includes('Mar_2023.pdf')) {
+          file['pdf'] = await this.exportFile(file.id);
+          this.transactionService
+            .addReport(file)
+            .then(() =>
+              pdfParse(file['pdf'])
+                .then(pdf => {
+                  file['text'] = pdf.text;
+                  logger.info(` :::: START Parsing Data: ${file.name} :::: `);
+                  file.data = this.parser.collectReportData(pdf.text, pp);
+                  this.transactionService.addManyTransactions(file.data);
+                  transactionsModel.insertMany(file.data, (error, result) => {
+                    if (error) {
+                      logger.error(error);
+                    } else {
+                      logger.info('Report inserted');
+                    }
+                  });
+                  logger.info(` :::: END Parsing Data: ${file.name} :::: `);
+                })
+                .catch(err => {
+                  logger.error('Error parsing report' + err);
+                }),
+            )
+            .catch(err => {
+              logger.error(err);
+            });
+        }
       }
     } else {
       console.log('No files found.');

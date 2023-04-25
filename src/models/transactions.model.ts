@@ -1,7 +1,7 @@
 import { model, Schema, Document } from 'mongoose';
-import { IEntry } from '@interfaces/entry.interface';
+import { ITransaction } from '@interfaces/transactions.interface';
 
-const entrySchema: Schema = new Schema({
+const transactionsSchema: Schema = new Schema({
   balance: {
     type: Array,
     required: true,
@@ -34,7 +34,7 @@ const entrySchema: Schema = new Schema({
   },
 });
 
-// entrySchema.index({ date: 1, desc: 1 }, { unique: true });
-const entryModel = model<IEntry & Document>('Entry', entrySchema);
+transactionsSchema.index({ desc: 1 }, { unique: true });
+const transactionsModel = model<ITransaction & Document>('Transaction', transactionsSchema);
 
-export default entryModel;
+export default transactionsModel;

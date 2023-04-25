@@ -1,14 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import GoogleService from '@services/google.service';
 import AuthService from '@services/auth.service';
-import { ROOT_URI } from '@config';
 
 class GoogleController {
   public authService = new AuthService();
   public googleService = new GoogleService();
-  // public users = userModel;
 
-  public getAuthUrl = async (req: Request, res: Response, next: NextFunction) => {
+  getAuthUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authUrl = this.googleService.getAuthUrl();
       res.status(200).redirect(authUrl);
@@ -17,7 +15,7 @@ class GoogleController {
       next(err);
     }
   };
-  public googleOauthHandler = async (req: Request, res: Response, next: NextFunction) => {
+  googleOauthHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const code = req.query.code as string;
 
