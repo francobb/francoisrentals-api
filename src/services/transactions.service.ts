@@ -1,7 +1,6 @@
 import transactionsModel from '@models/transactions.model';
 import { ITransaction } from '@interfaces/transactions.interface';
 import { logger } from '@utils/logger';
-import { IReport } from '@interfaces/report.interface';
 import reportModel from '@models/report.model';
 
 interface IFile {
@@ -17,8 +16,8 @@ class TransactionService {
     month = month ?? new Date().getMonth() + 1;
     year = year ?? new Date().getFullYear();
 
-    const startOfMonth = new Date(`${year}-${month}-01T00:00:00Z`);
-    const endOfMonth = new Date(`${year}-${month}-${this.getLastDayOfMonth(year, month)}T00:00:00Z`);
+    const startOfMonth = new Date(`${year}-${month.toString().padStart(2, '0')}-01T00:00:00`);
+    const endOfMonth = new Date(`${year}-${month.toString().padStart(2, '0')}-${this.getLastDayOfMonth(year, month)}T23:59:59`);
 
     const [transactions] = await Promise.all([
       this.transactions
@@ -49,17 +48,8 @@ class TransactionService {
     return lastDayOfMonth.getDate();
   }
 
-  public getFirstDayOfMonth(year, monthNumber) {
-    // Convert 1-indexed month number to 0-indexed value
-    const month = monthNumber - 1;
-    // Create a new Date object for the first day of the given month
-    const firstDayOfMonth = new Date(year, month, 1);
-    // Return the Date object for the first day of the month
-    return firstDayOfMonth;
-  }
-
-  public async addTransaction(transaction: ITransaction): Promise<ITransaction> {
-    return this.transactions.create(transaction);
+  public async addTransaction(transaction: ITransaction): Promise<void> {
+    await this.transactions.create(transaction);
   }
 
   public async addManyTransactions(transactions: ITransaction[]) {
@@ -72,7 +62,7 @@ class TransactionService {
     });
   }
 
-  public async addReport(report: IFile): Promise<IReport> {
+  public async addReport(report: IFile): Promise<void> {
     logger.info(`${report.name} (${report.id})`);
     const [month, year] = report.name.split('_');
     const reportToSave = new reportModel({ month, year: year.replace(/.pdf/gi, ''), data: report.pdf });
@@ -83,7 +73,7 @@ class TransactionService {
           // throw error;
           reject(error);
         }
-        resolve(result);
+        resolve();
       });
     });
   }

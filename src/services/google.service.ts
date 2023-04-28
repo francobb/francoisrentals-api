@@ -2,15 +2,14 @@ import axios from 'axios';
 import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import pdfParse from 'pdf-parse';
-import Parser from '@utils/parser';
-import transactionsModel from '@models/transactions.model';
-import googleModel from '@models/google.model';
-import { logger } from '@utils//logger';
-import payeePayerModel from '@models/payeePayer.model';
-import ReportsService from '@services/reports.service';
-import { PayeePayer } from '@interfaces/payeePayer.interface';
 import GoogleClient from '@services/gauth.service';
+import Parser from '@utils/parser';
+import ReportsService from '@services/reports.service';
 import TransactionService from '@services/transactions.service';
+import googleModel from '@models/google.model';
+import payeePayerModel from '@models/payeePayer.model';
+import { PayeePayer } from '@interfaces/payeePayer.interface';
+import { logger } from '@utils//logger';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -32,7 +31,6 @@ interface GoogleUserResult {
   locale: string;
 }
 class GoogleService {
-  public files = [];
   public googleUser = googleModel;
   public oauth2Client = GoogleClient.initialize();
   public parser: Parser = new Parser();
@@ -48,8 +46,7 @@ class GoogleService {
     const pp: PayeePayer[] = await this.payeesPayers.find();
     return pp;
   }
-
-  getAuthUrl() {
+  public getAuthUrl() {
     return this.oauth2Client.generateAuthUrl({
       // 'online' (default) or 'offline' (gets refresh_token)
       access_type: 'offline',
@@ -66,8 +63,7 @@ class GoogleService {
       include_granted_scopes: true,
     });
   }
-
-  getGoogleUser = async ({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> => {
+  async getGoogleUser({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> {
     try {
       const { data } = await axios.get<GoogleUserResult>(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`, {
         headers: {
@@ -76,10 +72,10 @@ class GoogleService {
       });
       return data;
     } catch (err: any) {
-      console.log(err);
+      logger.error(err);
       throw Error(err);
     }
-  };
+  }
   async authenticateWithGoogle(code: string): Promise<GoogleOauthToken> {
     let tr: any = {};
     // Create a new OAuth2 client if it doesn't exist yet
@@ -117,12 +113,11 @@ class GoogleService {
 
     return tr;
   }
-
   async listDriveFiles() {
     const drive = google.drive({ version: 'v3', auth: this.oauth2Client });
     const ID_OF_THE_FOLDER = '1jXtb1PHlAoHtHs3vfmSIgQF5rofvzO3Y';
 
-    // List the user's files
+    // List user's files
     const { data } = await drive.files.list({
       pageSize: 10,
       q: `'${ID_OF_THE_FOLDER}' in parents and trashed=false`,
@@ -132,49 +127,34 @@ class GoogleService {
     const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
 
     // Log the file names and IDs
-    this.files = data.files;
-
     if (data.files && data.files.length) {
       for (const file of data.files as any) {
-        if (file.name.includes('Mar_2023.pdf')) {
-          file['pdf'] = await this.exportFile(file.id);
-          this.transactionService
-            .addReport(file)
-            .then(() =>
-              pdfParse(file['pdf'])
-                .then(pdf => {
-                  file['text'] = pdf.text;
-                  logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-                  file.data = this.parser.collectReportData(pdf.text, pp);
-                  this.transactionService.addManyTransactions(file.data);
-                  transactionsModel.insertMany(file.data, (error, result) => {
-                    if (error) {
-                      logger.error(error);
-                    } else {
-                      logger.info('Report inserted');
-                    }
-                  });
-                  logger.info(` :::: END Parsing Data: ${file.name} :::: `);
-                })
-                .catch(err => {
-                  logger.error('Error parsing report' + err);
-                }),
-            )
-            .catch(err => {
-              logger.error(err);
-            });
-        }
+        // if (file.name.includes('Jun_2021.pdf')) {
+        file['pdf'] = await this.exportFile(file.id);
+        this.transactionService
+          .addReport(file)
+          .then(() =>
+            pdfParse(file['pdf'])
+              .then(pdf => {
+                logger.info(` :::: START Parsing Data: ${file.name} :::: `);
+
+                file.data = this.parser.collectReportData(pdf.text, pp);
+                this.transactionService.addManyTransactions(file.data);
+
+                logger.info(` :::: END Parsing Data: ${file.name} :::: `);
+              })
+              .catch(err => logger.error('Error parsing report' + err)),
+          )
+          .catch(err => logger.error(err));
+        // }
       }
     } else {
-      console.log('No files found.');
+      logger.error('No files found.');
     }
   }
-
   async exportFile(documentId) {
     let buffer;
     let buffer2;
-
-    // const drive = google.drive({ version: 'v3', auth: this.oauth2Client });
 
     await google
       .drive('v3')
@@ -192,7 +172,7 @@ class GoogleService {
 
           res.data
             .on('error', err => {
-              console.error('Error downloading file.');
+              logger.error('Error downloading file.');
               reject(err);
             })
             .on('end', () => {
