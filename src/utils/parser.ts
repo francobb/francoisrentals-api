@@ -1,10 +1,9 @@
 import { logger } from '@utils/logger';
-import { CARRINGTON, CITY_STATE, PARADIS, WELLES } from '@utils/constants';
+import { CARRINGTON, CITY_STATE, LLC, PARADIS, WELLES, PERSONAL } from '@utils/constants';
 
 class Parser {
   public payeesPayers = [];
   public locations = [WELLES, PARADIS, CARRINGTON];
-
   public collectReportData(info: string, listOfPeople: any[]) {
     this.payeesPayers = listOfPeople;
     const allTransactions = [];
@@ -15,7 +14,6 @@ class Parser {
 
     return allTransactions;
   }
-
   private collectAllObjectsPerHouse(houseData: string | any[], loc: string) {
     const totalTransactions = [];
     let ogBalance = 0;
@@ -23,28 +21,31 @@ class Parser {
     for (let i = 0; i < houseData.length; i += 2) {
       const transaction = this.getObjectFromData(loc, ogBalance, houseData[i], houseData[i + 1].trim());
       ogBalance = parseFloat(transaction.balance[1].replace(/,/g, ''));
-
       totalTransactions.push(transaction);
     }
 
     return totalTransactions;
   }
-
-  private getObjectFromData(loc: string, ogBalance: number, date: any, desc: any) {
-    // remove year
+  public getObjectFromData(loc: string, ogBalance: number, date: any, desc: any) {
     const currentYear = new Date().getFullYear();
     const d_mm_yyRegexPattern = /([1-9]|1[012])[- \/.](0?[1-9]|[12][0-9]|3[01])[- \/.](21|22)/gi;
     const mm_yyyyRegexPattern = /(0[1-9]|1[012])[- \/.] ?(20)2[1-4]/gi;
+    let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
+    const isPayout = payeePayer === PERSONAL || payeePayer === LLC;
 
-    const balanceArray = desc
+    const scrubbedDesc = desc
       .replaceAll(d_mm_yyRegexPattern, '')
       .replaceAll(mm_yyyyRegexPattern, '')
       .replaceAll(currentYear, '')
-      .replaceAll(currentYear - 1, '')
-      .match(/-?\d{1,3}(,\d{3})*(\.\d{2})/gi); ///\$\d+(?:\.\d{2})?/gi
+      .replaceAll(currentYear - 1, '');
 
-    let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
-    const isPayout = payeePayer === 'Buteau Francois, Jr.' || payeePayer === 'Francois Rentals, LLC.';
+    const balanceArray = scrubbedDesc.match(/-?\d{1,3}(,\d{3})*(\.\d{2})/gi);
+
+    if (!balanceArray || balanceArray.length < 2) {
+      this.#_logError('balanceArray', desc);
+      throw new Error(`balanceArray is bad for: ${desc}`);
+    }
+
     const outcome = isPayout ? 'payout' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
 
     if (!outcome) {
@@ -58,10 +59,6 @@ class Parser {
         throw new Error(`payeePayer is missing for: ${desc}`);
       }
     }
-    if (!balanceArray || balanceArray.length < 2) {
-      this.#_logError('balanceArray', desc);
-      throw new Error(`balanceArray is bad for: ${desc}`);
-    }
 
     return {
       balance: balanceArray,
@@ -72,8 +69,7 @@ class Parser {
       payeePayer,
     };
   }
-
-  getTransactionsPerHouse(info, location) {
+  public getTransactionsPerHouse(info, location) {
     let transactionsInMonth = '';
 
     const [first_line, last_line, other_last_line, dateRegex] = [
@@ -116,7 +112,6 @@ class Parser {
       .filter(w => w)
       .filter(w => w !== '/');
   }
-
   #cleanUpHeadersFromText(
     text,
     ttr: Array<string | RegExp> = [

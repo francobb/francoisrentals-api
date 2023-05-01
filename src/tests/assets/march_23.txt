@@ -1,0 +1,344 @@
+gstReal Property Management Providence
+752 Charles Street
+Providence, RI 02904
+Period:01 Mar 2023-31 Mar 2023
+Owner Statement
+Francois Rentals, LLC.
+1 Wyoming Drive
+Cumberland, RI 02864
+Properties
+212 Welles Street
+Woonsocket, RI 02895
+DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance
+Beginning Cash Balance as of 03/01/20230.00
+03/01/2023Bill FitzpatrickReceiptUnit 1 - Rent Income300.00300.00
+03/01/2023Bill FitzpatrickReceiptUnit 1 - Rent Income30.00330.00
+03/01/2023Bill FitzpatrickReceiptUnit 1 - Rent Income270.00600.00
+03/01/2023Bill FitzpatrickReceiptUnit 1 - Rent Income300.00900.00
+03/01/2023
+Joshua
+Vanbever
+ReceiptUnit 2 - Rent Income295.001,195.00
+03/01/2023
+Nathan M.
+Ballard
+CC
+receipt
+CCEE-4190Unit 3 - Rent Income1,295.002,490.00
+03/03/2023Bill Fitzpatrick
+eCheck
+receipt
+406E-45D0Unit 1 - Rent Income - March 2023 - Rent225.002,715.00
+03/08/2023
+Joshua
+Vanbever
+Receipt
+RPM #6017
+(cash)
+Unit 2 - Rent Income - March 2023800.003,515.00
+03/10/2023
+RPM LPZ
+Labor Services
+Check22617
+Maint. - Other* - Repaired aluminum siding and three levels
+of downspout. 3/5/23 ($1880.)
+1,880.001,635.00
+03/10/2023
+RPM
+Providence
+Check22625
+Unit 3 - Maint. - Other - Built and installed four missing
+window screens 2/21 - $175
+175.001,460.00
+03/10/2023
+RPM
+Providence
+Check22625
+Unit 3 - Maint. - Other - Built and installed four missing
+window screens 2/21 - $175
+175.001,285.00
+03/10/2023
+RPM
+Providence
+Check22628
+Snow Removal - Snow removal - plowing and sanding 2/28/
+23 - Ortiz Snow removal
+75.001,210.00
+03/10/2023
+Real Property
+Management
+Providence
+Check22636Management Fees - Management Fees for 03/2023281.20928.80
+03/10/2023
+Francois
+Rentals, LLC.
+eCheck93DD-25D6Owner Draws - Owner payment for 03/2023928.800.00
+03/20/2023JE2410
+212 Welles St - February/March 2023 Management fee
+refund - charging 7% as of February 2023
+66.2066.20
+03/20/2023JE2414
+Owner refund - 212 Welles - Double charge - 03/10/2023
+RPM Providence Check 22625 Unit 3 - Maint. - Other - Built
+and installed four missing window screens 2/21 - $175
+175.00
+175.00241.20
+03/20/2023
+RPM Melvin
+Lopez
+Check22663
+Unit 3 - Replacements - Appliances* - Delivered and
+installed stove. 2/8/23 ($540.62)
+162.2079.00
+03/20/2023
+RPM
+Providence
+Check22666
+Unit 3 - Glass & window* - 212 Welles #3 Oliver: 2 Build
+and installed screens. 3/13 - $79
+79.000.00
+Page 1 of 2
+
+Please Remit Balance Due518.60
+DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance
+03/31/2023TransferTransfer from 23 Paradis Avenue380.00380.00
+03/31/2023
+RPM Melvin
+Lopez
+Check22697
+Unit 3 - Replacements - Appliances* - Delivered and
+installed stove. 2/8/23 ($540.62)
+275.00105.00
+03/31/2023
+RPM
+Providence
+Check22698
+Unit 3 - Glass & window* - Porch window repair. 3/22 -
+$105
+105.000.00
+Ending Cash Balance0.00
+Total4,136.204,136.20
+Bills Due
+Due DatePayeeDescriptionUnpaid
+03/19/2023
+RPM Melvin
+Lopez
+Unit 3 - Delivered and installed stove. 2/8/23 ($540.62)103.42
+03/29/2023
+National Grid -
+Gas
+Unit 3 - FInal Service Gas bill for 212 WELLES ST FL 3RD for 1/26/23-2/1/23 Acct# 62884-42102
+($415.18)
+415.18
+Total518.60
+Property Cash Summary
+Required Reserves0.00
+Work Order Estimates0.00
+Page 2 of 2
+
+Real Property Management Providence
+752 Charles Street
+Providence, RI 02904
+Period:01 Mar 2023-31 Mar 2023
+Owner Statement
+Francois Rentals, LLC.
+1 Wyoming Drive
+Cumberland, RI 02864
+Properties
+23 Paradis Avenue
+Woonsocket, RI 02895
+DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance
+Beginning Cash Balance as of 03/01/20230.00
+03/01/2023Miguel LopezReceiptUnit 1 - Rent Income130.00130.00
+03/01/2023Sonia HamdeedReceipt28164767321Basement - Rent Income - February 2023450.00580.00
+03/01/2023Sonia HamdeedReceipt28164767321Basement - Rent Income - March 2023200.00780.00
+03/08/2023Miguel LopezReceipt19-327406398Unit 1 - Rent Income - March 2023500.001,280.00
+03/08/2023Miguel LopezReceipt19-327406397Unit 1 - Rent Income - March 2023370.001,650.00
+03/09/2023Amneris Nieves
+eCheck
+receipt
+C282-D180Unit 2 - Rent Income - February 202350.001,700.00
+03/09/2023Amneris Nieves
+eCheck
+receipt
+C282-D180Unit 2 - Rent Income - March 2023750.002,450.00
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Management Fees - Management Fees for 03/
+2023
+196.002,254.00
+03/10/2023
+Francois Rentals,
+LLC.
+eCheck93DD-25D6Owner Draws - Owner payment for 03/20232,254.000.00
+03/16/2023Amneris Nieves
+eCheck
+receipt
+CCCF-1340Unit 2 - Rent Income - March 2023150.00150.00
+03/17/2023Shane KamerReceipt
+RPM #6019
+(cash)
+Unit 3 - Rent Income - January 20231,035.001,185.00
+03/17/2023Shane KamerReceipt
+RPM #6019
+(cash)
+Unit 3 - Rent Income - February 2023865.002,050.00
+03/20/2023Shane KamerReceipt185664204-9Unit 3 - Rent Income - February 2023285.002,335.00
+03/20/2023Shane KamerReceipt185664204-9Unit 3 - Rent Income - March 2023215.002,550.00
+03/20/2023Shane KamerReceipt185664205-8Unit 3 - Rent Income - March 2023100.002,650.00
+03/20/2023JE2412
+23 Paradis - February/March 2023 Management
+fee refund - charging 7% as of February 2023
+50.502,700.50
+03/20/2023
+Real Property
+Management
+Providence
+Check22669
+Management Fees - Management Fees for 03/
+2023
+212.002,488.50
+03/20/2023
+Francois Rentals,
+LLC.
+eCheckB1EE-E422Owner Draws - Owner payment for 03/20232,488.500.00
+03/27/2023Shane KamerReceipt7787772288Unit 3 - Rent Income - March 2023400.00400.00
+03/30/2023Amneris Nieves
+eCheck
+receipt
+7D81-1550Unit 2 - Rent Income - March 2023100.00500.00
+Page 1 of 2
+
+DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance
+03/31/2023
+Big Blue Bug
+Solutions
+Bill Pay
+Check
+3000009090
+Pest Control - Pest Control Bill for 23 Paradis Ave.
+3/1/23,Inv#883227
+120.00380.00
+03/31/2023TransferTransfer to 212 Welles Street380.000.00
+Ending Cash Balance0.00
+Total5,650.505,650.50
+Property Cash Summary
+Required Reserves0.00
+Work Order Estimates0.00
+Page 2 of 2
+
+Real Property Management Providence
+752 Charles Street
+Providence, RI 02904
+Period:01 Mar 2023-31 Mar 2023
+Owner Statement
+Francois Rentals, LLC.
+1 Wyoming Drive
+Cumberland, RI 02864
+Properties
+346 Carrington Avenue
+Woonsocket, RI 02895
+DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance
+Beginning Cash Balance as of 03/01/20230.00
+03/01/2023Sarah Busse
+CC
+receipt
+2A6A-43C0Basement Unit - Rent Income - March 20231,195.001,195.00
+03/10/2023RPM ProvidenceCheck22628
+Snow Removal - Snow removal - plowing and sanding 2/
+28/23 - Ortiz Snow removal
+75.001,120.00
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Unit 1 - Management Fees - February 2023 Management
+fee - owner collected $1150 from Unit #1
+80.501,039.50
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Unit 2 - Management Fees - February 2023 Management
+fee - owner collected $1095 from Unit #2
+76.65962.85
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Basement Unit - Eviction Protection Program - Monthly
+eviction protection plan - March 2023 - Monthly eviction
+protection plan
+12.00950.85
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Unit 1 - Eviction Protection Program - Monthly eviction
+protection plan - March 2023 - Monthly eviction protection
+plan
+12.00938.85
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Unit 2 - Eviction Protection Program - Monthly eviction
+protection plan - March 2023 - Monthly eviction protection
+plan
+12.00926.85
+03/10/2023
+Real Property
+Management
+Providence
+Check22636
+Unit 3 - Eviction Protection Program - Monthly eviction
+protection plan - March 2023 - Monthly eviction protection
+plan
+12.00914.85
+03/10/2023
+Real Property
+Management
+Providence
+Check22636Management Fees - Management Fees for 03/202383.65831.20
+03/10/2023
+Francois Rentals,
+LLC.
+eCheck93DD-25D6Owner Draws - Owner payment for 03/2023831.200.00
+Ending Cash Balance0.00
+Total1,195.001,195.00
+Bills Due
+Due DatePayeeDescriptionUnpaid
+03/20/2023RPM Save On Oil
+No heat/Fire Dept. shut down boiler-Boiler was plugged, cleaned boiler 3/16 Inv#
+253531 ($195)
+195.00
+03/23/2023Real Property ManagementUnit 1 - Owner collected March rent $1150 from tenant directly80.50
+Page 1 of 2
+
+Please Remit Balance Due723.00
+Due DatePayeeDescriptionUnpaid
+Providence
+03/24/2023
+Real Property Management
+Providence
+Unit 2 - Management fee - 7% of $1050 collected by owner from Unit #2 - March rent73.50
+03/28/2023
+Blackstone Valley Advocacy
+Center
+Unit 3 - Blackstone Valley Advocacy Center, 346 Carrington Avenue - Unit 3: Move
+Out Refund
+325.00
+03/31/2023RPM ProvidenceReplaced exterior door bulb. 3//22 $4949.00
+Total723.00
+Property Cash Summary
+Required Reserves0.00
+Work Order Estimates0.00
+Page 2 of 2

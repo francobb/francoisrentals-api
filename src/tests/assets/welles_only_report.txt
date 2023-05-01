@@ -1,0 +1,82 @@
+Buteau Francois, Jr.
+1 Wyoming Drive
+Cumberland, RI 02864
+Real Property Management Providence
+752 Charles Street
+Providence, RI 02904
+(401) 272-3300
+www.realpropertyprovidence.com
+Owner Statement
+Jun 01, 2021 - Jun 30, 2021
+212 Welles Street, Woonsocket, RI 02895
+DatePayee / PayerTypeReferenceDescriptionCash InCash OutBalance
+Beginning Cash Balance as of 06/01/20210.00
+06/08/2021Joshua Vanbever
+Reversed
+eCheck
+receipt
+CB9C-D6B0
+Unit 2 - Rent Income - Move In Charge: Rent
+Income
+995.00995.00
+06/09/2021Joshua VanbeverCC receipt8F4C-B940Unit 2 - Rent Income - Rent Income995.001,990.00
+06/10/2021Joshua Vanbever
+Reverse
+Receipt
+Unit 2 - Rent Income - NSF reversal receipt for
+Reference #CB9C-D6B0
+995.00995.00
+06/15/2021Bill Fitzpatrick
+eCheck
+receipt
+E8E3-CF70Unit 1 - Rent Income975.001,970.00
+06/21/2021RPM ProvidenceCheck19338
+Unit 2 - Wall & Ceiling Maintenance* - Scrape and
+paint peeling/mildew ceiling and walls in bathroom.
+6/2 $195
+195.001,775.00
+06/21/2021RPM ProvidenceCheck19339
+Cleaning - Cleaned trash from basement and
+common areas 6/11 - $29
+29.001,746.00
+06/21/2021
+Real Property
+Management
+Providence
+Check19344Management Fees - Management Fees for 06/2021157.601,588.40
+06/21/2021
+Buteau Francois,
+Jr.
+eCheck9146-93D8Owner Draws - Owner payment for 06/20211,553.4035.00
+06/29/2021Ben SaumurReceipt1796299713Unit 3 - Rent Income500.00535.00
+06/29/2021Ben SaumurReceipt1796299722Unit 3 - Rent Income435.00970.00
+06/30/2021
+RPM Infinite
+Landscaping
+Check19359
+Landscaping Yard Care* - Bi-weekly Landscaping-
+Mowed, trimmed, cleaned yard 6/6/21-6/19/21 ($35)
+35.00935.00
+06/30/2021RPM ProvidenceCheck19363
+Unit 1 - Replacements - Flooring* - Removed and
+disposed of old bathroom floor. Installed new floor.
+5/7 ($525)
+525.00410.00
+
+
+DatePayee / PayerTypeReferenceDescriptionCash InCash OutBalance
+06/30/2021RPM ProvidenceCheck19365
+Maint. - Other - Met water meter inspector at
+property/cleaned common areas 6/20 - $29
+29.00381.00
+06/30/2021
+Real Property
+Management
+Providence
+Check19368Management Fees - Management Fees for 06/202174.80306.20
+06/30/2021
+Buteau Francois,
+Jr.
+eCheckBD30-B9F8Owner Draws - Owner payment for 06/2021306.200.00
+Ending Cash Balance0.00
+Total3,900.003,900.00
