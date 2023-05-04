@@ -161,7 +161,7 @@ class GoogleService {
       .files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
       .then(res => {
         return new Promise((resolve, reject) => {
-          // {
+          // { if I ever want to write files locally
           // const filePath = path.join(os.tmpdir(), uuid.v4());
           // console.log(`writing to ${filePath}`);
           // const dest = fs.createWriteStream(filePath);

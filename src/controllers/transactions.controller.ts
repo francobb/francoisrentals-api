@@ -10,8 +10,8 @@ class TransactionsController {
   public getTransactions = async (req: Req, res: Response, next: NextFunction) => {
     try {
       let transactions = [];
-      const month = Number(req.query.month ?? new Date().getMonth());
-      const year = Number(req.query.year ?? new Date().getFullYear());
+      const month = Number(req.query.month ?? undefined);
+      const year = Number(req.query.year ?? undefined);
       const location = req.query.location ?? undefined;
       const outcome = req.query.outcome ?? undefined;
       const payeePayer = req.query.payeePayer ?? undefined;

@@ -52,10 +52,6 @@ class Parser {
     if (!payeePayer) {
       if (outcome === 'income') payeePayer = 'Francois Rentals, LLC.';
       if (outcome === 'expense') payeePayer = 'Service-Expense';
-      else {
-        this.#_logError('payeePayer', desc);
-        throw new Error(`payeePayer is missing for: ${desc}`);
-      }
     }
 
     return {
