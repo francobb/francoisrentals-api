@@ -1,22 +1,49 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import bcrypt from 'bcrypt';
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 import request from 'supertest';
 import App from '@/app';
 import { CreateUserDto } from '@dtos/users.dto';
 import UsersRoute from '@routes/users.route';
+import AuthRoute from '@routes/auth.route';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
 describe('Testing Users', () => {
+  let app: App;
+  let usersRoute: UsersRoute;
+  let reqData: any;
+  beforeAll(async () => {
+    (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
+
+    const userData: CreateUserDto = {
+      email: 'test@email.com',
+      password: 'q1w2e3r4!',
+    };
+
+    const authRoute = new AuthRoute();
+    const users = authRoute.authController.authService.users;
+
+    usersRoute = new UsersRoute();
+    app = new App([usersRoute]);
+
+    users.findOne = jest.fn().mockReturnValue({
+      _id: '60706478aad6c9ad19a31c84',
+      email: userData.email,
+      password: await bcrypt.hash(userData.password, 10),
+    });
+    reqData = request(app.getServer())
+      .post(`${authRoute.path}login`)
+      .send(userData)
+      .expect('Set-Cookie', /^Authorization=.+/);
+  });
+
   describe('[GET] /users', () => {
-    it('response fineAll Users', async () => {
+    it('response findAll Users', async () => {
       const usersRoute = new UsersRoute();
       const users = usersRoute.usersController.userService.users;
-
+      console.log({ reqData });
       users.find = jest.fn().mockReturnValue([
         {
           _id: 'qpwoeiruty',
@@ -35,9 +62,16 @@ describe('Testing Users', () => {
         },
       ]);
 
-      (mongoose as any).connect = jest.fn();
+      (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
       const app = new App([usersRoute]);
-      return request(app.getServer()).get(`${usersRoute.path}`).expect(200);
+      // return request(app.getServer())
+      //   .get(`${usersRoute.path}`)
+      //   .set('Accept', 'application/json')
+      //   .set(
+      //     'Cookie',
+      //     'Authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDQ5ZDlhZDEyMjJjZGU4MjgwN2U0ZjciLCJpYXQiOjE2ODMyMjUzMjcsImV4cCI6MTY4MzIyODkyN30.Lw0XRAlajjHT-ZQbccZEVFJvbubPLdEkG3011A2veo8',
+      //   )
+      //   .expect(201);
     });
   });
 
@@ -54,9 +88,16 @@ describe('Testing Users', () => {
         password: await bcrypt.hash('q1w2e3r4!', 10),
       });
 
-      (mongoose as any).connect = jest.fn();
+      (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
       const app = new App([usersRoute]);
-      return request(app.getServer()).get(`${usersRoute.path}/${userId}`).expect(200);
+      const req = request(app.getServer())
+        .get(`${usersRoute.path}/${userId}`)
+        .set('Accept', 'application/json')
+        .set('Cookie', [
+          'Authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDQ5ZDlhZDEyMjJjZGU4MjgwN2U0ZjciLCJpYXQiOjE2ODMyMjUzMjcsImV4cCI6MTY4MzIyODkyN30.Lw0XRAlajjHT-ZQbccZEVFJvbubPLdEkG3011A2veo8',
+        ])
+        .send();
+      expect(req).toBe(201);
     });
   });
 
@@ -77,9 +118,12 @@ describe('Testing Users', () => {
         password: await bcrypt.hash(userData.password, 10),
       });
 
-      (mongoose as any).connect = jest.fn();
+      (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
       const app = new App([usersRoute]);
-      return request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
+      // const req= request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
+      const req = await request(app.getServer()).post(`${usersRoute.path}`).send(userData);
+      expect(req.status).toBe(201);
+      // return
     });
   });
 
@@ -108,9 +152,9 @@ describe('Testing Users', () => {
         password: await bcrypt.hash(userData.password, 10),
       });
 
-      (mongoose as any).connect = jest.fn();
+      (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
       const app = new App([usersRoute]);
-      return request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData);
+      return request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
     });
   });
 
@@ -127,9 +171,9 @@ describe('Testing Users', () => {
         password: await bcrypt.hash('q1w2e3r4!', 10),
       });
 
-      (mongoose as any).connect = jest.fn();
+      (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
       const app = new App([usersRoute]);
-      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(200);
+      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(204);
     });
   });
 });

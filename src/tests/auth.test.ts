@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 import request from 'supertest';
 import App from '@/app';
 import { CreateUserDto } from '@dtos/users.dto';
@@ -11,6 +11,16 @@ afterAll(async () => {
 });
 
 describe('Testing Auth', () => {
+  let authRoute;
+  let app;
+
+  beforeAll(function () {
+    (mongoose as Mongoose).connect = jest.fn().mockImplementationOnce(() => Promise.resolve());
+    // const connectMock = jest.fn(() => Promise.resolve());
+    authRoute = new AuthRoute();
+    app = new App([authRoute]);
+  });
+
   describe('[POST] /signup', () => {
     it('response should have the Create userData', async () => {
       const userData: CreateUserDto = {
@@ -28,9 +38,7 @@ describe('Testing Auth', () => {
         password: await bcrypt.hash(userData.password, 10),
       });
 
-      (mongoose as any).connect = jest.fn();
-      const app = new App([authRoute]);
-      return request(app.getServer()).post(`${authRoute.path}signup`).send(userData);
+      return request(app.getServer()).post(`${authRoute.path}signup`).send(userData).expect(201);
     });
   });
 
@@ -49,9 +57,6 @@ describe('Testing Auth', () => {
         email: userData.email,
         password: await bcrypt.hash(userData.password, 10),
       });
-
-      (mongoose as any).connect = jest.fn();
-      const app = new App([authRoute]);
       return request(app.getServer())
         .post(`${authRoute.path}login`)
         .send(userData)
@@ -72,8 +77,6 @@ describe('Testing Auth', () => {
 
       users.findOne = jest.fn().mockReturnValue(userData);
 
-      (mongoose as any).connect = jest.fn();
-      const app = new App([authRoute]);
       return request(app.getServer())
         .post(`${authRoute.path}logout`)
         .send(userData)
