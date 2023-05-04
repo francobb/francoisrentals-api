@@ -167,7 +167,7 @@ class GoogleService {
           // const dest = fs.createWriteStream(filePath);
           // const dest = fs.createWriteStream(`./pdfs/${uuid.v4()}.pdf`);
           // }
-          let progress = 0;
+          // let progress = 0;
           const buf = [];
 
           res.data
@@ -183,12 +183,12 @@ class GoogleService {
               resolve(buffer);
             })
             .on('data', d => {
-              progress += d.length;
+              // progress += d.length;
               buf.push(d);
               if (process.stdout.isTTY) {
                 process.stdout.clearLine(0);
                 process.stdout.cursorTo(0);
-                process.stdout.write(`Downloaded ${progress} bytes\n`);
+                // process.stdout.write(`Downloaded ${progress} bytes\n`);
               }
             });
           // .pipe(dest)

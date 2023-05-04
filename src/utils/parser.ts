@@ -16,7 +16,7 @@ import {
 
 class Parser {
   public payeesPayers = [];
-  public locations = [WELLES, PARADIS, CARRINGTON];
+  public locations = Object.freeze([WELLES, PARADIS, CARRINGTON]);
   public collectReportData(info: string, listOfPeople: any[]) {
     this.payeesPayers = listOfPeople;
     const allTransactions = [];
@@ -66,7 +66,7 @@ class Parser {
   public getTransactionsTextForLoc(info, location) {
     let transactionsInMonth = '';
 
-    const [first_line, last_line, other_last_line, dateRegex] = [
+    const [first_line, last_line, other_last_line] = [
       /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}\d+\.\d{2}/gi,
       /Ending Cash Balance+-?(\d{1,3}(,\d{3})*\.\d{2})/gi,
       // /Total+(\d{1,3}(,\d{3})*\.\d{2})+(\d{1,3}(,\d{3})*\.\d{2})/gi,
