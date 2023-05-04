@@ -17,3 +17,14 @@ export const isEmpty = (value: string | number | object): boolean => {
     return false;
   }
 };
+
+export function getLastDayOfMonth(year, monthNumber) {
+  // Convert 1-indexed month number to 0-indexed value
+  const month = monthNumber - 1;
+  // Month parameter is 0-indexed, so we need to add 1 to get the next month
+  const nextMonth = new Date(year, month + 1, 1);
+  // Subtract one day in milliseconds to get the last day of the current month
+  const lastDayOfMonth = new Date(nextMonth.getTime() - 86400000);
+  // Return the date component of the last day of the month
+  return lastDayOfMonth.getDate();
+}

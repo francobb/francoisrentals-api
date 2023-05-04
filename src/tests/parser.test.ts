@@ -6,11 +6,11 @@ const WELLES_REPORT = fs.readFileSync(__dirname + '/assets/welles_only_report.tx
 describe('Testing Report Parser Utility', () => {
   describe('getTransactionPerHouse()', () => {
     it('should return empty array when getting transaction for house with no data', () => {
-      expect(new Parser().getTransactionsPerHouse(WELLES_REPORT, '346 Carrington Avenue Woonsocket, RI')).toEqual([]);
+      expect(new Parser().getTransactionsTextForLoc(WELLES_REPORT, '346 Carrington Avenue Woonsocket, RI')).toEqual([]);
     });
 
     it('should return an array with 30 items representing the transactions in a month', () => {
-      expect(new Parser().getTransactionsPerHouse(WELLES_REPORT, '212 Welles Street').length).toEqual(30);
+      expect(new Parser().getTransactionsTextForLoc(WELLES_REPORT, '212 Welles Street').length).toEqual(30);
     });
   });
 
@@ -20,7 +20,7 @@ describe('Testing Report Parser Utility', () => {
       const date = '01/01/2023';
       const desc = 'Francois Rentals, LLC.eCheck7F08-5A04Owner Draws - Owner payment for 01/2023 1,056.20';
       const expected = new Error(`balanceArray is bad for: ${desc}`);
-      expect(() => new Parser().getObjectFromData(loc, 0, date, desc)).toThrow(expected);
+      expect(() => new Parser().createTransactionFromData(loc, 0, date, desc)).toThrow(expected);
     });
 
     it('should return an object of data', function () {
@@ -36,7 +36,7 @@ describe('Testing Report Parser Utility', () => {
         outcome: 'payout',
         payeePayer: 'Francois Rentals, LLC.',
       };
-      expect(parser.getObjectFromData('', 100, date, desc)).toEqual(expected);
+      expect(parser.createTransactionFromData('', 100, date, desc)).toEqual(expected);
     });
   });
 });

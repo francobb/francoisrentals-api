@@ -4,12 +4,12 @@ import { Credentials } from 'google-auth-library';
 import pdfParse from 'pdf-parse';
 import GoogleClient from '@services/gauth.service';
 import Parser from '@utils/parser';
-import ReportsService from '@services/reports.service';
 import TransactionService from '@services/transactions.service';
 import googleModel from '@models/google.model';
 import payeePayerModel from '@models/payeePayer.model';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 import { logger } from '@utils//logger';
+import { ID_OF_FOLDER } from '@utils/constants';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -32,12 +32,11 @@ interface GoogleUserResult {
 }
 class GoogleService {
   public googleUser = googleModel;
-  public oauth2Client = GoogleClient.initialize();
+  public jwtClient = GoogleClient.getJWTClient();
+  public oauthClient = GoogleClient.getOAuthClient();
   public parser: Parser = new Parser();
   public payeesPayers = payeePayerModel;
-  public reportService = new ReportsService();
   public transactionService: TransactionService = new TransactionService();
-
   constructor() {
     //
   }
@@ -47,7 +46,7 @@ class GoogleService {
     return pp;
   }
   public getAuthUrl() {
-    return this.oauth2Client.generateAuthUrl({
+    return this.oauthClient.generateAuthUrl({
       // 'online' (default) or 'offline' (gets refresh_token)
       access_type: 'offline',
 
@@ -87,11 +86,11 @@ class GoogleService {
     if (credentials) {
       // If credentials exist, set them in the OAuth2 client
       tr = credentials;
-      this.oauth2Client.setCredentials(credentials.toObject() as Credentials);
+      this.oauthClient.setCredentials(credentials.toObject() as Credentials);
     } else {
       // If credentials don't exist, obtain them from Google and store them in the database
-      const tokenResponse = await this.oauth2Client.getToken(code);
-      this.oauth2Client.setCredentials(tokenResponse.tokens);
+      const tokenResponse = await this.oauthClient.getToken(code);
+      this.oauthClient.setCredentials(tokenResponse.tokens);
       tr = tokenResponse.tokens;
       const newCredentials = await this.googleUser.create(tokenResponse.tokens);
       await newCredentials.save();
@@ -100,13 +99,13 @@ class GoogleService {
     // If the access token has expired, refresh it and update the database
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (this.oauth2Client.isTokenExpiring()) {
+    if (this.oauthClient.isTokenExpiring()) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const refreshedCredentials = await this.oauth2Client.refreshToken(this.oauth2Client.credentials.refresh_token);
+      const refreshedCredentials = await this.oauthClient.refreshToken(this.oauthClient.credentials.refresh_token);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      this.oauth2Client.setCredentials(refreshedCredentials.tokens);
+      this.oauthClient.setCredentials(refreshedCredentials.tokens);
       tr = refreshedCredentials.tokens;
       await this.googleUser.updateOne({}, refreshedCredentials.tokens);
     }
@@ -114,43 +113,44 @@ class GoogleService {
     return tr;
   }
   async listDriveFiles() {
-    const drive = google.drive({ version: 'v3', auth: this.oauth2Client });
-    const ID_OF_THE_FOLDER = '1jXtb1PHlAoHtHs3vfmSIgQF5rofvzO3Y';
-
-    // List user's files
-    const { data } = await drive.files.list({
-      pageSize: 10,
-      q: `'${ID_OF_THE_FOLDER}' in parents and trashed=false`,
-      fields: 'nextPageToken, files(id, name)',
-    });
-
+    const filesFromDB = await this.transactionService.getAllReports();
     const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
 
-    // Log the file names and IDs
-    if (data.files && data.files.length) {
-      for (const file of data.files as any) {
-        // if (file.name.includes('Jun_2021.pdf')) {
-        file['pdf'] = await this.exportFile(file.id);
-        this.transactionService
-          .addReport(file)
-          .then(() =>
-            pdfParse(file['pdf'])
-              .then(pdf => {
-                logger.info(` :::: START Parsing Data: ${file.name} :::: `);
-
-                file.data = this.parser.collectReportData(pdf.text, pp);
-                this.transactionService.addManyTransactions(file.data);
-
-                logger.info(` :::: END Parsing Data: ${file.name} :::: `);
-              })
-              .catch(err => logger.error('Error parsing report' + err)),
-          )
-          .catch(err => logger.error(err));
-        // }
+    this.jwtClient.authorize(async (err, tokens) => {
+      if (err) {
+        console.error(`Failed to authorize: ${err}`);
+        return;
       }
-    } else {
-      logger.error('No files found.');
-    }
+      const drive = google.drive({ version: 'v3', auth: this.jwtClient });
+
+      const { data } = await drive.files.list({
+        pageSize: 10,
+        q: `'${ID_OF_FOLDER}' in parents and trashed=false`,
+        fields: 'nextPageToken, files(id, name)',
+      });
+
+      if (data.files && data.files.length) {
+        for (const file of data.files as any) {
+          const month = file.name.substring(0, 3);
+
+          if (!filesFromDB.some(dbFile => month === dbFile.month)) {
+            file['pdf'] = await this.exportFile(file.id);
+
+            await pdfParse(file.pdf)
+              .then(async pdf => {
+                file.data = this.parser.collectReportData(pdf.text, pp);
+                await this.transactionService.addManyTransactions(file.data);
+              })
+              .then(() => {
+                this.transactionService.addReport(file);
+              })
+              .catch(err => logger.error(err));
+          }
+        }
+      } else {
+        logger.error('No files found.');
+      }
+    });
   }
   async exportFile(documentId) {
     let buffer;
@@ -158,7 +158,7 @@ class GoogleService {
 
     await google
       .drive('v3')
-      .files.get({ auth: this.oauth2Client, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
+      .files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
       .then(res => {
         return new Promise((resolve, reject) => {
           // {
@@ -188,7 +188,7 @@ class GoogleService {
               if (process.stdout.isTTY) {
                 process.stdout.clearLine(0);
                 process.stdout.cursorTo(0);
-                process.stdout.write(`Downloaded ${progress} bytes `);
+                process.stdout.write(`Downloaded ${progress} bytes\n`);
               }
             });
           // .pipe(dest)

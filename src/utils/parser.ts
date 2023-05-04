@@ -1,5 +1,18 @@
 import { logger } from '@utils/logger';
-import { CARRINGTON, CITY_STATE, LLC, PARADIS, WELLES, PERSONAL } from '@utils/constants';
+import {
+  CARRINGTON,
+  CITY_STATE,
+  CURRENT_YEAR,
+  DATES_REGEX_PATTERN,
+  D_MM_YY_REGEX_PATTERN,
+  LLC,
+  MM_YYYY_REGEX_PATTERN,
+  MONEY_REGEX_PATTERN,
+  PARADIS,
+  PERSONAL,
+  PREV_YEAR,
+  WELLES,
+} from '@utils/constants';
 
 class Parser {
   public payeesPayers = [];
@@ -9,43 +22,27 @@ class Parser {
     const allTransactions = [];
 
     this.locations.forEach(location => {
-      allTransactions.push(...this.collectAllObjectsPerHouse(this.getTransactionsPerHouse(info, `${location} ${CITY_STATE}`), location));
+      allTransactions.push(...this.collectAllTransactionsForLoc(this.getTransactionsTextForLoc(info, `${location} ${CITY_STATE}`), location));
     });
 
     return allTransactions;
   }
-  private collectAllObjectsPerHouse(houseData: string | any[], loc: string) {
+  private collectAllTransactionsForLoc(houseData: string | any[], loc: string) {
     const totalTransactions = [];
     let ogBalance = 0;
 
     for (let i = 0; i < houseData.length; i += 2) {
-      const transaction = this.getObjectFromData(loc, ogBalance, houseData[i], houseData[i + 1].trim());
+      const transaction = this.createTransactionFromData(loc, ogBalance, houseData[i], houseData[i + 1].trim());
       ogBalance = parseFloat(transaction.balance[1].replace(/,/g, ''));
       totalTransactions.push(transaction);
     }
 
     return totalTransactions;
   }
-  public getObjectFromData(loc: string, ogBalance: number, date: any, desc: any) {
-    const currentYear = new Date().getFullYear();
-    const d_mm_yyRegexPattern = /([1-9]|1[012])[- \/.](0?[1-9]|[12][0-9]|3[01])[- \/.](21|22)/gi;
-    const mm_yyyyRegexPattern = /(0[1-9]|1[012])[- \/.] ?(20)2[1-4]/gi;
+  public createTransactionFromData(loc: string, ogBalance: number, date: any, desc: any) {
     let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
     const isPayout = payeePayer === PERSONAL || payeePayer === LLC;
-
-    const scrubbedDesc = desc
-      .replaceAll(d_mm_yyRegexPattern, '')
-      .replaceAll(mm_yyyyRegexPattern, '')
-      .replaceAll(currentYear, '')
-      .replaceAll(currentYear - 1, '');
-
-    const balanceArray = scrubbedDesc.match(/-?\d{1,3}(,\d{3})*(\.\d{2})/gi);
-
-    if (!balanceArray || balanceArray.length < 2) {
-      this.#_logError('balanceArray', desc);
-      throw new Error(`balanceArray is bad for: ${desc}`);
-    }
-
+    const balanceArray = this.getBalanceFromText(desc);
     const outcome = isPayout ? 'payout' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
 
     if (!outcome) {
@@ -54,6 +51,7 @@ class Parser {
     }
     if (!payeePayer) {
       if (outcome === 'income') payeePayer = 'Francois Rentals, LLC.';
+      if (outcome === 'expense') payeePayer = 'Service-Expense';
       else {
         this.#_logError('payeePayer', desc);
         throw new Error(`payeePayer is missing for: ${desc}`);
@@ -69,7 +67,7 @@ class Parser {
       payeePayer,
     };
   }
-  public getTransactionsPerHouse(info, location) {
+  public getTransactionsTextForLoc(info, location) {
     let transactionsInMonth = '';
 
     const [first_line, last_line, other_last_line, dateRegex] = [
@@ -104,15 +102,29 @@ class Parser {
       trueLastLineMatch = lastLineMatch[0];
     }
 
-    transactionsInMonth = this.#findTransactionsInMonth(cleanedUp, firstLineMatch, trueLastLineMatch);
-    transactionsInMonth = this.#cleanUpHeadersFromText(transactionsInMonth);
+    transactionsInMonth = this.findTransactionsInMonth(cleanedUp, firstLineMatch, trueLastLineMatch);
+    transactionsInMonth = this.#cleanUpTableHeadersFromText(transactionsInMonth);
 
     return transactionsInMonth
-      .split(dateRegex)
+      .split(DATES_REGEX_PATTERN)
       .filter(w => w)
       .filter(w => w !== '/');
   }
-  #cleanUpHeadersFromText(
+
+  getBalanceFromText(desc) {
+    const balanceArray = this.#cleanDatesFromText(desc).match(MONEY_REGEX_PATTERN);
+
+    if (!balanceArray || balanceArray.length < 2) {
+      this.#_logError('balanceArray', desc);
+      throw new Error(`balanceArray is bad for: ${desc}`);
+    }
+
+    return balanceArray;
+  }
+  #cleanDatesFromText(text) {
+    return text.replaceAll(D_MM_YY_REGEX_PATTERN, '').replaceAll(MM_YYYY_REGEX_PATTERN, '').replaceAll(CURRENT_YEAR, '').replaceAll(PREV_YEAR, '');
+  }
+  #cleanUpTableHeadersFromText(
     text,
     ttr: Array<string | RegExp> = [
       'DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance',
@@ -128,7 +140,7 @@ class Parser {
     const rgx = /page \d+ of \d/gi;
     return text.replaceAll(rgx, '');
   }
-  #findTransactionsInMonth(cleanedUp: any, firstLineMatch: string, lastLineMatch: string) {
+  findTransactionsInMonth(cleanedUp: any, firstLineMatch: string, lastLineMatch: string) {
     return cleanedUp.substring(cleanedUp.indexOf(firstLineMatch) + firstLineMatch.length, cleanedUp.indexOf(lastLineMatch));
   }
   #_logError(item: string, desc: string) {

@@ -1,6 +1,14 @@
-export const CITY_STATE = 'Woonsocket, RI';
-export const WELLES = '212 Welles Street';
-export const PARADIS = '23 Paradis Avenue';
 export const CARRINGTON = '346 Carrington Avenue';
+export const CITY_STATE = 'Woonsocket, RI';
+export const CURRENT_YEAR = new Date().getFullYear();
+export const MONEY_REGEX_PATTERN = /-?\d{1,3}(,\d{3})*(\.\d{2})/gi;
+export const D_MM_YY_REGEX_PATTERN = /([1-9]|1[012])[- \/.](0?[1-9]|[12][0-9]|3[01])[- \/.](21|22)/gi;
 export const LLC = 'Francois Rentals, LLC.';
+export const MM_YYYY_REGEX_PATTERN = /(0[1-9]|1[012])[- \/.] ?(20)2[1-4]/gi;
+export const PARADIS = '23 Paradis Avenue';
 export const PERSONAL = 'Buteau Francois, Jr.';
+export const PREV_YEAR = new Date().getFullYear() - 1;
+export const WELLES = '212 Welles Street';
+export const DATES_REGEX_PATTERN = /(?<! - )\b(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{4})/gi;
+export const ID_OF_FOLDER = '1jXtb1PHlAoHtHs3vfmSIgQF5rofvzO3Y';
+export const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

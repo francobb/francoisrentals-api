@@ -1,28 +1,43 @@
 import { google } from 'googleapis';
 import { APP_ID, APP_SECRET, REDIRECT_URI } from '@config';
 import { OAuth2Client } from 'google-auth-library/build/src/auth/oauth2client';
-
+import credentials from '../assets/keyfile.json';
+import { JWT } from 'google-auth-library/build/src/auth/jwtclient';
 class GoogleClient {
-  static client;
-  #client: OAuth2Client;
-  private constructor(client: OAuth2Client) {
-    this.#client = client;
-  }
+  private static JWTClient;
+  private static OAuth2Client;
 
-  static initialize() {
-    return new GoogleClient(new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI)).#client;
+  private static initializeJWTClient() {
+    return new google.auth.JWT(credentials.client_email, null, credentials.private_key, [
+      'profile',
+      'email',
+      'https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/drive.appdata',
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive.readonly',
+      'https://www.googleapis.com/auth/calendar',
+    ]);
   }
-
-  static initClient() {
-    GoogleClient.client = GoogleClient.initialize();
+  private static initializeOAuthClient() {
+    return new google.auth.OAuth2(APP_ID, APP_SECRET, REDIRECT_URI);
   }
-  get client(): OAuth2Client {
-    return this.#client;
+  private static initOAuthClient() {
+    GoogleClient.OAuth2Client = GoogleClient.initializeOAuthClient();
   }
-
-  static async generateAuthURL() {
-    if (this.client instanceof OAuth2Client) {
-      return this.client.generateAuthUrl({
+  private static initJWTClient() {
+    GoogleClient.JWTClient = GoogleClient.initializeJWTClient();
+  }
+  static getOAuthClient() {
+    if (!this.OAuth2Client) this.initOAuthClient();
+    return this.OAuth2Client;
+  }
+  static getJWTClient(): JWT {
+    if (!this.JWTClient) this.initJWTClient();
+    return this.JWTClient;
+  }
+  static async generateAuthURL(): Promise<string> {
+    if (this.OAuth2Client instanceof OAuth2Client) {
+      return this.OAuth2Client.generateAuthUrl({
         // 'online' (default) or 'offline' (gets refresh_token)
         access_type: 'offline',
 

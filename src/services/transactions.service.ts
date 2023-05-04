@@ -2,6 +2,8 @@ import transactionsModel from '@models/transactions.model';
 import { ITransaction } from '@interfaces/transactions.interface';
 import { logger } from '@utils/logger';
 import reportModel from '@models/report.model';
+import { IReport } from '@interfaces/report.interface';
+import { FilterQuery, Document } from 'mongoose';
 
 interface IFile {
   id: string;
@@ -12,44 +14,10 @@ interface IFile {
 class TransactionService {
   public transactions = transactionsModel;
   public reports = reportModel;
-  public async getAllTransactionsByMonth(month?: number, year?: number): Promise<ITransaction[]> {
-    month = month ?? new Date().getMonth() + 1;
-    year = year ?? new Date().getFullYear();
 
-    const startOfMonth = new Date(`${year}-${month.toString().padStart(2, '0')}-01T00:00:00`);
-    const endOfMonth = new Date(`${year}-${month.toString().padStart(2, '0')}-${this.getLastDayOfMonth(year, month)}T23:59:59`);
-
-    const [transactions] = await Promise.all([
-      this.transactions
-        .find({
-          date: {
-            $gte: startOfMonth,
-            $lte: endOfMonth,
-          },
-        })
-        .lean(),
-    ]);
+  public async searchTransactionsByQuery(query: FilterQuery<ITransaction & Document<any, any, any>>) {
+    const [transactions] = await Promise.all([this.transactions.find(query).lean()]);
     return transactions;
-  }
-
-  public async getAllTransactions(): Promise<ITransaction[]> {
-    const [transactions] = await Promise.all([this.transactions.find().lean()]);
-    return transactions;
-  }
-
-  public getLastDayOfMonth(year, monthNumber) {
-    // Convert 1-indexed month number to 0-indexed value
-    const month = monthNumber - 1;
-    // Month parameter is 0-indexed, so we need to add 1 to get the next month
-    const nextMonth = new Date(year, month + 1, 1);
-    // Subtract one day in milliseconds to get the last day of the current month
-    const lastDayOfMonth = new Date(nextMonth.getTime() - 86400000);
-    // Return the date component of the last day of the month
-    return lastDayOfMonth.getDate();
-  }
-
-  public async addTransaction(transaction: ITransaction): Promise<void> {
-    await this.transactions.create(transaction);
   }
 
   public async addManyTransactions(transactions: ITransaction[]) {
@@ -62,20 +30,17 @@ class TransactionService {
     });
   }
 
-  public async addReport(report: IFile): Promise<void> {
-    logger.info(`${report.name} (${report.id})`);
+  public async addReport(report: IFile) {
     const [month, year] = report.name.split('_');
-    const reportToSave = new reportModel({ month, year: year.replace(/.pdf/gi, ''), data: report.pdf });
-    return new Promise((resolve, reject) => {
-      reportToSave.save((error, result) => {
-        if (error) {
-          // logger.error(error);
-          // throw error;
-          reject(error);
-        }
-        resolve();
-      });
+    new reportModel({ month, year: year.replace(/.pdf/gi, ''), data: report.pdf }).save(error => {
+      if (error) {
+        logger.error(error);
+        throw error;
+      }
     });
+  }
+  public async getAllReports(): Promise<IReport[]> {
+    return this.reports.find();
   }
 }
 
