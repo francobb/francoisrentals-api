@@ -1,8 +1,8 @@
-import Parser from '../utils/parser';
-import { LLC } from '../utils/constants';
+import Parser from '@utils/parser';
+import { CARRINGTON, LLC } from '@utils/constants';
 const fs = require('fs');
 
-const WELLES_REPORT = fs.readFileSync(__dirname + '/assets/welles_only_report.txt', 'utf8');
+const WELLES_REPORT = fs.readFileSync('src/tests/assets/welles_only_report.txt', 'utf8');
 describe('Testing Report Parser Utility', () => {
   describe('getTransactionPerHouse()', () => {
     it('should return empty array when getting transaction for house with no data', () => {
@@ -36,7 +36,7 @@ describe('Testing Report Parser Utility', () => {
         outcome: 'payout',
         payeePayer: 'Francois Rentals, LLC.',
       };
-      expect(parser.createTransactionFromData('', 100, date, desc)).toEqual(expected);
+      expect(parser.createTransactionFromData(CARRINGTON, 100, date, desc)).toEqual(expected);
     });
   });
 });

@@ -1,3 +1,5 @@
+import {Collection} from "mongodb";
+
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
@@ -33,10 +35,10 @@ export const closeDatabase = async () => {
  * Remove all the data for all db collections.
  */
 export const clearDatabase = async () => {
-  const collections = mongoose.connection.collections;
+  const collections: Collection[] = await mongoose.connection.collections;
 
   for (const key in collections) {
     const collection = collections[key];
-    await collection.deleteMany();
+    await collection.deleteMany({});
   }
 };
