@@ -8,7 +8,7 @@ import { isEmpty } from '@utils/util';
 class UserService {
   public users = userModel;
 
-  public async findAllUser(): Promise<User[]> {
+  public async findAllUsers(): Promise<User[]> {
     const [users] = await Promise.all([this.users.find()]);
     return users;
   }
