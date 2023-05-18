@@ -67,7 +67,7 @@ describe('AuthService', () => {
 
     it('should return a cookie and findUser for valid credentials', async () => {
       const findUserByEmail = jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(userData);
-      const result = await authService.login(userData);
+      const result = await authService.login(userData as CreateUserDto);
 
       expect(result).toEqual({ cookie: expect.any(String), findUser: userData });
       expect(findUserByEmail).toHaveBeenCalledWith({ email: userData.email });

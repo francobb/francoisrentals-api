@@ -15,7 +15,7 @@ class GoogleRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}getAuthUrl`, this.googleController.getAuthUrl);
     this.router.get(`${this.path}auth/google/callback`, this.googleController.googleOauthHandler);
-    this.router.get(`${this.path}listFiles`, authMiddleware, this.googleController.listFiles);
+    this.router.get(`${this.path}listFiles`, authMiddleware, this.googleController.getFilesFromDrive);
   }
 }
 

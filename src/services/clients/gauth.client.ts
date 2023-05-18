@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { APP_ID, APP_SECRET, REDIRECT_URI } from '@config';
 import { OAuth2Client } from 'google-auth-library/build/src/auth/oauth2client';
-import credentials from '../assets/keyfile.json';
+import credentials from '../../assets/keyfile.json';
 import { JWT } from 'google-auth-library/build/src/auth/jwtclient';
 class GoogleClient {
   private static JWTClient;

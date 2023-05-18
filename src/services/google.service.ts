@@ -2,7 +2,7 @@ import axios from 'axios';
 import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import pdfParse from 'pdf-parse';
-import GoogleClient from '@services/gauth.service';
+import GoogleClient from '@clients/gauth.client';
 import Parser from '@utils/parser';
 import TransactionService from '@services/transactions.service';
 import googleModel from '@models/google.model';

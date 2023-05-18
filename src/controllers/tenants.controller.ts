@@ -23,6 +23,17 @@ class TenantsController {
       next(error);
     }
   }
+
+  // public async updateeTenant(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const tenantData = req.body;
+  //     const tenant = await this.tenantService.updateTenant(tenantData);
+  //
+  //     res.status(200).json({ data: tenant, message: 'Tenant updated successfully' });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 }
 
 export default TenantsController;

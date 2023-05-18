@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import GoogleService from '@services/google.service';
 import AuthService from '@services/auth.service';
 import { logger } from '@utils/logger';
+import { HttpException } from '@exceptions/HttpException';
 
 class GoogleController {
   public authService = new AuthService();
@@ -21,10 +22,7 @@ class GoogleController {
       const code = req.query.code as string;
 
       if (!code) {
-        return res.status(401).json({
-          status: 'fail',
-          message: 'Authorization code not provided!',
-        });
+        this.handleError(401, 'Authorization code not provided!');
       }
 
       const { id_token, access_token } = await this.googleService.authenticateWithGoogle(code);
@@ -34,10 +32,7 @@ class GoogleController {
       });
 
       if (!verified_email) {
-        return res.status(403).json({
-          status: 'fail',
-          message: 'Google account not verified',
-        });
+        this.handleError(403, "You're not user data");
       }
       const { cookie, findUser } = await this.authService.login({ email, name });
       const COOKIE_NAME = 'Authorization';
@@ -50,7 +45,7 @@ class GoogleController {
       next(err);
     }
   };
-  public listFiles = async (req: Request, res: Response, next: NextFunction) => {
+  public getFilesFromDrive = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.googleService.listDriveFiles();
       res.status(200).json({ message: 'ran get files from drive' });
@@ -59,6 +54,10 @@ class GoogleController {
       next(err);
     }
   };
+
+  private handleError(status: number, message: string) {
+    throw new HttpException(status, message);
+  }
 }
 
 export default GoogleController;
