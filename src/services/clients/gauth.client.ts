@@ -27,7 +27,7 @@ class GoogleClient {
   private static initJWTClient() {
     GoogleClient.JWTClient = GoogleClient.initializeJWTClient();
   }
-  static getOAuthClient() {
+  static getOAuthClient(): OAuth2Client {
     if (!this.OAuth2Client) this.initOAuthClient();
     return this.OAuth2Client;
   }

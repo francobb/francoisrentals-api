@@ -8,8 +8,7 @@ class TenantService {
   public tenants = tenantsModel;
 
   public async findAllTenants(): Promise<Tenant[]> {
-    const tenants: Tenant[] = await this.tenants.find();
-    return tenants;
+    return this.tenants.find();
   }
 
   public async createTenant(tenantData: CreateTenantDto): Promise<Tenant> {
@@ -18,18 +17,17 @@ class TenantService {
     const findTenant: Tenant = await this.tenants.findOne({ email: tenantData.email });
     if (findTenant) throw new HttpException(409, `You're already registered`);
 
-    const createTenantData: Tenant = await this.tenants.create({ ...tenantData });
-
-    return createTenantData;
+    return await this.tenants.create({ ...tenantData });
   }
 
-  // async updateTenant(tenantId: string, tenantData: CreateTenantDto) {
-  //   if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
-  //
-  //   const findTenant: Tenant = await this.tenants.findByIdAndUpdate(tenantId, { tenantData });
-  //   if (!findTenant) throw new HttpException(409, `Tenant not found`);
-  //
-  // }
+  async updateTenant(tenantId: string, tenantData: CreateTenantDto) {
+    if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
+
+    const findTenant: Tenant = await this.tenants.findByIdAndUpdate(tenantId, { tenantData });
+    if (!findTenant) throw new HttpException(409, `Tenant not found`);
+
+    return findTenant;
+  }
 }
 
 export default TenantService;

@@ -1,6 +1,6 @@
 import TwilioClient from '@clients/twilio.client';
 import { logger } from '@utils/logger';
-import { IQuery } from '@controllers/twilio.controller';
+import { IQuery } from '@utils/interfaces';
 
 class TwilioService {
   public twilioClient = TwilioClient.getClient();

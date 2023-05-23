@@ -1,15 +1,16 @@
 import axios from 'axios';
-import { google } from 'googleapis';
+import PdfParse from 'pdf-parse';
 import { Credentials } from 'google-auth-library';
-import pdfParse from 'pdf-parse';
+import { google } from 'googleapis';
 import GoogleClient from '@clients/gauth.client';
 import Parser from '@utils/parser';
 import TransactionService from '@services/transactions.service';
 import googleModel from '@models/google.model';
 import payeePayerModel from '@models/payeePayer.model';
-import { PayeePayer } from '@interfaces/payeePayer.interface';
-import { logger } from '@utils//logger';
+import { HttpException } from '@exceptions/HttpException';
 import { ID_OF_FOLDER } from '@utils/constants';
+import { PayeePayer } from '@interfaces/payeePayer.interface';
+import { logger } from '@utils/logger';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -37,13 +38,8 @@ class GoogleService {
   public parser: Parser = new Parser();
   public payeesPayers = payeePayerModel;
   public transactionService: TransactionService = new TransactionService();
-  constructor() {
-    //
-  }
-
-  public async getAllPayeesAndPayers() {
-    const pp: PayeePayer[] = await this.payeesPayers.find();
-    return pp;
+  public async getAllPayeesAndPayers(): Promise<PayeePayer[]> {
+    return this.payeesPayers.find();
   }
   public getAuthUrl() {
     return this.oauthClient.generateAuthUrl({
@@ -72,7 +68,7 @@ class GoogleService {
       return data;
     } catch (err: any) {
       logger.error(err);
-      throw Error(err);
+      throw new HttpException(404, err.message);
     }
   }
   async authenticateWithGoogle(code: string): Promise<GoogleOauthToken> {
@@ -118,11 +114,11 @@ class GoogleService {
 
     this.jwtClient.authorize(async (err, tokens) => {
       if (err) {
-        console.error(`Failed to authorize: ${err}`);
+        logger.error(`Failed to authorize: ${err}`);
         return;
       }
-      const drive = google.drive({ version: 'v3', auth: this.jwtClient });
 
+      const drive = google.drive({ version: 'v3', auth: this.jwtClient });
       const { data } = await drive.files.list({
         pageSize: 10,
         q: `'${ID_OF_FOLDER}' in parents and trashed=false`,
@@ -136,15 +132,14 @@ class GoogleService {
           if (!filesFromDB.some(dbFile => month === dbFile.month)) {
             file['pdf'] = await this.exportFile(file.id);
 
-            await pdfParse(file.pdf)
-              .then(async pdf => {
-                file.data = this.parser.collectReportData(pdf.text, pp);
-                await this.transactionService.addManyTransactions(file.data);
-              })
-              .then(() => {
-                this.transactionService.addReport(file);
-              })
-              .catch(err => logger.error(err));
+            try {
+              const pdf = await PdfParse(file.pdf);
+              file.data = this.parser.collectReportData(pdf.text, pp);
+              await this.transactionService.addManyTransactions(file.data);
+              await this.transactionService.addReport(file);
+            } catch (err) {
+              logger.error(err);
+            }
           }
         }
       } else {
@@ -154,20 +149,11 @@ class GoogleService {
   }
   async exportFile(documentId) {
     let buffer;
-    let buffer2;
-
     await google
       .drive('v3')
       .files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
       .then(res => {
         return new Promise((resolve, reject) => {
-          // { if I ever want to write files locally
-          // const filePath = path.join(os.tmpdir(), uuid.v4());
-          // console.log(`writing to ${filePath}`);
-          // const dest = fs.createWriteStream(filePath);
-          // const dest = fs.createWriteStream(`./pdfs/${uuid.v4()}.pdf`);
-          // }
-          // let progress = 0;
           const buf = [];
 
           res.data
@@ -177,9 +163,6 @@ class GoogleService {
             })
             .on('end', () => {
               buffer = Buffer.concat(buf);
-              buffer2 = Buffer.from(buffer).toString('base64');
-
-              // dest.close();
               resolve(buffer);
             })
             .on('data', d => {
@@ -188,15 +171,40 @@ class GoogleService {
               if (process.stdout.isTTY) {
                 process.stdout.clearLine(0);
                 process.stdout.cursorTo(0);
-                // process.stdout.write(`Downloaded ${progress} bytes\n`);
               }
             });
-          // .pipe(dest)
         });
       })
       .catch(err => logger.error({ err }));
     return buffer;
   }
+  // async exportFile_(documentId) {
+  //   return new Promise<Buffer>((resolve, reject) => {
+  //     const bufferChunks: Buffer[] = [];
+  //
+  //     const request = google.drive('v3').files.get(
+  //       { auth: this.jwtClient, fileId: documentId, alt: 'media' },
+  //       { responseType: 'stream' }
+  //     );
+  //
+  //     request.data
+  //       .on('error', err => {
+  //         logger.error('Error downloading file.');
+  //         reject(err);
+  //       })
+  //       .on('end', () => {
+  //         const buffer = Buffer.concat(bufferChunks);
+  //         resolve(buffer);
+  //       })
+  //       .on('data', chunk => {
+  //         bufferChunks.push(chunk);
+  //         if (process.stdout.isTTY) {
+  //           process.stdout.clearLine(0);
+  //           process.stdout.cursorTo(0);
+  //         }
+  //       });
+  //   });
+  // }
 }
 
 export default GoogleService;

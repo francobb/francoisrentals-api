@@ -5,6 +5,7 @@ import AuthRoute from '@routes/auth.route';
 import UserService from '@services/users.service';
 import UsersRoute from '@routes/users.route';
 import { CreateUserDto } from '@dtos/users.dto';
+import { clearDatabase } from '@/intTests/setup/db-handler';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -47,20 +48,13 @@ describe('Testing Users', () => {
     cookies = loginReq.headers['set-cookie'];
   });
 
-  describe('GET METHODS', function () {
+  describe('[GET] METHODS', function () {
     describe('[GET] /users', () => {
       it('response findAll Users', async () => {
         const getAllReq = await request(app.getServer()).get(`${usersRoute.path}`).set('Accept', 'application/json').set('Cookie', cookies[0]);
 
         expect(getAllReq.status).toBe(200);
-        expect(getAllReq.body.data).toEqual([
-          {
-            _id: expect.any(String),
-            __v: authUser._doc.__v,
-            email: authUser._doc.email,
-            password: authUser._doc.password,
-          },
-        ]);
+        expect(getAllReq.body.data).toEqual([expectedUser]);
       });
     });
 
@@ -80,6 +74,10 @@ describe('Testing Users', () => {
   });
 
   describe('[POST] /users', () => {
+    afterAll(async () => {
+      await clearDatabase();
+    });
+
     it('response Create User', async () => {
       const userData: CreateUserDto = {
         email: 'test@email.com',

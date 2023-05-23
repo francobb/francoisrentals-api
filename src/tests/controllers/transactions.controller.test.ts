@@ -1,18 +1,8 @@
 import { NextFunction, Response } from 'express';
-jest.mock('../../search/transactions.search', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      withDate: jest.fn().mockReturnThis(),
-      withLocation: jest.fn().mockReturnThis(),
-      withOutcome: jest.fn().mockReturnThis(),
-      withPayeePayer: jest.fn().mockReturnThis(),
-      build: jest.fn().mockReturnValue('mocked-search-query'),
-    };
-  });
-});
+
 import TransactionsController from '@controllers/transactions.controller';
 import TransactionService from '@services/transactions.service';
-import {HttpException} from "@exceptions/HttpException";
+import { HttpException } from '@exceptions/HttpException';
 
 describe('Transactions Controller', function () {
   let mRes: Partial<Response>;
@@ -24,20 +14,11 @@ describe('Transactions Controller', function () {
   beforeAll(() => {
     mNext = jest.fn();
     mReq = {
-      query: {
-        month: '',
-        year: '',
-        location: '',
-        outcome: '',
-        payeePayer: '',
-      },
+      query: {},
     };
     mRes = {
-      cookie: jest.fn(),
       json: jest.fn().mockReturnThis(),
-      redirect: jest.fn(),
       status: jest.fn().mockReturnThis(),
-      setHeader: jest.fn(),
     } as unknown as Partial<Response>;
     transactionsController = new TransactionsController();
     mTransactionService = transactionsController.transactionService;
@@ -45,7 +26,7 @@ describe('Transactions Controller', function () {
 
   describe('getTransactions()', function () {
     it('should get tenants', async () => {
-      mTransactionService.searchTransactionsByQuery = jest.fn().mockResolvedValue([]);
+      mTransactionService.searchTransaction = jest.fn().mockResolvedValue([]);
 
       await transactionsController.getTransactions(mReq, mRes as Response, mNext);
 
@@ -58,7 +39,7 @@ describe('Transactions Controller', function () {
 
     it('should not get transactions', async () => {
       const error = new HttpException(401, 'error');
-      mTransactionService.searchTransactionsByQuery = jest.fn().mockRejectedValueOnce(error);
+      mTransactionService.searchTransaction = jest.fn().mockRejectedValueOnce(error);
       await transactionsController.getTransactions(mReq, mRes as Response, mNext);
       expect(mNext).toHaveBeenCalledWith(error);
     });

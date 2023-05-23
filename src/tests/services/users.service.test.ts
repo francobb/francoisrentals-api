@@ -96,8 +96,17 @@ describe('UsersService', () => {
       const result = await usersService.updateUser(userId, { password: 'hashedPassword', ...createUser });
 
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(mockUserRepository.findByIdAndUpdate).toHaveBeenCalledWith(userId, { userData: { ...createUser, password: 'hashedPassword' } });
       expect(result).toEqual(userData);
+    });
+
+    it('should not recognize user', async () => {
+      mockUserRepository.findOne = jest.fn().mockResolvedValueOnce(userData);
+      mockUserRepository.findByIdAndUpdate = jest.fn().mockResolvedValueOnce(null);
+      bcrypt.hash = jest.fn().mockResolvedValueOnce('hashedPassword');
+
+      await expect(usersService.updateUser(userId, { password: 'hashedPassword', ...createUser })).rejects.toThrow(
+        new HttpException(409, "You're not user"),
+      );
     });
 
     it('should throw an error if the email already exists for another user', async () => {

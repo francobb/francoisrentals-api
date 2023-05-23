@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import TwilioController from '@controllers/twilio.controller';
-import TwilioService from '@services/Twilio.service';
+import TwilioService from '@services/twilio.service';
 import { HttpException } from '@exceptions/HttpException';
 
 describe('Twilio Controller', function () {

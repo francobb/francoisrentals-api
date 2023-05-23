@@ -1,4 +1,4 @@
-import {Collection} from "mongodb";
+import { Collection } from 'mongodb';
 
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');

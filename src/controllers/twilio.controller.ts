@@ -2,15 +2,9 @@
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
 import { NextFunction, Request, Response } from 'express';
-import TwilioService from '@services/Twilio.service';
+import TwilioService from '@services/twilio.service';
+import { IRequest } from '@utils/interfaces';
 
-export interface IRequest extends Request {
-  query: IQuery;
-}
-
-export interface IQuery {
-  [key: string]: string;
-}
 class TwilioController {
   public twilioService = new TwilioService();
   public async sendRentReminder(req: IRequest, res: Response, next: NextFunction) {
