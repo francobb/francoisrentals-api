@@ -17,3 +17,5 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test:unit
+        env:
+          LOG_DIR: ${{ secrets.LOG_DIR }}
