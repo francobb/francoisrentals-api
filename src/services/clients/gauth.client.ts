@@ -1,14 +1,13 @@
 import { google } from 'googleapis';
-import { APP_ID, APP_SECRET, REDIRECT_URI } from '@config';
+import { APP_ID, APP_SECRET, REDIRECT_URI, PRIVATE_KEY, CLIENT_EMAIL } from '@config';
 import { OAuth2Client } from 'google-auth-library/build/src/auth/oauth2client';
-import credentials from '../../assets/keyfile.json';
 import { JWT } from 'google-auth-library/build/src/auth/jwtclient';
 class GoogleClient {
   private static JWTClient;
   private static OAuth2Client;
 
   private static initializeJWTClient() {
-    return new google.auth.JWT(credentials.client_email, null, credentials.private_key, [
+    return new google.auth.JWT(CLIENT_EMAIL, null, PRIVATE_KEY, [
       'profile',
       'email',
       'https://www.googleapis.com/auth/drive',

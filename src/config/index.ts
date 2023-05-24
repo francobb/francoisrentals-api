@@ -3,6 +3,8 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'same-origin';
 export const {
+  CLIENT_EMAIL,
+  PRIVATE_KEY,
   DB_MEMORY,
   NODE_ENV,
   PORT,
