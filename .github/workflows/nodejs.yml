@@ -30,7 +30,7 @@ jobs:
           LOG_DIR: ${{ secrets.LOG_DIR }}
           LOG_FORMAT: combined
           MONGO_URI: ${{ secrets.MONGO_URI }}
-          ORIGIN: "*"
+          ORIGIN: ${{ secrets.ORIGIN }}
           PORT: ${{ secrets.PORT}}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
