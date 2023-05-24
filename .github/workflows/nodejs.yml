@@ -18,14 +18,23 @@ jobs:
       - name: Run tests
         run: npm run test
         env:
-          LOG_DIR: ${{ secrets.LOG_DIR }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          PORT: ${{ secrets.PORT}}
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          CLIENT_EMAIL: "fakeEmail@email.com"
+          CREDENTIALS: true
           DB_DATABASE: ${{ secrets.DB_DATABASE }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_IP: ${{ secrets.DB_IP }}
           DB_MEMORY: ${{ secrets.DB_MEMORY }}
           DB_PORT: ${{ secrets.DB_PORT }}
+          LOG_DIR: ${{ secrets.LOG_DIR }}
+          LOG_FORMAT: combined
           MONGO_URI: ${{ secrets.MONGO_URI }}
+          ORIGIN: *
+          PORT: ${{ secrets.PORT}}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
+          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+
