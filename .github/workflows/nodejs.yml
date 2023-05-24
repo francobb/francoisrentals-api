@@ -22,3 +22,10 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          PORT: ${{ secrets.PORT}}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_IP: ${{ secrets.DB_IP }}
+          DB_MEMORY: ${{ secrets.DB_MEMORY }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
