@@ -12,6 +12,7 @@ import AuthService from '@services/auth.service';
 import GoogleService from '@services/google.service';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
+import {logger} from "@utils/logger";
 
 describe('Google controller', function () {
   let mRes: Partial<Response>;
@@ -40,11 +41,13 @@ describe('Google controller', function () {
     googleController = new GoogleController();
     mAuthService = googleController.authService;
     mGoogleService = googleController.googleService;
+    logger.error = jest.fn();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
     jest.resetAllMocks();
+    // jest.restoreAllMocks();
   });
 
   describe('getAuthUrl()', function () {

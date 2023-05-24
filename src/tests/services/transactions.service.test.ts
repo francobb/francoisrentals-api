@@ -80,15 +80,14 @@ describe('Transactions Service', () => {
       const insertManyMock = jest.spyOn(mTransactionRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
         callback(null, 'success');
       });
-      const loggerInfoMock = jest.spyOn(logger, 'info');
-
+      logger.info = jest.fn();
       await transactionsService.addManyTransactions(transactionData);
       expect(insertManyMock).toHaveBeenCalledWith(transactionData, expect.any(Function));
-      expect(loggerInfoMock).toHaveBeenCalledWith('Reports inserted');
+      expect(logger.info).toHaveBeenCalledWith('Reports inserted');
     });
 
     it('should log error', async () => {
-      const spyLoggerError = jest.spyOn(logger, 'error');
+      logger.error = jest.fn();
       const error = new Error('Insertion failed');
       const insertManyMock = jest.spyOn(mTransactionRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
         callback(error);
@@ -96,18 +95,18 @@ describe('Transactions Service', () => {
 
       await transactionsService.addManyTransactions(transactionData);
       expect(insertManyMock).toHaveBeenCalledWith(transactionData, expect.any(Function));
-      expect(spyLoggerError).toHaveBeenCalledWith(error);
+      expect(logger.error).toHaveBeenCalledWith(error);
     });
   });
 
   describe('addReport()', () => {
     it('should not return an error', async () => {
+      logger.error = jest.fn();
       const insertManyMock = jest.spyOn(mReportsRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
         callback(null, 'success');
       });
-      const spyLoggerError = jest.spyOn(logger, 'error');
       await transactionsService.addReport(fileData);
-      expect(spyLoggerError).not.toHaveBeenCalled();
+      expect(logger.error).not.toHaveBeenCalled();
       expect(insertManyMock).toHaveBeenCalledWith(
         {
           data: 'fakePDF',
@@ -119,14 +118,14 @@ describe('Transactions Service', () => {
     });
 
     it('should return an error', async () => {
-      const spyLoggerError = jest.spyOn(logger, 'error');
+      logger.error = jest.fn();
       const error = new Error('Insertion failed');
       const insertManyMock = jest.spyOn(mReportsRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
         callback(error);
       });
       await transactionsService.addReport(fileData);
       expect(insertManyMock).toHaveBeenCalledWith({ data: 'fakePDF', month: 'Mar', year: '2023' }, expect.any(Function));
-      expect(spyLoggerError).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
     });
   });
 

@@ -1,5 +1,6 @@
 import Parser from '@utils/parser';
 import { CARRINGTON, LLC } from '@utils/constants';
+import {logger} from "@utils/logger";
 const fs = require('fs');
 
 const WELLES_REPORT = fs.readFileSync('src/tests/assets/welles_only_report.txt', 'utf8');
@@ -16,6 +17,7 @@ describe('Testing Report Parser Utility', () => {
 
   describe('createTransactionFromData()', () => {
     it('should fail when the balance is incorrect', function () {
+      logger.error = jest.fn();
       const loc = '212 Welles St';
       const date = '01/01/2023';
       const desc = 'Francois Rentals, LLC.eCheck7F08-5A04Owner Draws - Owner payment for 01/2023 1,056.20';
