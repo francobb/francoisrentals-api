@@ -31,7 +31,7 @@ jobs:
           LOG_FORMAT: "dev"
           MONGO_URI: "mongodb://0.0.0.0:27017/dev"
           ORIGIN: ${{ secrets.ORIGIN }}
-          PORT: 3000
+          PORT: "3000"
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
