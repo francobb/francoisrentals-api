@@ -22,16 +22,16 @@ jobs:
           APP_SECRET: ${{ secrets.APP_SECRET }}
           CLIENT_EMAIL: "fakeEmail@email.com"
           CREDENTIALS: true
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_IP: ${{ secrets.DB_IP }}
-          DB_MEMORY: ${{ secrets.DB_MEMORY }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          LOG_DIR: ${{ secrets.LOG_DIR }}
-          LOG_FORMAT: combined
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          DB_DATABASE: "test"
+          DB_HOST: "localhost"
+          DB_IP: "127.0.0.1"
+          DB_MEMORY: "true"
+          DB_PORT: "27017"
+          LOG_DIR: "../logs"
+          LOG_FORMAT: "dev"
+          MONGO_URI: "mongodb://0.0.0.0:27017/dev"
           ORIGIN: ${{ secrets.ORIGIN }}
-          PORT: ${{ secrets.PORT}}
+          PORT: 3000
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
