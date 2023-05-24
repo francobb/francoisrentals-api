@@ -19,3 +19,6 @@ jobs:
         run: npm run test:unit
         env:
           LOG_DIR: ${{ secrets.LOG_DIR }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
