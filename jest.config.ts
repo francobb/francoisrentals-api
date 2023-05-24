@@ -25,7 +25,7 @@ module.exports = {
     '!<rootDir>/src/utils/validateEnv.ts',
   ],
   roots: ['<rootDir>/src'],
-  testPathIgnorePatterns: ['intTests/'],
+  testPathIgnorePatterns: ['<rootDir>/src/intTests'],
   transformIgnorePatterns: ['/node_modules/(?!(axios)/).*'],
   transform: {
     '^.+\\.ts?$': 'ts-jest',

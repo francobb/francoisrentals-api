@@ -11,7 +11,7 @@
 .prettierrc
 
 # test
-jest.config.js
+jest.config.ts
 
 # docker
 Dockerfile

@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run tests
-        run: npm run test:unit
+        run: npm run test
         env:
           LOG_DIR: ${{ secrets.LOG_DIR }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}

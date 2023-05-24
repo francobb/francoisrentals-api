@@ -7,8 +7,8 @@ module.exports = {
   globalSetup: '<rootDir>/src/intTests/setup/globalSetup.ts',
   globalTeardown: '<rootDir>/src/intTests/setup/globalTeardown.ts',
   setupFilesAfterEnv: ['<rootDir>/src/intTests/setup/setupFile.ts'],
-  roots: ['<rootDir>/src'],
-  testPathIgnorePatterns: ['test/'],
+  roots: ['<rootDir>/src/intTests'],
+  testPathIgnorePatterns: ['<rootDir>/test'],
   transformIgnorePatterns: ['/node_modules/(?!(axios)/).*'],
   transform: {
     '^.+\\.ts?$': 'ts-jest',
