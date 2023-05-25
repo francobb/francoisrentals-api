@@ -20,9 +20,9 @@ jobs:
       - name: Create new release
         run: npx semantic-release
         env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           LOG_DIR: '../logs'
           SECRET_KEY: 'secretKey'
           TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
           TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
