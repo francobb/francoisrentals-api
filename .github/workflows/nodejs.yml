@@ -24,9 +24,4 @@ jobs:
           TWILIO_AUTH_TOKEN: 'fakeAuthToken'
       - name: Rebase develop onto main
         run: |
-          git checkout main
-          git pull
-          git checkout develop
-          git pull
-          git rebase main
-          git push --force origin develop:main
+          git branch -a
