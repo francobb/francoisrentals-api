@@ -148,63 +148,29 @@ class GoogleService {
     });
   }
   async exportFile(documentId) {
-    let buffer;
-    await google
-      .drive('v3')
-      .files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' })
-      .then(res => {
-        return new Promise((resolve, reject) => {
-          const buf = [];
+    return new Promise<Buffer>(async (resolve, reject) => {
+      const bufferChunks: Buffer[] = [];
 
-          res.data
-            .on('error', err => {
-              logger.error('Error downloading file.');
-              reject(err);
-            })
-            .on('end', () => {
-              buffer = Buffer.concat(buf);
-              resolve(buffer);
-            })
-            .on('data', d => {
-              // progress += d.length;
-              buf.push(d);
-              if (process.stdout.isTTY) {
-                process.stdout.clearLine(0);
-                process.stdout.cursorTo(0);
-              }
-            });
+      const request = await google.drive('v3').files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' });
+
+      request.data
+        .on('error', err => {
+          logger.error('Error downloading file.');
+          reject(err);
+        })
+        .on('end', () => {
+          const buffer = Buffer.concat(bufferChunks);
+          resolve(buffer);
+        })
+        .on('data', chunk => {
+          bufferChunks.push(chunk);
+          if (process.stdout.isTTY) {
+            process.stdout.clearLine(0);
+            process.stdout.cursorTo(0);
+          }
         });
-      })
-      .catch(err => logger.error({ err }));
-    return buffer;
+    });
   }
-  // async exportFile_(documentId) {
-  //   return new Promise<Buffer>((resolve, reject) => {
-  //     const bufferChunks: Buffer[] = [];
-  //
-  //     const request = google.drive('v3').files.get(
-  //       { auth: this.jwtClient, fileId: documentId, alt: 'media' },
-  //       { responseType: 'stream' }
-  //     );
-  //
-  //     request.data
-  //       .on('error', err => {
-  //         logger.error('Error downloading file.');
-  //         reject(err);
-  //       })
-  //       .on('end', () => {
-  //         const buffer = Buffer.concat(bufferChunks);
-  //         resolve(buffer);
-  //       })
-  //       .on('data', chunk => {
-  //         bufferChunks.push(chunk);
-  //         if (process.stdout.isTTY) {
-  //           process.stdout.clearLine(0);
-  //           process.stdout.cursorTo(0);
-  //         }
-  //       });
-  //   });
-  // }
 }
 
 export default GoogleService;
