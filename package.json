@@ -106,7 +106,7 @@
   },
   "release": {
     "repositoryUrl": "https://github.com/francobb/rizzle_auth",
-    "branches": ["main"]
+    "branches": ["main", "develop"]
   },
   "version": "0.0.0"
 }
