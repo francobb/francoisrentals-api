@@ -18,23 +18,6 @@ jobs:
       - name: Run tests
         run: npm run test:unit
         env:
-          APP_ID: ${{ secrets.APP_ID }}
-          APP_SECRET: ${{ secrets.APP_SECRET }}
-          CLIENT_EMAIL: "fakeEmail@email.com"
-          CREDENTIALS: true
-          DB_DATABASE: "test"
-          DB_HOST: "localhost"
-          DB_IP: "127.0.0.1"
-          DB_MEMORY: "true"
-          DB_PORT: "27017"
-          LOG_DIR: "../logs"
-          LOG_FORMAT: "dev"
-          MONGO_URI: "mongodb://0.0.0.0:27017/dev"
-          ORIGIN: ${{ secrets.ORIGIN }}
-          PORT: "3000"
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
-          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-
+          LOG_DIR: '../logs'
+          SECRET_KEY: 'secretKey'
+          TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
