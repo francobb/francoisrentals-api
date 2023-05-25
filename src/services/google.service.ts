@@ -151,10 +151,7 @@ class GoogleService {
     return new Promise<Buffer>(async (resolve, reject) => {
       const bufferChunks: Buffer[] = [];
 
-      const request = await google.drive('v3').files.get(
-        {auth: this.jwtClient, fileId: documentId, alt: 'media'},
-        {responseType: 'stream'}
-      );
+      const request = await google.drive('v3').files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' });
 
       request.data
         .on('error', err => {

@@ -192,33 +192,34 @@ describe('Google Service', function () {
     });
 
     it('should log an error when file export fails', async () => {
-      const errorMock = new Error('Failed to export file');
-      const streamMock = {
-        on: jest.fn().mockImplementationOnce((event, callback) => {
-          if (event === 'error') {
-            callback(errorMock);
-          }
-        }),
-      };
-
-      const filesGetMock = jest.fn().mockResolvedValueOnce({
-        data: streamMock,
-      });
-
+      const mockStream = new PassThrough();
+      const mockFilesGet = jest.fn().mockReturnValueOnce(Promise.resolve({ data: mockStream }));
       (google.drive as jest.MockedFunction<typeof google.drive>).mockReturnValueOnce({
         files: {
-          get: filesGetMock,
+          get: mockFilesGet,
         },
       } as unknown as drive_v3.Drive);
 
-      const result = await googleService.exportFile(fileId);
+      const exportPromise = googleService.exportFile(fileId);
 
-      expect(result).toEqual(undefined);
+      const mockError = new Error('Invalid file export');
+
+      setTimeout(() => {
+        mockStream.emit('error', mockError);
+      }, 1000);
+
+      await expect(exportPromise).rejects.toEqual(mockError);
+
       expect(google.drive).toHaveBeenCalledWith('v3');
-      expect(filesGetMock).toHaveBeenCalledWith({ auth: googleService.jwtClient, fileId, alt: 'media' }, { responseType: 'stream' });
-      expect(streamMock.on).toHaveBeenCalledWith('error', expect.any(Function));
-      expect(logger.error).toHaveBeenCalledTimes(2);
-      // expect(logger.error).toHaveBeenCalledWith(errorMock);
+      expect(mockFilesGet).toHaveBeenCalledWith(
+        {
+          auth: mJWTClient,
+          fileId: fileId,
+          alt: 'media',
+        },
+        { responseType: 'stream' },
+      );
+      expect(logger.error).toHaveBeenCalledWith('Error downloading file.');
     });
   });
 
