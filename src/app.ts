@@ -141,7 +141,6 @@ class App {
   }
 
   private readInAsciiFile() {
-    console.log(process.env);
     console.info(frAscii);
   }
 }

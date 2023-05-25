@@ -218,7 +218,6 @@ describe('Google Service', function () {
       expect(filesGetMock).toHaveBeenCalledWith({ auth: googleService.jwtClient, fileId, alt: 'media' }, { responseType: 'stream' });
       expect(streamMock.on).toHaveBeenCalledWith('error', expect.any(Function));
       expect(logger.error).toHaveBeenCalledTimes(2);
-      // expect(logger.error).toHaveBeenCalledWith(errorMock);
     });
   });
 
