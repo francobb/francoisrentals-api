@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -17,12 +16,13 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm run test:unit
-      - name: Create new release
-        run: npx semantic-release
         env:
           LOG_DIR: '../logs'
           SECRET_KEY: 'secretKey'
           TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
           TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+      - name: Create new release
+        run: npx semantic-release
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
