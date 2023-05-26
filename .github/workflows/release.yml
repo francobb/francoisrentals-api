@@ -1,5 +1,7 @@
 name: Update Version
 on:
+  push:
+    branches: [ main, develop ]
   pull_request:
     branches: [ main ]
     types:
