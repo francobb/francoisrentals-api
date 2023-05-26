@@ -1,10 +1,12 @@
-name: Test-App
+name: Update Version
 on:
-  push:
-    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+    types:
+      - closed
   workflow_dispatch:
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,10 +16,8 @@ jobs:
           node-version: "19.x"
       - name: Install dependencies
         run: npm ci
-      - name: Run tests
-        run: npm run test:unit
+      - name: Create new release
+        run: npx semantic-release
         env:
-          LOG_DIR: '../logs'
-          SECRET_KEY: 'secretKey'
-          TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
-          TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
