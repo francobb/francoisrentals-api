@@ -1,10 +1,12 @@
 module.exports = {
+  repositoryUrl: "https://github.com/francobb/rizzle_auth",
   plugins: [
     "@semantic-release/commit-analyzer",
     "@semantic-release/github",
-    ["@semantic-release/npm", {
-      npmPublish: false
-    }],
+    '@semantic-release/npm',
+    {
+      npmPublish: false,
+    },
     ["@semantic-release/release-notes-generator", {
       "parserOpts": {
         "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
@@ -21,7 +23,7 @@ module.exports = {
   branches: [
     'main',
     {
-      name: 'feat/*',
+      name: 'develop',
       prerelease: 'alpha'
     }
   ],
