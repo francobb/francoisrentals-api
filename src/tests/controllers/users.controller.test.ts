@@ -4,14 +4,15 @@ import UserService from '@services/users.service';
 import { User } from '@interfaces/users.interface';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { HttpException } from '@exceptions/HttpException';
+import { CreateUserDto } from '@dtos/users.dto';
 
 describe('UsersController', () => {
   const mNext: NextFunction = jest.fn();
-  let err;
+  let err: HttpException;
   let mReq: Partial<Request>;
   let mRes: Partial<Response>;
   let mockUserService: UserService;
-  let userData;
+  let userData: CreateUserDto;
   let usersController: UsersController;
 
   beforeEach(() => {

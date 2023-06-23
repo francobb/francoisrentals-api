@@ -12,7 +12,7 @@ import AuthService from '@services/auth.service';
 import GoogleService from '@services/google.service';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
-import {logger} from "@utils/logger";
+import { logger } from '@utils/logger';
 
 describe('Google controller', function () {
   let mRes: Partial<Response>;
