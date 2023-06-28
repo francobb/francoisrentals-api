@@ -1,16 +1,19 @@
-import { hash, compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
-import { SECRET_KEY } from '@config';
-import { CreateUserDto } from '@dtos/users.dto';
-import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
+import tenantsModel from '@models/tenants.model';
 import userModel from '@models/users.model';
-import { isEmpty } from '@utils/util';
+import { CreateUserDto } from '@dtos/users.dto';
+import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { GoogleUserDto } from '@dtos/gusers.dto';
+import { HttpException } from '@exceptions/HttpException';
+import { SECRET_KEY } from '@config';
+import { Tenant } from '@interfaces/tenants.interface';
+import { User } from '@interfaces/users.interface';
+import { isEmpty } from '@utils/util';
 
 class AuthService {
   public users = userModel;
+  public tenants = tenantsModel;
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -19,12 +22,10 @@ class AuthService {
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-
-    return createUserData;
+    return await this.users.create({ ...userData, password: hashedPassword });
   }
 
-  public async login(userData: CreateUserDto | GoogleUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto | GoogleUserDto): Promise<{ cookie: string; findUser: User; tenantInfo: Tenant }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ email: userData.email });
@@ -36,10 +37,11 @@ class AuthService {
       if (!isPasswordMatching) throw new HttpException(409, 'Your password not matching');
     }
 
+    const tenantInfo = await this.tenants.findOne({ email: userData.email });
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, findUser, tenantInfo };
   }
 
   public async logout(userData: User): Promise<User> {

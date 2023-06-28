@@ -13,7 +13,7 @@ class TenantsController {
     }
   }
 
-  public async createTenant(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public createTenant = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenantData = req.body;
       const tenant = await this.tenantService.createTenant(tenantData);
@@ -22,8 +22,9 @@ class TenantsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
+  // todo: add update tenant
   // public async updateeTenant(req: Request, res: Response, next: NextFunction): Promise<void> {
   //   try {
   //     const tenantData = req.body;
