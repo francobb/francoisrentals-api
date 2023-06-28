@@ -1,9 +1,10 @@
-import { IsArray, IsDate, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsDate, IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateTenantDto {
   @IsEmail()
   public email: string;
 
+  @IsOptional()
   @IsDate()
   public lease_to: Date;
 

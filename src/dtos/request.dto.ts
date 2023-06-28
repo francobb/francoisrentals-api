@@ -6,4 +6,10 @@ export class MaintenanceRequestDto {
 
   @IsString()
   public location: string;
+
+  @IsString()
+  public room: string;
+
+  @IsString()
+  public unit: string;
 }
