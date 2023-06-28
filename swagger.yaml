@@ -1,9 +1,9 @@
 tags:
-- name: users
-  description: users API
+  - name: users
+    description: users API
 
 paths:
-# [login] user
+  # [login] user
   /login:
     post:
       tags:
@@ -33,13 +33,13 @@ paths:
         500:
           description: 'Server Error'
 
-# [GET] users
+  # [GET] users
   /users:
     get:
       security:
-        - cookieAUth: [ ]
+        - cookieAUth: []
       tags:
-      - users
+        - users
       summary: Find All Users
       responses:
         200:
@@ -47,18 +47,18 @@ paths:
         500:
           description: 'Server Error'
 
-# [POST] users
+    # [POST] users
     post:
       tags:
-      - users
+        - users
       summary: Add User
       parameters:
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       requestBody:
         description: Optional description in *Markdown*
         required: true
@@ -76,17 +76,17 @@ paths:
         500:
           description: 'Server Error'
 
-# [GET] users/id
+  # [GET] users/id
   /users/{id}:
     get:
       tags:
-      - users
+        - users
       summary: Find User By Id
       parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
+        - name: id
+          in: path
+          description: User Id
+          required: true
       responses:
         200:
           description: 'OK'
@@ -95,22 +95,22 @@ paths:
         500:
           description: 'Server Error'
 
-# [PUT] users/id
+    # [PUT] users/id
     put:
       tags:
-      - users
+        - users
       summary: Update User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: id
+          in: path
+          description: user Id
+          required: true
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       responses:
         200:
           description: 'OK'
@@ -121,16 +121,16 @@ paths:
         500:
           description: 'Server Error'
 
-# [DELETE] users/id
+    # [DELETE] users/id
     delete:
       tags:
-      - users
+        - users
       summary: Delete User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
+        - name: id
+          in: path
+          description: user Id
+          required: true
       responses:
         200:
           description: 'OK'
@@ -139,11 +139,72 @@ paths:
         500:
           description: 'Server Error'
 
+  # [POST] tenants
+  /tenants:
+    post:
+      tags:
+        - Tenants
+      summary: Add Tenant
+      parameters:
+        - name: body
+          in: body
+          description: Tenant Data
+          required: true
+          schema:
+            $ref: '#/definitions/tenants'
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/tenants'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
 definitions:
+  tenants:
+    type: object
+    required:
+      - name
+      - email
+    properties:
+      email:
+        type: string
+        description: tenant email
+      lease_to:
+        type: string
+        format: date
+        description: lease to
+      move_in:
+        type: string
+        format: date
+        description: move in
+      name:
+        type: string
+        description: name
+      phone:
+        type: array
+        items:
+          type: string
+        description: phone
+      property:
+        type: string
+        description: property
+      unit:
+        type: string
+        description: unit
   users:
     type: object
     required:
-        - email
+      - email
     properties:
       email:
         type: string
@@ -153,8 +214,8 @@ definitions:
         description: user Password
 
 schemes:
- - https
- - http
+  - https
+  - http
 
 openapi: 3.0.0
 info:

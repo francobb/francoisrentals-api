@@ -54,14 +54,15 @@ describe('Auth Controller Unit Tests', function () {
 
   describe('logIn()', () => {
     it('should log user in', async () => {
-      mockAuthService.login = jest.fn().mockReturnValue({ cookie: 'oihoihow', findUser: userData });
+      mockAuthService.login = jest.fn().mockReturnValue({ cookie: 'oihoihow', findUser: userData, tenantInfo: {} });
       await subject.logIn(mReq, mRes, mNext);
 
       expect(mRes.setHeader).toHaveBeenCalledWith('Set-Cookie', ['oihoihow']);
       expect(mRes.status).toHaveBeenCalledWith(200);
       expect(mRes.json).toHaveBeenCalledWith({
-        data: expect.any(Object),
-        message: 'login',
+        cookie: 'oihoihow',
+        tenantInfo: {},
+        message: 'accessToken',
       });
       expect(mNext).not.toHaveBeenCalled();
     });
