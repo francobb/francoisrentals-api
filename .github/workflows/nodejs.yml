@@ -1,7 +1,7 @@
 name: Test-App
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, chore/* ]
   workflow_dispatch:
 jobs:
   test:
