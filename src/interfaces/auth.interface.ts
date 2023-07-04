@@ -1,8 +1,10 @@
 import { Request } from 'express';
 import { User } from '@interfaces/users.interface';
+import { Tenant } from '@interfaces/tenants.interface';
 
 export interface DataStoredInToken {
   _id: string;
+  tenant: Tenant;
 }
 
 export interface TokenData {
