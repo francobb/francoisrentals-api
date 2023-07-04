@@ -38,7 +38,7 @@ class AuthService {
     }
 
     const tenantInfo = await this.tenants.findOne({ email: userData.email });
-    const tokenData = this.createToken(findUser);
+    const tokenData = this.createToken(findUser, tenantInfo);
     const cookie = this.createCookie(tokenData);
 
     return { cookie, findUser, tenantInfo };
@@ -53,8 +53,8 @@ class AuthService {
     return findUser;
   }
 
-  private createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { _id: user._id };
+  private createToken(user: User, tenantInfo: Tenant): TokenData {
+    const dataStoredInToken: DataStoredInToken = { _id: user._id, tenant: tenantInfo };
     const secretKey: string = SECRET_KEY;
     const expiresIn: number = 60 * 60;
 
