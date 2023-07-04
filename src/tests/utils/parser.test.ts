@@ -1,6 +1,6 @@
 import Parser from '@utils/parser';
 import { CARRINGTON, LLC } from '@utils/constants';
-import {logger} from "@utils/logger";
+import { logger } from '@utils/logger';
 const fs = require('fs');
 
 const WELLES_REPORT = fs.readFileSync('src/tests/assets/welles_only_report.txt', 'utf8');
