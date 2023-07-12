@@ -1,9 +1,9 @@
-import { HttpException } from '@exceptions/HttpException';
-import { MaintenanceRequest } from '@interfaces/request.interface';
-import { MaintenanceRequestDto } from '@dtos/request.dto';
 import { NextFunction, Request, Response } from 'express';
 import MaintenanceController from '@controllers/maintenance.controller';
 import MaintenanceService from '@services/maintenance.service';
+import { HttpException } from '@exceptions/HttpException';
+import { MaintenanceRequest } from '@interfaces/request.interface';
+import { MaintenanceRequestDto } from '@dtos/request.dto';
 
 describe('MaintenanceController', () => {
   const mNext: NextFunction = jest.fn();
@@ -16,10 +16,11 @@ describe('MaintenanceController', () => {
 
   beforeEach(() => {
     requestData = {
-      unit: '1',
-      room: 'Kitchen',
-      location: '212 welles st',
       details: 'the counter is broken',
+      images: [],
+      location: '212 welles st',
+      room: 'Kitchen',
+      unit: '1',
     };
     err = new HttpException(404, 'Invalid Email');
     maintenanceController = new MaintenanceController();
@@ -42,7 +43,7 @@ describe('MaintenanceController', () => {
 
   describe('create Request', () => {
     it('should receive request', async () => {
-      jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue({ _id: 'fakeId', ...requestData });
+      jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue({ _id: 'fakeId', ...requestData, date: '', imagePaths: [] });
 
       await maintenanceController.saveRequest(mReq as Request, mRes as Response, mNext);
 
@@ -57,8 +58,10 @@ describe('MaintenanceController', () => {
         _id: '123',
         room: 'Kitchen',
         unit: '1',
+        imagePaths: [],
         location: '212 welles st',
         details: 'the counter is broken',
+        date: Date.now().toString(),
       };
 
       jest.spyOn(mockRequestService, 'findRequestById').mockResolvedValueOnce(request);
