@@ -18,8 +18,16 @@ const maintenanceRequestSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+  date: {
+    type: String,
+    required: true,
+  },
+  imagePaths: {
+    type: Array<string>,
+    required: false,
+  },
 });
 
-const maintenanceRequestModel = model<MaintenanceRequest & Document>('MaintenanceRequest', maintenanceRequestSchema);
+const MaintenanceRequestModel = model<MaintenanceRequest & Document>('MaintenanceRequest', maintenanceRequestSchema);
 
-export default maintenanceRequestModel;
+export default MaintenanceRequestModel;

@@ -1,7 +1,7 @@
 name: Test-App 🃏
 on:
   push:
-    branches: [ main, develop, chore/* ]
+    branches: [ main, develop, chore/*, feat/* ]
   workflow_dispatch:
 jobs:
   lint:
