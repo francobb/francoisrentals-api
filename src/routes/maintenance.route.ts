@@ -49,7 +49,7 @@ class MaintenanceRoute implements Routes {
       },
       filename: (req, file, cb) => {
         const fileName = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, fileName + '-' + crypto.randomUUID());
+        cb(null, crypto.randomUUID() + '-' + fileName);
       },
     });
     const uploader = multer({
