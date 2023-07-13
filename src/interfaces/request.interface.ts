@@ -1,6 +1,6 @@
 export interface MaintenanceRequest {
   _id: string;
-  date: string;
+  date: Date;
   details: string;
   imagePaths: string[];
   location: string;

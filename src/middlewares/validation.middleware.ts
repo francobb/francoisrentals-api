@@ -3,30 +3,49 @@ import { validate, ValidationError } from 'class-validator';
 import { RequestHandler } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 
-const convertDates = (data: any) => {
-  console.log(data);
-  const mvdate = new Date(data.move_in);
-  data.move_in = mvdate;
-};
+// const convertDates = (data: any) => {
+//   const mvdate = new Date(data.move_in);
+//   data.move_in = mvdate;
+// };
 
 const validationMiddleware = (
   type: any,
-  value: string | 'body' | 'query' | 'params' = 'body',
+  value: string | 'body' | 'query' | 'files' | 'params' = 'body',
   skipMissingProperties = false,
   whitelist = true,
   forbidNonWhitelisted = true,
 ): RequestHandler => {
-  return (req, res, next) => {
-    if (req.url.includes('/tenants')) convertDates(req['body']);
+  return async (req, res, next) => {
+    // if (req.url.includes('/tenants')) convertDates(req.body);
 
-    validate(plainToInstance(type, req[value]), { skipMissingProperties, whitelist, forbidNonWhitelisted }).then((errors: ValidationError[]) => {
-      if (errors.length > 0) {
-        const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+    try {
+      let validationResult: ValidationError[] = [];
+
+      if (value === 'files') {
+        const files = req[value] as Express.Multer.File[];
+
+        for (const file of files) {
+          const errors = await validate(plainToInstance(type, file), { skipMissingProperties, whitelist, forbidNonWhitelisted });
+
+          errors.forEach(error => {
+            error.property = `${file.filename} ${error.property}`;
+          });
+
+          validationResult = validationResult.concat(errors);
+        }
+      } else {
+        validationResult = await validate(plainToInstance(type, req[value]), { skipMissingProperties, whitelist, forbidNonWhitelisted });
+      }
+
+      if (validationResult.length > 0) {
+        const message = validationResult.map(error => `${error.property}: ${Object.values(error.constraints).join(', ')}`).join(', ');
         next(new HttpException(400, message));
       } else {
         next();
       }
-    });
+    } catch (error) {
+      next(error);
+    }
   };
 };
 

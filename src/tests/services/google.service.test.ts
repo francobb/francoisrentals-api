@@ -56,7 +56,7 @@ describe('Google Service', function () {
     jest.restoreAllMocks();
   });
 
-  xdescribe('getAllPayeesAndPayers()', function () {
+  describe('getAllPayeesAndPayers()', function () {
     it('should return all payees payers', async () => {
       jest.spyOn(mPayeePayers, 'find').mockReturnValueOnce([]);
       await googleService.getAllPayeesAndPayers();
@@ -64,7 +64,7 @@ describe('Google Service', function () {
     });
   });
 
-  xdescribe('getAuthUrl()', () => {
+  describe('getAuthUrl()', () => {
     it('should return a url', function () {
       jest.spyOn(mOauthClient, 'generateAuthUrl').mockReturnValue('');
       googleService.getAuthUrl();
@@ -72,7 +72,7 @@ describe('Google Service', function () {
     });
   });
 
-  xdescribe('getGoogleUser()', function () {
+  describe('getGoogleUser()', function () {
     it('should return google user data', async () => {
       const googleUserData = {
         id: 'string',
@@ -96,7 +96,7 @@ describe('Google Service', function () {
     });
   });
 
-  xdescribe('authenticateWithGoogle()', function () {
+  describe('authenticateWithGoogle()', function () {
     let fakeCode;
     let credentialData;
 

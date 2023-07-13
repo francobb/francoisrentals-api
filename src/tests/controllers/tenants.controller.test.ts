@@ -14,8 +14,8 @@ describe('Tenant Controller', function () {
   beforeAll(() => {
     tenantData = {
       email: '',
-      lease_to: new Date(),
-      move_in: new Date(),
+      lease_to: new Date().toISOString(),
+      move_in: new Date().toISOString(),
       name: 'fakeTenant',
       phone: ['12121212'],
       property: 'fakeProperty',

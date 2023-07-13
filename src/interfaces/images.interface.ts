@@ -1,7 +1,12 @@
 export interface Image extends Document {
-  uri: string;
-  name: string;
-  type: string;
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  destination: string;
+  filename: string;
+  path: string;
+  size: string;
 }
 
 export interface ImagePath extends Document {

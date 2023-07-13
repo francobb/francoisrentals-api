@@ -1,10 +1,11 @@
 import multer from 'multer';
-import path from 'path';
+import crypto from 'crypto';
 import { Router } from 'express';
 import MaintenanceController from '@controllers/maintenance.controller';
 import validationMiddleware from '@middlewares/validation.middleware';
 import { MaintenanceRequestDto } from '@dtos/request.dto';
 import { Routes } from '@interfaces/routes.interface';
+import { ImageDto } from '@dtos/images.dto';
 
 class MaintenanceRoute implements Routes {
   public path = '/maintenance';
@@ -48,7 +49,7 @@ class MaintenanceRoute implements Routes {
       },
       filename: (req, file, cb) => {
         const fileName = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, fileName + '_' + Date.now() + '-' + path.extname(file.originalname));
+        cb(null, fileName + '-' + crypto.randomUUID());
       },
     });
     const uploader = multer({
@@ -67,6 +68,7 @@ class MaintenanceRoute implements Routes {
       `${this.path}`,
       uploader.array('images', 10),
       validationMiddleware(MaintenanceRequestDto, 'body'),
+      validationMiddleware(ImageDto, 'files'),
       this.maintenanceController.saveRequest,
     );
   }
