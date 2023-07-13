@@ -7,8 +7,6 @@ class MaintenanceController {
 
   public saveRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(`files: ${JSON.stringify(req.files, null, 2)}`);
-
       const requestData: MaintenanceRequest = req.body;
 
       // Add the imagePaths to the requestData object

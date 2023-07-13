@@ -24,7 +24,7 @@ module.exports = {
     '!<rootDir>/src/utils/logger.ts',
     '!<rootDir>/src/utils/validateEnv.ts',
   ],
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/tests'],
   testPathIgnorePatterns: ['<rootDir>/src/intTests'],
   transformIgnorePatterns: ['/node_modules/(?!(axios)/).*'],
   transform: {

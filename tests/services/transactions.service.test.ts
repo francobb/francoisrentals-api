@@ -2,7 +2,7 @@ import TransactionsService from '@services/transactions.service';
 import { IFile, IQuery } from '@utils/interfaces';
 import { logger } from '@utils/logger';
 
-jest.mock('../../search/transactions.search', () => {
+jest.mock('../../src/search/transactions.search', () => {
   return jest.fn().mockImplementation(() => {
     return {
       withDate: jest.fn().mockReturnThis(),
