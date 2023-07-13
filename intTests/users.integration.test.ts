@@ -5,7 +5,7 @@ import AuthRoute from '@routes/auth.route';
 import UserService from '@services/users.service';
 import UsersRoute from '@routes/users.route';
 import { CreateUserDto } from '@dtos/users.dto';
-import { clearDatabase } from '@/intTests/setup/db-handler';
+import { clearDatabase } from './setup/db-handler';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));

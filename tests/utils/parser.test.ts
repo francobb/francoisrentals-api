@@ -3,7 +3,7 @@ import { CARRINGTON, LLC } from '@utils/constants';
 import { logger } from '@utils/logger';
 const fs = require('fs');
 
-const WELLES_REPORT = fs.readFileSync('src/tests/assets/welles_only_report.txt', 'utf8');
+const WELLES_REPORT = fs.readFileSync('tests/assets/welles_only_report.txt', 'utf8');
 describe('Testing Report Parser Utility', () => {
   describe('getTransactionsTextForLoc()', () => {
     it('should return empty array when getting transaction for house with no data', () => {
