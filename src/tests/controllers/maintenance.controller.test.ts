@@ -13,14 +13,24 @@ describe('MaintenanceController', () => {
   let maintenanceController: MaintenanceController;
   let mockRequestService: MaintenanceService;
   let requestData: MaintenanceRequestDto;
+  let responseData: MaintenanceRequest;
+  const date: Date = new Date();
 
   beforeEach(() => {
     requestData = {
       details: 'the counter is broken',
-      images: [],
       location: '212 welles st',
       room: 'Kitchen',
       unit: '1',
+    };
+    responseData = {
+      _id: 'fakeId',
+      details: 'the counter is broken',
+      location: '212 welles st',
+      room: 'Kitchen',
+      unit: '1',
+      imagePaths: [],
+      date: date,
     };
     err = new HttpException(404, 'Invalid Email');
     maintenanceController = new MaintenanceController();
@@ -30,6 +40,7 @@ describe('MaintenanceController', () => {
         id: '123',
       },
       body: requestData,
+      files: [],
     };
     mRes = {
       status: jest.fn().mockReturnThis(),
@@ -43,12 +54,12 @@ describe('MaintenanceController', () => {
 
   describe('create Request', () => {
     it('should receive request', async () => {
-      jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue({ _id: 'fakeId', ...requestData, date: '', imagePaths: [] });
+      jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue(responseData);
 
       await maintenanceController.saveRequest(mReq as Request, mRes as Response, mNext);
 
       expect(mRes.status).toHaveBeenCalledWith(201);
-      expect(mRes.json).toHaveBeenCalledWith({ data: { _id: 'fakeId', ...requestData }, message: 'request created' });
+      expect(mRes.json).toHaveBeenCalledWith({ data: responseData, message: 'request created' });
     });
   });
 
@@ -61,7 +72,7 @@ describe('MaintenanceController', () => {
         imagePaths: [],
         location: '212 welles st',
         details: 'the counter is broken',
-        date: Date.now().toString(),
+        date: new Date(),
       };
 
       jest.spyOn(mockRequestService, 'findRequestById').mockResolvedValueOnce(request);

@@ -23,8 +23,8 @@ describe('AuthService', () => {
     };
     tenantData = {
       email: 'j@j.com',
-      lease_to: new Date(),
-      move_in: new Date(),
+      lease_to: new Date().toISOString(),
+      move_in: new Date().toISOString(),
       name: 'fakeTenant',
       phone: ['12121212'],
       property: 'fakeProperty',

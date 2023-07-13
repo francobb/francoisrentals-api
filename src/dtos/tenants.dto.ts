@@ -1,15 +1,17 @@
-import { IsArray, IsDate, IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateTenantDto {
   @IsEmail()
+  @IsNotEmpty()
   public email: string;
 
   @IsOptional()
-  @IsDate()
-  public lease_to: Date;
+  @IsString()
+  public lease_to: string;
 
-  @IsDate()
-  public move_in: Date;
+  @IsNotEmpty()
+  @IsString()
+  public move_in: string;
 
   @IsNotEmpty()
   @IsString()

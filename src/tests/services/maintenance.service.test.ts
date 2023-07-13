@@ -4,10 +4,10 @@ import { HttpException } from '@exceptions/HttpException';
 import MaintenanceService from '@services/maintenance.service';
 
 describe('Maintenance Service', () => {
-  let mockRequestRepository;
-  let requestData: MaintenanceRequest;
   let createRequest: MaintenanceRequestDto;
   let maintenanceService: MaintenanceService;
+  let mockRequestRepository;
+  let requestData: MaintenanceRequest;
 
   beforeAll(() => {
     maintenanceService = new MaintenanceService();
@@ -18,6 +18,8 @@ describe('Maintenance Service', () => {
       room: 'Kitchen',
       location: '212 welles st',
       details: 'the counter is broken',
+      date: new Date(),
+      imagePaths: [],
     };
     createRequest = {
       unit: '1',
