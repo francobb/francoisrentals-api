@@ -1,4 +1,4 @@
-name: Test-App 🃏
+name: Test-Api 🃏
 on:
   push:
     branches: [ main, develop, chore/*, feat/* ]
@@ -11,7 +11,7 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
-      - name: ⎔ Setup node
+      - name: ⚙️ Setup node
         uses: actions/setup-node@v3
         with:
           node-version: "19.x"
@@ -23,15 +23,18 @@ jobs:
         run: npm run lint
 
   test:
+    name: 🧪 Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: ⎔ Setup node
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⚙ Setup node
         uses: actions/setup-node@v3
         with:
           node-version: "19.x"
 
-      - name: 📥 Install dependencies
+      - name: 📥 Download dependencies
         run: npm ci
 
       - name: Run tests
