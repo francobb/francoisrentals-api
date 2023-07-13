@@ -2,11 +2,11 @@
 # ex) production-stage: make build APP_NAME=<APP_NAME>
 # ex) development-stage: make build-dev APP_NAME=<APP_NAME>
 
-APP_NAME = typescript-express
+APP_NAME = francoisrentals-api
 APP_NAME := $(APP_NAME)
 
 .PHONY: build
-# Build the container image - Dvelopment
+# Build the container image - Development
 build-dev:
 	docker build -t ${APP_NAME}\
 		--target development-build-stage\
