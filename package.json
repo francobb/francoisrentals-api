@@ -21,7 +21,7 @@
     "lint:fix": "npm run lint -- --fix",
     "mongodb:up": "mongod --dbpath data",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test:unit": "jest -c jest.config.ts",
+    "test:unit": "jest -c jest.config.ts --detectOpenHandles",
     "test:int": "jest -c jest.integration.config.ts",
     "test": "npm run test:unit"
   },

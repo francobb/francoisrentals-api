@@ -1,8 +1,8 @@
 import request from 'supertest';
 import App from '@/app';
 import AuthRoute from '@routes/auth.route';
-import UserService from '../services/users.service';
-import { clearDatabase } from '@/intTests/setup/db-handler';
+import UserService from '../src/services/users.service';
+import { clearDatabase } from './setup/db-handler';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));

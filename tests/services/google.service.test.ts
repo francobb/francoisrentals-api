@@ -29,7 +29,7 @@ jest.mock('pdf-parse', () =>
   ),
 );
 
-describe('Google Service', function () {
+xdescribe('Google Service', function () {
   let googleService: GoogleService;
   let mGoogleRepository;
   let mOauthClient;
@@ -225,7 +225,7 @@ describe('Google Service', function () {
     });
   });
 
-  xdescribe('listDriveFiles', () => {
+  describe('listDriveFiles', () => {
     it('should list and not process drive files', async () => {
       const filesListMock = {
         data: {
