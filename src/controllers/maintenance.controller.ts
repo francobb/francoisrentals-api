@@ -10,7 +10,7 @@ class MaintenanceController {
       const requestData: MaintenanceRequest = req.body;
 
       // Add the imagePaths to the requestData object
-      requestData.imagePaths = (req.files as Express.Multer.File[]).map((file: Express.Multer.File) => file.path);
+      requestData.imagePaths = (req.files as Express.MulterS3.File[]).map((file: Express.MulterS3.File) => file.location);
 
       const createdRequest = await this.maintenanceService.createRequest(requestData);
 

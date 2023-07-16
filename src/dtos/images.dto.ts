@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class ImageDto {
   @IsString()
@@ -17,19 +17,54 @@ export class ImageDto {
   @IsNotEmpty()
   public mimetype: string;
 
-  @IsString()
-  @IsNotEmpty()
-  public destination: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public filename: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public path: string;
-
   @IsNumber()
   @IsNotEmpty()
   public size: number;
+
+  @IsString()
+  @IsNotEmpty()
+  public bucket: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public key: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public acl: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public contentType: string;
+
+  @IsString()
+  @IsOptional()
+  public contentDisposition: string;
+
+  @IsString()
+  @IsOptional()
+  public contentEncoding: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public storageClass: string;
+
+  @IsString()
+  @IsOptional()
+  public serverSideEncryption: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public location: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public etag: string;
+
+  @IsString()
+  @IsOptional()
+  public versionId: string;
+
+  @IsObject()
+  public metadata: object;
 }
