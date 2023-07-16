@@ -3,11 +3,6 @@ import { validate, ValidationError } from 'class-validator';
 import { RequestHandler } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 
-// const convertDates = (data: any) => {
-//   const mvdate = new Date(data.move_in);
-//   data.move_in = mvdate;
-// };
-
 const validationMiddleware = (
   type: any,
   value: string | 'body' | 'query' | 'files' | 'params' = 'body',
@@ -22,7 +17,7 @@ const validationMiddleware = (
       let validationResult: ValidationError[] = [];
 
       if (value === 'files') {
-        const files = req[value] as Express.Multer.File[];
+        const files = req[value] as Express.MulterS3.File[];
 
         for (const file of files) {
           const errors = await validate(plainToInstance(type, file), { skipMissingProperties, whitelist, forbidNonWhitelisted });
