@@ -1,4 +1,37 @@
-import { IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+  ValidationOptions,
+  registerDecorator,
+} from 'class-validator';
+
+@ValidatorConstraint({ name: 'isBuffer', async: false })
+class IsBufferConstraint implements ValidatorConstraintInterface {
+  validate(buffer: any, args: ValidationArguments) {
+    return buffer instanceof Buffer;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `${args.property} must be a Buffer object.`;
+  }
+}
+
+// Custom decorator to validate Buffer type
+export function IsBuffer(validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isBuffer',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: IsBufferConstraint,
+    });
+  };
+}
 
 export class ImageDto {
   @IsString()
@@ -17,54 +50,10 @@ export class ImageDto {
   @IsNotEmpty()
   public mimetype: string;
 
+  @IsBuffer()
+  public buffer: Buffer;
+
   @IsNumber()
   @IsNotEmpty()
   public size: number;
-
-  @IsString()
-  @IsNotEmpty()
-  public bucket: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public key: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public acl: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public contentType: string;
-
-  @IsString()
-  @IsOptional()
-  public contentDisposition: string;
-
-  @IsString()
-  @IsOptional()
-  public contentEncoding: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public storageClass: string;
-
-  @IsString()
-  @IsOptional()
-  public serverSideEncryption: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public location: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public etag: string;
-
-  @IsString()
-  @IsOptional()
-  public versionId: string;
-
-  @IsObject()
-  public metadata: object;
 }

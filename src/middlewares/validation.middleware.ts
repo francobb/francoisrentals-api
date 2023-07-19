@@ -11,13 +11,11 @@ const validationMiddleware = (
   forbidNonWhitelisted = true,
 ): RequestHandler => {
   return async (req, res, next) => {
-    // if (req.url.includes('/tenants')) convertDates(req.body);
-
     try {
       let validationResult: ValidationError[] = [];
 
       if (value === 'files') {
-        const files = req[value] as Express.MulterS3.File[];
+        const files = req[value] as Express.Multer.File[];
 
         for (const file of files) {
           const errors = await validate(plainToInstance(type, file), { skipMissingProperties, whitelist, forbidNonWhitelisted });
