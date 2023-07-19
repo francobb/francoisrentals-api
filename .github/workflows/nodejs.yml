@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 jobs:
   lint:
-    name: ⬣ ESLint
+    name: 🚦 ESLint
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
