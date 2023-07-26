@@ -1,9 +1,11 @@
+import Stripe from 'stripe';
 import tenantsModel from '@models/tenants.model';
-import { Tenant } from '@interfaces/tenants.interface';
-import { isEmpty } from '@utils/util';
 import { CreateTenantDto } from '@dtos/tenants.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { stripe } from '@config';
+import { Tenant } from '@interfaces/tenants.interface';
+import { isEmpty } from '@utils/util';
+import stripe from '@/config/stripe.config';
+import { logger } from '@utils/logger';
 
 class TenantService {
   public tenants = tenantsModel;
@@ -15,7 +17,7 @@ class TenantService {
   public async createTenant(tenantData: CreateTenantDto): Promise<Tenant> {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
-    const customer = await stripe.customers.create();
+    // const customer = await this.createCustomer(tenantData);
 
     // todo: add stripe info to tenant.
     const findTenant: Tenant = await this.tenants.findOne({ email: tenantData.email });
@@ -32,6 +34,19 @@ class TenantService {
 
     return findTenant;
   }
+
+  // createCustomer = async tenantData => {
+  //   const params: Stripe.CustomerCreateParams = {
+  //     name: tenantData.name,
+  //     email: tenantData.email,
+  //     description: `${tenantData.unit} at ${tenantData.property}`,
+  //   };
+  //
+  //   const customer: Stripe.Customer = await stripe.customers.create(params);
+  //
+  //   logger.info(`created stripe customer ${customer.id}`);
+  //   return customer;
+  // };
 }
 
 export default TenantService;
