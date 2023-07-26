@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import s3Client from './aws.config';
-import stripe from './stripe.config';
+// import stripe from './stripe.config';
 
 config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
@@ -30,7 +30,6 @@ const {
 } = process.env;
 
 export {
-  stripe,
   APP_ID,
   APP_SECRET,
   AWS_BUCKET,

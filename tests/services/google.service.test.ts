@@ -29,7 +29,7 @@ jest.mock('pdf-parse', () =>
   ),
 );
 
-xdescribe('Google Service', function () {
+describe('Google Service', function () {
   let googleService: GoogleService;
   let mGoogleRepository;
   let mOauthClient;
