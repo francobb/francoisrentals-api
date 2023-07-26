@@ -1,4 +1,3 @@
-import App from '@/app';
 import AuthRoute from '@routes/auth.route';
 import GoogleRoute from '@routes/google.route';
 import IndexRoute from '@routes/index.route';
@@ -8,20 +7,5 @@ import TransactionsRoute from '@routes/transactions.route';
 import TwilioRoute from '@routes/twilio.route';
 import UsersRoute from '@routes/users.route';
 import StripeRoute from '@routes/stripe.route';
-import validateEnv from '@utils/validateEnv';
 
-validateEnv();
-
-const app = new App([
-  new AuthRoute(),
-  new GoogleRoute(),
-  new IndexRoute(),
-  new MaintenanceRoute(),
-  new StripeRoute(),
-  new TenantsRoute(),
-  new TransactionsRoute(),
-  new TwilioRoute(),
-  new UsersRoute(),
-]);
-
-app.listen();
+export { AuthRoute, GoogleRoute, IndexRoute, MaintenanceRoute, TenantsRoute, TransactionsRoute, TwilioRoute, UsersRoute, StripeRoute };
