@@ -14,7 +14,7 @@ class StripeRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(`${this.path}`, authMiddleware, this.stripeController.receiveRentPayment);
-    this.router.post(`${this.path}`, authMiddleware, this.stripeController.receivePaymentRequest);
+    this.router.post(`${this.path}/request`, authMiddleware, this.stripeController.receivePaymentRequest);
     this.router.post(`$/stripe`, authMiddleware, this.stripeController.processStripeWebhook);
   }
 }

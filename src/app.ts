@@ -82,6 +82,8 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    // todo: add  url to url obj
+    this.app.use('/payment/stripe', express.raw({ type: '*/*' }));
   }
 
   private initializeRoutes(routes: Routes[]) {

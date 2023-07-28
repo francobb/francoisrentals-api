@@ -43,7 +43,18 @@ class StripeController {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: 200000,
         currency: 'usd',
+        setup_future_usage: 'off_session',
+        // automatic_payment_methods: {
+        //   enabled: true,
+        // },
         payment_method_types: ['card', 'us_bank_account'],
+        payment_method_options: {
+          us_bank_account: {
+            financial_connections: {
+              permissions: ['payment_method'],
+            },
+          },
+        },
         metadata: { name: 'William' },
       });
       res.status(200).json({ message: 'Payment initiated', clientSecret: paymentIntent.client_secret });

@@ -31,9 +31,8 @@ class AuthService {
     const findUser: User = await this.users.findOne({ email: userData.email });
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
-    // if (userData.hasOwnProperty('password')) {
-    if (userData instanceof CreateUserDto) {
-      const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+    if (userData.hasOwnProperty('password')) {
+      const isPasswordMatching: boolean = await compare((userData as CreateUserDto).password, findUser.password);
       if (!isPasswordMatching) throw new HttpException(409, 'Your password not matching');
     }
 
