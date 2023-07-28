@@ -80,6 +80,7 @@ describe('AuthService', () => {
     });
 
     it('should return a cookie and findUser for valid credentials', async () => {
+      bcrypt.compare = jest.fn().mockResolvedValue(true);
       const findTenant = jest.spyOn(mockTenantRepository, 'findOne').mockResolvedValue(tenantData);
       const findUserByEmail = jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(userData);
       const result = await authService.login(userData as CreateUserDto);
