@@ -1,4 +1,3 @@
-import Stripe from 'stripe';
 import StripeController from '../../src/controllers/stripe.controller';
 import stripe from '../../src/config/stripe.config';
 

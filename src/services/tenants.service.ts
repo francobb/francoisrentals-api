@@ -17,13 +17,12 @@ class TenantService {
   public async createTenant(tenantData: CreateTenantDto): Promise<Tenant> {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
-    // const customer = await this.createCustomer(tenantData);
-
-    // todo: add stripe info to tenant.
     const findTenant: Tenant = await this.tenants.findOne({ email: tenantData.email });
     if (findTenant) throw new HttpException(409, `You're already registered`);
 
-    return await this.tenants.create({ ...tenantData });
+    const customer = await this.createCustomer(tenantData);
+
+    return await this.tenants.create({ ...tenantData, customerId: customer.id });
   }
 
   async updateTenant(tenantId: string, tenantData: CreateTenantDto) {
@@ -35,18 +34,20 @@ class TenantService {
     return findTenant;
   }
 
-  // createCustomer = async tenantData => {
-  //   const params: Stripe.CustomerCreateParams = {
-  //     name: tenantData.name,
-  //     email: tenantData.email,
-  //     description: `${tenantData.unit} at ${tenantData.property}`,
-  //   };
-  //
-  //   const customer: Stripe.Customer = await stripe.customers.create(params);
-  //
-  //   logger.info(`created stripe customer ${customer.id}`);
-  //   return customer;
-  // };
+  createCustomer = async tenantData => {
+    const params: Stripe.CustomerCreateParams = {
+      address: `${tenantData.property} ${tenantData.unit}`,
+      description: `${tenantData.unit} at ${tenantData.property}`,
+      email: tenantData.email,
+      name: tenantData.name,
+      phone: tenantData.phone,
+    };
+
+    const customer: Stripe.Customer = await stripe.customers.create(params);
+
+    logger.info(`created stripe customer ${customer.id}`);
+    return customer;
+  };
 }
 
 export default TenantService;

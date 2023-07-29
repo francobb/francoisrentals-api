@@ -31,6 +31,10 @@ const tenantsSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+  customerId: {
+    type: String,
+    required: false,
+  },
 });
 
 const tenantsModel = model<Tenant & Document>('Tenant', tenantsSchema);

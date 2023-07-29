@@ -1,12 +1,14 @@
 import TenantService from '@services/tenants.service';
 import { HttpException } from '@exceptions/HttpException';
 import { CreateTenantDto } from '@dtos/tenants.dto';
+import stripe from '../../src/config/stripe.config';
 
 describe('Tenants service', function () {
   let tenantService: TenantService;
   let mTenantRepository;
   let tenantData;
   let tenantId;
+  let createMock;
 
   beforeAll(() => {
     tenantService = new TenantService();
@@ -38,6 +40,8 @@ describe('Tenants service', function () {
 
   describe('createTenant()', function () {
     it('should create tenant', async () => {
+      createMock = jest.fn().mockResolvedValueOnce({ id: 'fake-id' });
+      (stripe.customers.create as jest.Mock) = createMock;
       mTenantRepository.findOne = jest.fn().mockResolvedValueOnce(null);
       mTenantRepository.create = jest.fn().mockResolvedValueOnce(tenantData);
       const result = await tenantService.createTenant(tenantData);
@@ -45,6 +49,8 @@ describe('Tenants service', function () {
       expect(mTenantRepository.create).toHaveBeenCalled();
     });
     it('should not create existing tenant', async () => {
+      createMock = jest.fn().mockResolvedValueOnce({ id: 'fake-id' });
+      (stripe.customers.create as jest.Mock) = createMock;
       mTenantRepository.findOne = jest.fn().mockResolvedValueOnce(tenantData);
       await expect(tenantService.createTenant(tenantData)).rejects.toThrow(new HttpException(400, `You're already registered`));
       expect(mTenantRepository.create).not.toHaveBeenCalled();
