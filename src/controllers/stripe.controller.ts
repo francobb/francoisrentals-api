@@ -1,37 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import stripe from '@services/clients/stripe.client';
-import { ROOT_URI } from '@config';
 import { logger } from '@utils/logger';
+import StripeService from '@services/stripe.service';
 
 class StripeController {
+  public stripeService: StripeService = new StripeService();
+
   public receiveRentPayment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        // customer: '{{CUSTOMER_ID}}',
-        payment_method_types: ['card', 'us_bank_account'],
-        payment_method_options: {
-          us_bank_account: {
-            financial_connections: {
-              permissions: ['payment_method'],
-            },
-          },
-        },
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              unit_amount: 200000,
-              product_data: {
-                name: 'Rent Payment',
-              },
-            },
-            quantity: 1,
-          },
-        ],
-        success_url: `${ROOT_URI}?success`,
-        cancel_url: `${ROOT_URI}?cancel`,
-      });
+      const session = await this.stripeService.createSession(req.body.email);
+
       res.status(200).json({ data: session, message: session.url });
     } catch (err) {
       next(err);
@@ -40,24 +18,8 @@ class StripeController {
 
   public receivePaymentRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const paymentIntent = await stripe.paymentIntents.create({
-        // customer: '{{CUSTOMER_ID}}',
-        amount: 200000,
-        currency: 'usd',
-        setup_future_usage: 'off_session',
-        // automatic_payment_methods: {
-        //   enabled: true,
-        // },
-        payment_method_types: ['card', 'us_bank_account'],
-        payment_method_options: {
-          us_bank_account: {
-            financial_connections: {
-              permissions: ['payment_method'],
-            },
-          },
-        },
-        metadata: { name: 'William' },
-      });
+      const paymentIntent = await this.stripeService.createPaymentIntent(req.body.email);
+
       res.status(200).json({ message: 'Payment initiated', clientSecret: paymentIntent.client_secret });
     } catch (e) {
       next(e);

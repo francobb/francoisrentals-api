@@ -36,11 +36,18 @@ class TenantService {
 
   createCustomer = async tenantData => {
     const params: Stripe.CustomerCreateParams = {
-      address: `${tenantData.property} ${tenantData.unit}`,
-      description: `${tenantData.unit} at ${tenantData.property}`,
+      description: `Unit #${tenantData.unit} at ${tenantData.property}`,
       email: tenantData.email,
       name: tenantData.name,
-      phone: tenantData.phone,
+      phone: tenantData.phone[0],
+      address: {
+        city: 'Woonsocket',
+        country: 'US',
+        line1: tenantData.property,
+        line2: `Unit #${tenantData.unit}`,
+        postal_code: '02895',
+        state: 'RI',
+      },
     };
 
     const customer: Stripe.Customer = await stripe.customers.create(params);
