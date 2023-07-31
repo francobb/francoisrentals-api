@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { MaintenanceRequest } from '@interfaces/request.interface';
 import MaintenanceService from '@services/maintenance.service';
+import s3Client from '@clients/aws.client';
+import { AWS_BUCKET } from '@config';
+import { MaintenanceRequest } from '@interfaces/request.interface';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { AWS_BUCKET, s3Client } from '@config';
 import { logger } from '@utils/logger';
 
 class MaintenanceController {

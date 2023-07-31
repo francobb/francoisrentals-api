@@ -1,10 +1,10 @@
 import Stripe from 'stripe';
+import stripe from '@clients/stripe.client';
 import tenantsModel from '@models/tenants.model';
 import { CreateTenantDto } from '@dtos/tenants.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { Tenant } from '@interfaces/tenants.interface';
 import { isEmpty } from '@utils/util';
-import stripe from '@/config/stripe.config';
 import { logger } from '@utils/logger';
 
 class TenantService {

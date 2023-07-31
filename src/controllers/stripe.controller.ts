@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
+import stripe from '@services/clients/stripe.client';
 import { ROOT_URI } from '@config';
-import stripe from '@/config/stripe.config';
 import { logger } from '@utils/logger';
 
 class StripeController {
@@ -41,6 +41,7 @@ class StripeController {
   public receivePaymentRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
+        // customer: '{{CUSTOMER_ID}}',
         amount: 200000,
         currency: 'usd',
         setup_future_usage: 'off_session',
@@ -89,3 +90,5 @@ class StripeController {
 }
 
 export default StripeController;
+
+// todo: create stripe service to get tenant info from.

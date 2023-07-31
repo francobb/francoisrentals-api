@@ -1,5 +1,5 @@
 import StripeController from '../../src/controllers/stripe.controller';
-import stripe from '../../src/config/stripe.config';
+import stripe from '../../src/services/clients/stripe.client';
 
 describe('Stripe Controller Unit Tests', function () {
   let mNext;

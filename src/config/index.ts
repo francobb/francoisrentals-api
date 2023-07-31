@@ -1,6 +1,4 @@
 import { config } from 'dotenv';
-import s3Client from './aws.config';
-// import stripe from './stripe.config';
 
 config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
@@ -51,5 +49,4 @@ export {
   STRIPE_PUBLISHABLE_KEY,
   TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN,
-  s3Client,
 };
