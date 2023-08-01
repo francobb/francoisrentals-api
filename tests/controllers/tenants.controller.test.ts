@@ -19,6 +19,8 @@ describe('Tenant Controller', function () {
       name: 'fakeTenant',
       phone: ['12121212'],
       property: 'fakeProperty',
+      rentalAmount: 1000,
+      rentalBalance: 0,
       unit: 'fakeunit',
     };
     mNext = jest.fn();

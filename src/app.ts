@@ -14,22 +14,22 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { frAscii } from '@utils/frAscii';
-import payeePayerModel from '@models/payeePayer.model';
-import payeePayerJson from './assets/payeePayer.json';
+import TenantService from '@services/tenants.service';
 
 class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
+  public tenantService;
 
   constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
+    this.tenantService = new TenantService();
 
     this.readInAsciiFile();
     this.connectToDatabase();
-    this.initPayeePayerData();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -62,16 +62,6 @@ class App {
       })
       .catch(err => logger.error(`🔻 Database Connection Error: ${err}`));
   }
-  private initPayeePayerData() {
-    const payeePayerMap = payeePayerJson.map(p => {
-      return { name: p };
-    });
-
-    payeePayerModel
-      .insertMany(payeePayerMap)
-      .then(() => logger.info(`��� Saved payees to database`))
-      .catch(err => logger.error(`Error from saving payees & payers ${err}`));
-  }
 
   private initializeMiddlewares() {
     this.app.use(morgan(LOG_FORMAT, { stream }));
@@ -82,8 +72,8 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    // todo: add  url to url obj
-    this.app.use('/payment/stripe', express.raw({ type: '*/*' }));
+    // todo: add url to url obj
+    // this.app.use('/payment/stripe', express.raw({ type: '*/*' }));
   }
 
   private initializeRoutes(routes: Routes[]) {
@@ -140,6 +130,20 @@ class App {
 
   private readInAsciiFile() {
     console.info(frAscii);
+  }
+
+  public async updateRentalBalance() {
+    const tenants = await this.tenantService.findAllTenants();
+    const currentDate = new Date();
+    const isFirstDayOfMonth = currentDate.getDate() === 1;
+
+    if (isFirstDayOfMonth) {
+      for (const tnt of tenants) {
+        logger.info('Updating rental amount for tenant ' + tnt.name);
+        tnt.rentalBalance += tnt.rentalAmount;
+        await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance });
+      }
+    }
   }
 }
 

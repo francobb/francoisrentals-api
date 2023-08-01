@@ -28,7 +28,7 @@ class TenantService {
   async updateTenant(tenantId: string, tenantData: CreateTenantDto) {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
-    const findTenant: Tenant = await this.tenants.findByIdAndUpdate(tenantId, { tenantData });
+    const findTenant: Tenant = await this.tenants.findByIdAndUpdate({ _id: tenantId }, { ...tenantData }, { new: true, useFindAndModify: false });
     if (!findTenant) throw new HttpException(409, `Tenant not found`);
 
     return findTenant;
