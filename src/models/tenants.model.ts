@@ -35,6 +35,14 @@ const tenantsSchema: Schema = new Schema({
     type: String,
     required: false,
   },
+  rentalAmount: {
+    type: Number,
+    required: true,
+  },
+  rentalBalance: {
+    type: Number,
+    required: true,
+  },
 });
 
 const tenantsModel = model<Tenant & Document>('Tenant', tenantsSchema);

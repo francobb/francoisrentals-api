@@ -7,5 +7,7 @@ export interface Tenant {
   name: string;
   phone: string[];
   property: string;
+  rentalAmount: number;
+  rentalBalance: number;
   unit: string;
 }
