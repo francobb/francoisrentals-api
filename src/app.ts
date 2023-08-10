@@ -15,6 +15,7 @@ import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { frAscii } from '@utils/frAscii';
 import TenantService from '@services/tenants.service';
+import { CreateTenantDto } from '@dtos/tenants.dto';
 
 class App {
   public app: express.Application;
@@ -137,13 +138,13 @@ class App {
     const currentDate = new Date();
     const isFirstDayOfMonth = currentDate.getDate() === 1;
 
-    if (isFirstDayOfMonth) {
-      for (const tnt of tenants) {
-        logger.info('Updating rental amount for tenant ' + tnt.name);
-        tnt.rentalBalance += tnt.rentalAmount;
-        await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance });
-      }
+    // if (isFirstDayOfMonth) {
+    for (const tnt of tenants) {
+      logger.info('Updating rental amount for tenant ' + tnt.name);
+      tnt.rentalBalance += tnt.rentalAmount;
+      await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance } as CreateTenantDto);
     }
+    // }
   }
 }
 

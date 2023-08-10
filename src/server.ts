@@ -26,8 +26,8 @@ const app = new App([
   new UsersRoute(),
 ]);
 
-// cron.schedule('*/5 * * * *', async () => {
-cron.schedule('0 0 1 * *', async () => {
+// cron.schedule('0 0 1 * *', async () => {
+cron.schedule('*/15 * * * *', async () => {
   await app.updateRentalBalance();
   logger.info('Rental balances updated.');
 });
