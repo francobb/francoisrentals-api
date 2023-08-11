@@ -36,8 +36,6 @@ paths:
   # [GET] users
   /users:
     get:
-      security:
-        - cookieAUth: []
       tags:
         - users
       summary: Find All Users
@@ -217,24 +215,3 @@ schemes:
   - https
   - http
 
-openapi: 3.0.0
-info:
-  title: LMS API Specification
-  version: 1.0.0
-  description: Open documentation for LMS API
-components:
-  securitySchemes:
-    bearerAuth: # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-    basicAuth:
-      type: http
-      scheme: basic
-    cookieAUth:
-      type: apiKey
-      in: cookie
-      name: Authorization
-security:
-  - cookieAUth: []
-  - basicAuth: []
-  - bearerAuth: []
