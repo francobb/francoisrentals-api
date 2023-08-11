@@ -100,6 +100,20 @@ class App {
           description: 'Development server',
         },
       ],
+      components: {
+        securitySchemes: {
+          BearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT', // Modify this according to your token format
+          },
+        },
+      },
+      security: [
+        {
+          BearerAuth: [], // This indicates that the BearerAuth security scheme should be applied to all operations
+        },
+      ],
       apis: ['swagger.yaml'],
     };
     const options = {
