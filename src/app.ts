@@ -97,7 +97,7 @@ class App {
       servers: [
         {
           url: `${ROOT_URI}`,
-          description: 'Development server',
+          description: ROOT_URI.indexOf('localhost') != -1 ? 'Development' : 'Production',
         },
       ],
       components: {

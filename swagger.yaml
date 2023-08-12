@@ -1,5 +1,5 @@
 tags:
-  - name: users
+  - name: Users
     description: users API
 
 paths:
@@ -7,7 +7,7 @@ paths:
   /login:
     post:
       tags:
-        - Users
+        - Login
       summary: Login as user
       parameters:
         - name: body
@@ -37,7 +37,7 @@ paths:
   /users:
     get:
       tags:
-        - users
+        - Users
       summary: Find All Users
       responses:
         200:
@@ -48,7 +48,7 @@ paths:
     # [POST] users
     post:
       tags:
-        - users
+        - Users
       summary: Add User
       parameters:
         - name: body
@@ -74,11 +74,12 @@ paths:
         500:
           description: 'Server Error'
 
-  # [GET] users/id
+  # users/id
   /users/{id}:
+    # [GET] users/id
     get:
       tags:
-        - users
+        - Users
       summary: Find User By Id
       parameters:
         - name: id
@@ -96,7 +97,7 @@ paths:
     # [PUT] users/id
     put:
       tags:
-        - users
+        - Users
       summary: Update User By Id
       parameters:
         - name: id
@@ -122,7 +123,7 @@ paths:
     # [DELETE] users/id
     delete:
       tags:
-        - users
+        - Users
       summary: Delete User By Id
       parameters:
         - name: id
@@ -137,8 +138,9 @@ paths:
         500:
           description: 'Server Error'
 
-  # [POST] tenants
+  # tenants
   /tenants:
+    # [POST] tenants
     post:
       tags:
         - Tenants
@@ -166,6 +168,17 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
+    # [GET] tenants
+    get:
+      tags:
+        - Tenants
+      summary: Get All Tenants
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+
 
 definitions:
   tenants:
@@ -199,6 +212,12 @@ definitions:
       unit:
         type: string
         description: unit
+      rentalAmount:
+        type: number
+        description: rental amount
+      rentalBalance:
+        type: number
+        description: rentalBalance
   users:
     type: object
     required:
