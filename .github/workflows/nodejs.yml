@@ -1,7 +1,7 @@
 name: Test-Api 🃏
 on:
   push:
-    branches: [ main, develop, chore/*, feat/* ]
+    branches: [ main, develop, chore/*, feat/*, refactor/* ]
   workflow_dispatch:
 jobs:
   lint:
