@@ -31,11 +31,11 @@ describe('Testing Users', () => {
     password = 'password';
     userData = {
       email: email,
-      password: await bcrypt.hash(password, 10),
+      password: password,
     };
     authUser = await new UserService().createUser({
       email: email,
-      password: await bcrypt.hash(password, 10),
+      password: password,
     });
     expectedUser = {
       _id: expect.any(String),
