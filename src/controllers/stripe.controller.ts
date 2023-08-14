@@ -52,5 +52,3 @@ class StripeController {
 }
 
 export default StripeController;
-
-// todo: create stripe service to get tenant info from.

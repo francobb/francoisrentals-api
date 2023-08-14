@@ -4,14 +4,15 @@ import { Tenant } from '@interfaces/tenants.interface';
 
 class TenantsController {
   public tenantService = new TenantService();
-  public async getTenants(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+  public getTenants = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenants: Tenant[] = await this.tenantService.findAllTenants();
       res.status(200).json({ data: tenants, message: 'getTenants' });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
   public createTenant = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
