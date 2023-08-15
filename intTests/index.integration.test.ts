@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import request from 'supertest';
 import App from '@/app';
 import IndexRoute from '@routes/index.route';
