@@ -1,10 +1,14 @@
 import { config } from 'dotenv';
 import mongoose from 'mongoose';
+import { clearDatabase } from './db-handler';
 
 config({ path: `.env.test.local` });
 
 export = async function globalSetup() {
   console.log('CHECK IF DB IS RUNNING OR NOT');
+  //todo: start app once here
+  await clearDatabase();
+
   // let uri;
   // if (process.env.DB_MEMORY) {
   //   const instance = await MongoMemoryServer.create();

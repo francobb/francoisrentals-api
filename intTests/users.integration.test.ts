@@ -6,10 +6,15 @@ import UserService from '@services/users.service';
 import UsersRoute from '@routes/users.route';
 import { CreateUserDto } from '@dtos/users.dto';
 import { clearDatabase } from './setup/db-handler';
+import userModel from '../src/models/users.model';
 
 afterAll(async () => {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+  await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
+
+function doesUserExist(user) {
+  return Boolean(userModel.find({ email: user.email }))
+}
 
 describe('Testing Users', () => {
   let app;
@@ -43,15 +48,30 @@ describe('Testing Users', () => {
       email: authUser._doc.email,
       password: authUser._doc.password,
     };
-
-    const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
-    cookies = loginReq.headers['set-cookie'];
   });
 
   describe('[GET] METHODS', function () {
+    beforeAll(async () => {
+      if (doesUserExist(authUser)) {
+        const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
+        cookies = loginReq.headers['set-cookie'];
+      } else {
+        authUser = await new UserService().createUser({
+          email: email,
+          password: password,
+        });
+        const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
+        cookies = loginReq.headers['set-cookie'];
+      };
+    });
+
+    afterAll(async () => {
+      await clearDatabase();
+    });
+
     describe('[GET] /users', () => {
       it('response findAll Users', async () => {
-        const getAllReq = await request(app.getServer()).get(`${usersRoute.path}`).set('Accept', 'application/json').set('Cookie', cookies[0]);
+        const getAllReq = await request(app.getServer()).get(`${usersRoute.path}`).set('Accept', 'application/json').set('Cookie', cookies);
 
         expect(getAllReq.status).toBe(200);
         expect(getAllReq.body.data).toEqual([expectedUser]);
@@ -65,7 +85,7 @@ describe('Testing Users', () => {
         const req: request.Response = await request(app.getServer())
           .get(`${usersRoute.path}/${userId}`)
           .set('Accept', 'application/json')
-          .set('Cookie', cookies[0]);
+          .set('Cookie', cookies);
 
         expect(req.status).toBe(200);
         expect(req.body.data).toStrictEqual(expectedUser);
@@ -91,11 +111,15 @@ describe('Testing Users', () => {
   });
 
   describe('[PUT] /users/:id', () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
       expectedUser = await new UserService().createUser({
         email: 'user2updatee@mail.com',
-        password: await bcrypt.hash('pw2update', 10),
+        password: 'password',
       });
+    });
+
+    afterAll(async () => {
+      await clearDatabase();
     });
 
     it('response Update User', async () => {
@@ -118,7 +142,7 @@ describe('Testing Users', () => {
   });
 
   describe('[DELETE] /users/:id', () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
       expectedUser = await new UserService().createUser({
         email: 'user2delete@mail.com',
         password: await bcrypt.hash('pw2delete', 10),

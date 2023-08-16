@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { clearDatabase } from './db-handler';
 
 beforeAll(async () => {
   // mongoose.set('strictQuery', false);
@@ -6,5 +7,5 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // await mongoose.disconnect();
+  await mongoose.disconnect();
 });
