@@ -80,12 +80,20 @@ jobs:
       - name: 👷🏽‍ Rebuild bcrypt
         run: npm rebuild --update-binary bcrypt
 
+#      - name: 🍃 🐳 Start MongoDB
+#        uses: supercharge/mongodb-github-action@v1.10.0
+#        with:
+#          mongodb-version: 6.0
+#
+#      - name: Set SYSTEM_BINARY for MongoMemoryServer
+#        run: echo "SYSTEM_BINARY=/usr/bin/mongod" >> $GITHUB_ENV
+
       - name: 🍃 🐳 Run MongoDB Docker Container
         run: |
           docker run -d --name fr-db -p 27017:27017 \
+            mongo
 #            -e MONGO_INITDB_ROOT_USERNAME=admin \
 #            -e MONGO_INITDB_ROOT_PASSWORD=adminpassword \
-            mongo
 
 
 
