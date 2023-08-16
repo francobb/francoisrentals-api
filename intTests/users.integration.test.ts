@@ -33,12 +33,6 @@ describe('Testing Users', () => {
       email: email,
       password: password,
     };
-    // expectedUser = {
-    //   _id: expect.any(String),
-    //   __v: authUser._doc.__v,
-    //   email: authUser._doc.email,
-    //   password: authUser._doc.password,
-    // };
   });
 
   describe('[GET] METHODS', function () {
