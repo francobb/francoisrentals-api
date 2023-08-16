@@ -6,15 +6,10 @@ import UserService from '@services/users.service';
 import UsersRoute from '@routes/users.route';
 import { CreateUserDto } from '@dtos/users.dto';
 import { clearDatabase } from './setup/db-handler';
-import userModel from '../src/models/users.model';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
-
-function doesUserExist(user) {
-  return Boolean(userModel.find({ email: user.email }))
-}
 
 describe('Testing Users', () => {
   let app;
@@ -38,31 +33,29 @@ describe('Testing Users', () => {
       email: email,
       password: password,
     };
-    authUser = await new UserService().createUser({
-      email: email,
-      password: password,
-    });
-    expectedUser = {
-      _id: expect.any(String),
-      __v: authUser._doc.__v,
-      email: authUser._doc.email,
-      password: authUser._doc.password,
-    };
+    // expectedUser = {
+    //   _id: expect.any(String),
+    //   __v: authUser._doc.__v,
+    //   email: authUser._doc.email,
+    //   password: authUser._doc.password,
+    // };
   });
 
   describe('[GET] METHODS', function () {
     beforeAll(async () => {
-      if (doesUserExist(authUser)) {
-        const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
-        cookies = loginReq.headers['set-cookie'];
-      } else {
-        authUser = await new UserService().createUser({
-          email: email,
-          password: password,
-        });
-        const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
-        cookies = loginReq.headers['set-cookie'];
+      authUser = await new UserService().createUser({
+        email: email,
+        password: password,
+      });
+
+      expectedUser = {
+        _id: expect.any(String),
+        __v: authUser._doc.__v,
+        email: authUser._doc.email,
+        password: authUser._doc.password,
       };
+      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
+      cookies = loginReq.headers['set-cookie'];
     });
 
     afterAll(async () => {

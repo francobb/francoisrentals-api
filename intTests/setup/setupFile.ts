@@ -17,7 +17,10 @@ beforeAll(done => {
   });
 });
 
-afterAll(async done => {
-  await closeDatabase();
-  server.close(done);
+afterAll(async () => {
+  await closeDatabase(); // Clear the database after the server is closed
+
+  server.close(() => {
+    // done();
+  });
 });
