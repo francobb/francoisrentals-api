@@ -5,7 +5,7 @@ import UserService from '../src/services/users.service';
 import { clearDatabase } from './setup/db-handler';
 
 afterAll(async () => {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+  await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
 
 describe('Testing Auth', () => {
@@ -22,6 +22,10 @@ describe('Testing Auth', () => {
     };
   });
 
+  afterAll(async () => {
+    await clearDatabase();
+  });
+
   describe('[POST] /signup', () => {
     afterAll(async () => {
       await clearDatabase();
@@ -34,7 +38,7 @@ describe('Testing Auth', () => {
 
   describe('[POST] /login', () => {
     beforeAll(async () => {
-      await new UserService().createUser(userData);
+      userData = await new UserService().createUser({ email: 'test1@email.com', password: 'fakePassword' });
     });
 
     afterAll(async () => {
@@ -44,17 +48,17 @@ describe('Testing Auth', () => {
     it('response should have the Set-Cookie header with the Authorization token', async () => {
       return request(app.getServer())
         .post(`${authRoute.path}login`)
-        .send(userData)
+        .send({ email: 'test1@email.com', password: 'fakePassword' })
         .expect('Set-Cookie', /^Authorization=.+/);
     });
   });
 
   describe('[POST] /logout', () => {
     let cookies;
-    beforeEach(async () => {
-      await new UserService().createUser(userData);
+    beforeAll(async () => {
+      await new UserService().createUser({ email: 'test1@email.com', password: 'fakePassword' });
 
-      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
+      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send({ email: 'test1@email.com', password: 'fakePassword' });
       cookies = loginReq.headers['set-cookie'];
     });
 
@@ -63,9 +67,9 @@ describe('Testing Auth', () => {
     });
 
     it('logout Set-Cookie Authorization=; Max-age=0', async () => {
-      return request(app.getServer())
+      request(app.getServer())
         .post(`${authRoute.path}logout`)
-        .set('Cookie', cookies[0])
+        .set('Cookie', cookies)
         .send(userData)
         .expect('Set-Cookie', /^Authorization=\; Max-age=0/);
     });

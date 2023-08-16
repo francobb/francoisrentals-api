@@ -25,11 +25,11 @@ let mongod;
 /**
  * Drop database, close the connection and stop mongod.
  */
-// export const closeDatabase = async () => {
-//   await mongoose.connection.dropDatabase();
-//   await mongoose.connection.close();
-//   await mongod.stop();
-// };
+export const closeDatabase = async () => {
+  await mongoose.connection.dropDatabase();
+  await mongoose.connection.close();
+  // await mongod.stop();
+};
 
 /**
  * Remove all the data for all db collections.

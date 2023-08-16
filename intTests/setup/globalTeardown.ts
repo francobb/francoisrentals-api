@@ -1,10 +1,11 @@
 import { config } from 'dotenv';
 import mongoose from 'mongoose';
+import { closeDatabase } from './db-handler';
 
 config({ path: `.env.test.local` });
 export = async function globalTeardown() {
   console.log('Tear the db down!');
-  await mongoose.disconnect();
+  await closeDatabase();
 
   // if (process.env.DB_MEMORY) {
   //   // Config to decided if a mongodb-memory-server instance should be used
