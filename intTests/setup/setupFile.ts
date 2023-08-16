@@ -1,6 +1,5 @@
 import http from 'http';
-import App from '../../src/app';
-import { clearDatabase } from './db-handler'; // Adjust the path as needed
+import App from '../../src/app'; // Adjust the path as needed
 
 let server;
 let app;
@@ -17,9 +16,6 @@ beforeAll(done => {
   });
 });
 
-afterAll(async done => {
-  server.close(() => {
-    clearDatabase(); // Clear the database after the server is closed
-    done();
-  });
+afterAll(done => {
+  server.close(done);
 });
