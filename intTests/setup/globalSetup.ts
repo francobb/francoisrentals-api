@@ -1,5 +1,4 @@
 import { config } from 'dotenv';
-import mongoose from 'mongoose';
 import { clearDatabase } from './db-handler';
 
 config({ path: `.env.test.local` });
