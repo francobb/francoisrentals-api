@@ -8,7 +8,7 @@ afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
 
-xdescribe('Testing Auth', () => {
+describe('Testing Auth', () => {
   let authRoute;
   let app;
   let userData;

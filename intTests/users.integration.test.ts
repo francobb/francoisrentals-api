@@ -16,7 +16,7 @@ function doesUserExist(user) {
   return Boolean(userModel.find({ email: user.email }))
 }
 
-xdescribe('Testing Users', () => {
+describe('Testing Users', () => {
   let app;
   let authRoute;
   let authUser;
