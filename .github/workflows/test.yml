@@ -61,6 +61,8 @@ jobs:
       DB_IP: '127.0.0.1'
       DB_PORT: '27017'
       CI: true
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: adminpassword
 
 
     name: 🎛️ Integration Tests
@@ -90,12 +92,7 @@ jobs:
 
       - name: 🍃 🐳 Run MongoDB Docker Container
         run: |
-          docker run -d --name fr-db -p 27017:27017 \
-            -e MONGO_INITDB_ROOT_USERNAME=admin \
-            -e MONGO_INITDB_ROOT_PASSWORD=adminpassword \
-            mongo
-
-
+          docker run -d --name fr-db -p 27017:27017 mongo
 
       - name: 🕤 Wait for MongoDB to start
         run: sleep 20
