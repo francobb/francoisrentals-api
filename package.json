@@ -22,7 +22,7 @@
     "mongodb:up": "mongod --dbpath data",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "test:unit": "jest -c jest.config.ts --detectOpenHandles",
-    "test:int": "jest -c jest.integration.config.ts && exit 0",
+    "test:int": "jest -c jest.integration.config.ts --runInBand --detectOpenHandles --forceExit",
     "test": "npm run test:unit"
   },
   "dependencies": {
