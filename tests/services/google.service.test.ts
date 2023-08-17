@@ -10,6 +10,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { logger } from '@utils/logger';
 import Parser from '@utils/parser';
 import { ID_OF_FOLDER } from '@utils/constants';
+
 jest.mock('axios', () => ({
   post: jest.fn(),
   get: jest.fn(),
