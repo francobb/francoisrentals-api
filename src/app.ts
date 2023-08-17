@@ -125,17 +125,7 @@ class App {
     };
     const specs = swaggerJSDoc(options);
 
-    this.app.use(
-      '/api-docs',
-      (req, res, next) => {
-        // const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-        // if (!Authorization) console.log('You need to authenticate, Hor');
-        // res.redirect('/error');
-        next();
-      },
-      swaggerUi.serve,
-      swaggerUi.setup(specs, swaggerUiOptions),
-    );
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
   }
 
   private initializeErrorHandling() {

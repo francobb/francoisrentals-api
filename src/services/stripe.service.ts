@@ -7,7 +7,7 @@ class StripeService {
 
   public createPaymentIntent = async email => {
     const tenant = await this.tenants.findOne({ email });
-    const paymentIntent = await stripe.paymentIntents.create({
+    return await stripe.paymentIntents.create({
       customer: tenant.customerId,
       amount: 200000,
       currency: 'usd',
@@ -25,12 +25,11 @@ class StripeService {
       },
       // metadata: { name: 'William' },
     });
-    return paymentIntent;
   };
 
   public createSession = async email => {
     const tenant = await this.tenants.findOne({ email });
-    const session = await stripe.checkout.sessions.create({
+    return await stripe.checkout.sessions.create({
       mode: 'payment',
       customer: tenant.customerId,
       payment_method_types: ['card', 'us_bank_account'],
@@ -56,7 +55,6 @@ class StripeService {
       success_url: `${ROOT_URI}?success`,
       cancel_url: `${ROOT_URI}?cancel`,
     });
-    return session;
   };
 }
 

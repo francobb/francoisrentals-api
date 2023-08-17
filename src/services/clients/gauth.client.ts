@@ -37,7 +37,6 @@ class GoogleClient {
   static async generateAuthURL(): Promise<string> {
     if (this.OAuth2Client instanceof OAuth2Client) {
       return this.OAuth2Client.generateAuthUrl({
-        // 'online' (default) or 'offline' (gets refresh_token)
         access_type: 'offline',
 
         // scopes are documented here: https://developers.google.com/identity/protocols/oauth2/scopes#calendar
