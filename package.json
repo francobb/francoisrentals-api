@@ -100,15 +100,7 @@
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.5.2"
   },
-  "config": {
-    "mongodbMemoryServer": {
-      "systemBinary": "/opt/homebrew/bin/mongod",
-      "arch": "x64",
-      "disablePostinstall": "1",
-      "version": "6.0.5",
-      "debug": "0"
-    }
-  },
+  "version": "1.1.1",
   "release": {
     "repositoryUrl": "https://github.com/francobb/francoisrentals-api",
     "branches": [
