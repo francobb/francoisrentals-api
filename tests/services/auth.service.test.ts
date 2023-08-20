@@ -20,6 +20,8 @@ describe('AuthService', () => {
     userData = {
       email: 'test@example.com',
       password: 'password',
+      name: 'Bill',
+      role: 'ADMIN',
     };
     tenantData = {
       email: 'j@j.com',

@@ -2,7 +2,7 @@ import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import tenantsModel from '@models/tenants.model';
 import userModel from '@models/users.model';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { GoogleUserDto } from '@dtos/gusers.dto';
 import { HttpException } from '@exceptions/HttpException';
@@ -25,14 +25,14 @@ class AuthService {
     return await this.users.create({ ...userData, password: hashedPassword });
   }
 
-  public async login(userData: CreateUserDto | GoogleUserDto): Promise<{ cookie: string; findUser: User; tenantInfo: Tenant }> {
+  public async login(userData: loginUserDto | GoogleUserDto): Promise<{ cookie: string; findUser: User; tenantInfo: Tenant }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ email: userData.email });
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
     if (userData.hasOwnProperty('password')) {
-      const isPasswordMatching: boolean = await compare((userData as CreateUserDto).password, findUser.password);
+      const isPasswordMatching: boolean = await compare((userData as loginUserDto).password, findUser.password);
       if (!isPasswordMatching) throw new HttpException(409, 'Your password not matching');
     }
 
@@ -53,7 +53,7 @@ class AuthService {
   }
 
   private createToken(user: User, tenantInfo: Tenant): TokenData {
-    const dataStoredInToken: DataStoredInToken = { _id: user._id, tenant: tenantInfo };
+    const dataStoredInToken: DataStoredInToken = { _id: user._id, role: user.role, tenant: tenantInfo, email: user.email };
     const secretKey: string = SECRET_KEY;
     const expiresIn: number = 60 * 60;
 

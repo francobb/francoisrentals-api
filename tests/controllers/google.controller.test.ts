@@ -37,6 +37,8 @@ describe('Google controller', function () {
       _id: 'fakeId',
       email: 'test@example.com',
       password: 'password',
+      name: 'Bill',
+      role: 'ADMIN',
     };
     googleController = new GoogleController();
     mAuthService = googleController.authService;
