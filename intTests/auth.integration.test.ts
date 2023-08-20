@@ -19,6 +19,8 @@ describe('Testing Auth', () => {
     userData = {
       email: 'test@email.com',
       password: 'q1w2e3r4!',
+      name: 'Bill',
+      role: 'ADMIN',
     };
   });
 
@@ -38,7 +40,7 @@ describe('Testing Auth', () => {
 
   describe('[POST] /login', () => {
     beforeAll(async () => {
-      userData = await new UserService().createUser({ email: 'test1@email.com', password: 'fakePassword' });
+      userData = await new UserService().createUser({ email: 'test1@email.com', password: 'fakePassword', name: 'Bill', role: 'ADMIN' });
     });
 
     afterAll(async () => {
@@ -56,9 +58,11 @@ describe('Testing Auth', () => {
   describe('[POST] /logout', () => {
     let cookies;
     beforeAll(async () => {
-      await new UserService().createUser({ email: 'test1@email.com', password: 'fakePassword' });
+      await new UserService().createUser({ email: 'testlogout@email.com', password: 'fakePassword', name: 'Bill', role: 'ADMIN' });
 
-      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send({ email: 'test1@email.com', password: 'fakePassword' });
+      const loginReq = await request(app.getServer())
+        .post(`${authRoute.path}login`)
+        .send({ email: 'testlogout@email.com', password: 'fakePassword' });
       cookies = loginReq.headers['set-cookie'];
     });
 

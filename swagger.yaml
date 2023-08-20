@@ -3,36 +3,6 @@ tags:
     description: users API
 
 paths:
-  # [login] user
-  /login:
-    post:
-      tags:
-        - Login
-      summary: Login as user
-      parameters:
-        - name: body
-          in: body
-          description: user Data
-          required: true
-          schema:
-            $ref: '#/definitions/users'
-      requestBody:
-        description: Optional description in *Markdown*
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/definitions/users'
-      responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
   # [GET] users
   /users:
     get:

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import TenantsController from '@controllers/tenants.controller';
-import authMiddleware from '@middlewares/auth.middleware';
+import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 import { CreateTenantDto } from '@dtos/tenants.dto';
 
@@ -14,8 +14,14 @@ class TenantsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.#path}`, authMiddleware, this.tenantsController.getTenants);
-    this.router.post(`${this.#path}`, validationMiddleware(CreateTenantDto, 'body'), this.tenantsController.createTenant);
+    this.router.get(`${this.#path}`, authMiddleware, checkRole(['ADMIN']), this.tenantsController.getTenants);
+    this.router.post(
+      `${this.#path}`,
+      authMiddleware,
+      checkRole(['ADMIN']),
+      validationMiddleware(CreateTenantDto, 'body'),
+      this.tenantsController.createTenant,
+    );
   }
 }
 

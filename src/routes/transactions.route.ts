@@ -1,7 +1,7 @@
 import { Routes } from '@interfaces/routes.interface';
 import { Router } from 'express';
 import TransactionsController from '@controllers/transactions.controller';
-import authMiddleware from '@middlewares/auth.middleware';
+import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
 
 class TransactionsRoute implements Routes {
   public path = '/transactions';
@@ -13,7 +13,7 @@ class TransactionsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, authMiddleware, this.transactionsController.getTransactions);
+    this.router.get(`${this.path}`, authMiddleware, checkRole(['ADMIN']), this.transactionsController.getTransactions);
   }
 }
 

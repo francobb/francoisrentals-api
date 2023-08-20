@@ -1,7 +1,7 @@
 import StripeController from '@/controllers/stripe.controller';
 import { Routes } from '@interfaces/routes.interface';
 import { Router } from 'express';
-import authMiddleware from '@middlewares/auth.middleware';
+import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
 
 class StripeRoute implements Routes {
   public path = '/payment';
@@ -13,9 +13,9 @@ class StripeRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post(`${this.path}`, authMiddleware, this.stripeController.receiveRentPayment);
-    this.router.post(`${this.path}/request`, authMiddleware, this.stripeController.receivePaymentRequest);
-    this.router.post(`/stripe`, authMiddleware, this.stripeController.processStripeWebhook);
+    this.router.post(`${this.path}`, authMiddleware, checkRole(['ADMIN', 'TENANT']), this.stripeController.receiveRentPayment);
+    this.router.post(`${this.path}/request`, authMiddleware, checkRole(['ADMIN', 'TENANT']), this.stripeController.receivePaymentRequest);
+    this.router.post(`/stripe`, authMiddleware, checkRole(['ADMIN', 'TENANT']), this.stripeController.processStripeWebhook);
   }
 }
 

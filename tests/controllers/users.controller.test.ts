@@ -19,6 +19,8 @@ describe('UsersController', () => {
     userData = {
       email: 'fakeEmail',
       password: 'password',
+      name: 'Bill',
+      role: 'ADMIN',
     };
     err = new HttpException(404, 'Invalid Email');
     usersController = new UsersController();
@@ -45,6 +47,8 @@ describe('UsersController', () => {
         _id: '123',
         email: 'test@example.com',
         password: 'password',
+        name: 'Bill',
+        role: 'ADMIN',
       };
       jest.spyOn(usersController.userService, 'findUserById').mockResolvedValueOnce(user);
 

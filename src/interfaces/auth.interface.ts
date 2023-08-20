@@ -4,6 +4,8 @@ import { Tenant } from '@interfaces/tenants.interface';
 
 export interface DataStoredInToken {
   _id: string;
+  email: string;
+  role: string;
   tenant: Tenant;
 }
 
