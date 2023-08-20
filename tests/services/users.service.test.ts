@@ -18,10 +18,14 @@ describe('UsersService', () => {
       _id: 'fakeId',
       email: 'test@example.com',
       password: 'password',
+      name: 'Bill',
+      role: 'ADMIN',
     };
     createUser = {
       email: 'test@example.com',
       password: 'password',
+      name: 'Bill',
+      role: 'ADMIN',
     };
   });
 

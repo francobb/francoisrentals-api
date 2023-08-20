@@ -40,6 +40,8 @@ describe('Testing Users', () => {
       authUser = await new UserService().createUser({
         email: email,
         password: password,
+        name: 'Bill',
+        role: 'ADMIN',
       });
 
       expectedUser = {
@@ -47,6 +49,8 @@ describe('Testing Users', () => {
         __v: authUser._doc.__v,
         email: authUser._doc.email,
         password: authUser._doc.password,
+        name: 'Bill',
+        role: 'ADMIN',
       };
       const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send(userData);
       cookies = loginReq.headers['set-cookie'];
@@ -89,6 +93,8 @@ describe('Testing Users', () => {
       const userData: CreateUserDto = {
         email: 'test@email.com',
         password: 'q1w2e3r4',
+        name: 'Bill',
+        role: 'ADMIN',
       };
 
       const req = await request(app.getServer()).post(`${usersRoute.path}`).send(userData);
@@ -100,8 +106,10 @@ describe('Testing Users', () => {
   describe('[PUT] /users/:id', () => {
     beforeAll(async () => {
       expectedUser = await new UserService().createUser({
-        email: 'user2updatee@mail.com',
+        email: 'updatee@mail.com',
         password: 'password',
+        name: 'Bill',
+        role: 'ADMIN',
       });
     });
 
@@ -110,13 +118,17 @@ describe('Testing Users', () => {
     });
 
     it('response Update User', async () => {
+      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send({ email: 'updatee@mail.com', password: 'password' });
+      cookies = loginReq.headers['set-cookie'];
       const userId = expectedUser._id;
       const userData: CreateUserDto = {
         email: expectedUser.email,
         password: 'peUpdated',
+        name: 'Bill',
+        role: 'ADMIN',
       };
 
-      const req = await request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
+      const req = await request(app.getServer()).put(`${usersRoute.path}/${userId}`).set('Cookie', cookies).send(userData).expect(200);
 
       expect(req.status).toBe(200);
       expect(req.body.data).toStrictEqual({
@@ -124,6 +136,8 @@ describe('Testing Users', () => {
         __v: expectedUser._doc.__v,
         email: expectedUser._doc.email,
         password: expectedUser._doc.password,
+        name: 'Bill',
+        role: 'ADMIN',
       });
     });
   });
@@ -132,13 +146,17 @@ describe('Testing Users', () => {
     beforeAll(async () => {
       expectedUser = await new UserService().createUser({
         email: 'user2delete@mail.com',
-        password: await bcrypt.hash('pw2delete', 10),
+        password: 'password',
+        name: 'Bill',
+        role: 'ADMIN',
       });
     });
 
     it('response Delete User', async () => {
+      const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send({ email: 'user2delete@mail.com', password: 'password' });
+      cookies = loginReq.headers['set-cookie'];
       const userId = expectedUser._id;
-      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(204);
+      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).set('Cookie', cookies).expect(204);
     });
   });
 });
