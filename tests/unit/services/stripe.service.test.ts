@@ -1,6 +1,6 @@
-import StripeService from '../../src/services/stripe.service';
-import stripe from '../../src/services/clients/stripe.client';
-import { ROOT_URI } from '../../src/config';
+import StripeService from '../../../src/services/stripe.service';
+import stripe from '../../../src/services/clients/stripe.client';
+import { ROOT_URI } from '../../../src/config';
 
 describe('StripeService', function () {
   let tenantData;

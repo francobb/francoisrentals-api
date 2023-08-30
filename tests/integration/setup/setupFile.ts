@@ -1,9 +1,10 @@
+import { Application } from 'express';
 import http from 'http';
-import App from '../../src/app';
+import App from '../../../src/app';
 import { closeDatabase } from './db-handler'; // Adjust the path as needed
 
 let server;
-let app;
+let app: Application;
 
 beforeAll(done => {
   const routes = []; // Define your routes here
