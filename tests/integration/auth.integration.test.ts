@@ -1,7 +1,7 @@
 import request from 'supertest';
 import App from '@/app';
 import AuthRoute from '@routes/auth.route';
-import UserService from '../src/services/users.service';
+import UserService from '../../src/services/users.service';
 import { clearDatabase } from './setup/db-handler';
 
 afterAll(async () => {

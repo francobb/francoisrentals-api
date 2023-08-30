@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
-import { auth } from 'google-auth-library';
 import { CreateTenantDto } from '@dtos/tenants.dto';
 
 describe('AuthService', () => {
