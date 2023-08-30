@@ -1,6 +1,7 @@
 import AuthController from '@controllers/auth.controller';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
+import { Response } from 'express';
 
 describe('Auth Controller Unit Tests', function () {
   let err;

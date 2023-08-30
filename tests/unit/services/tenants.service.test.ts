@@ -1,7 +1,7 @@
 import TenantService from '@services/tenants.service';
 import { HttpException } from '@exceptions/HttpException';
 import { CreateTenantDto } from '@dtos/tenants.dto';
-import stripe from '../../src/services/clients/stripe.client';
+import stripe from '../../../src/services/clients/stripe.client';
 
 describe('Tenants service', function () {
   let tenantService: TenantService;

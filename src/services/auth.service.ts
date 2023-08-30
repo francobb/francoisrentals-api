@@ -29,11 +29,11 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ email: userData.email });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    if (!findUser) throw new HttpException(409, `Your email ${userData.email} is not found`);
 
     if (userData.hasOwnProperty('password')) {
       const isPasswordMatching: boolean = await compare((userData as loginUserDto).password, findUser.password);
-      if (!isPasswordMatching) throw new HttpException(409, 'Your password not matching');
+      if (!isPasswordMatching) throw new HttpException(409, 'Your password is not matching');
     }
 
     const tenantInfo = await this.tenants.findOne({ email: userData.email });
@@ -47,7 +47,7 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ email: userData.email, password: userData.password });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    if (!findUser) throw new HttpException(409, `Your email ${userData.email} is not found`);
 
     return findUser;
   }

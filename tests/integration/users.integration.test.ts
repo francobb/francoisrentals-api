@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import request from 'supertest';
 import App from '@/app';
 import AuthRoute from '@routes/auth.route';
@@ -6,20 +5,21 @@ import UserService from '@services/users.service';
 import UsersRoute from '@routes/users.route';
 import { CreateUserDto } from '@dtos/users.dto';
 import { clearDatabase } from './setup/db-handler';
+import { Routes } from '@interfaces/routes.interface';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
 
 describe('Testing Users', () => {
-  let app;
-  let authRoute;
+  let app: App;
+  let authRoute: Routes;
   let authUser;
-  let cookies;
-  let email;
-  let password;
-  let usersRoute;
-  let userData;
+  let cookies: string[];
+  let email: string;
+  let password: string;
+  let usersRoute: Routes;
+  let userData: string | object;
   let expectedUser;
 
   beforeAll(async () => {
