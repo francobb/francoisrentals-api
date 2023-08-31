@@ -7,8 +7,7 @@ let server;
 let app: Application;
 
 beforeAll(done => {
-  const routes = []; // Define your routes here
-  app = new App(routes).getServer();
+  app = new App([]).getServer();
 
   server = http.createServer(app);
   server.listen(0, () => {
