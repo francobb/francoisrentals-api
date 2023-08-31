@@ -6,7 +6,7 @@
     "node": "18.x || 19.x"
   },
   "license": "ISC",
-  "name": "nba-stats-comparison",
+  "name": "francoisrentals-api",
   "scripts": {
     "build": "swc src -d dist --source-maps --copy-files",
     "build:tsc": "tsc && tsc-alias",
@@ -84,7 +84,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "husky": "^7.0.1",
-    "jest": "27.4.x",
+    "jest": "^29.6.4",
     "lint-staged": "^11.0.0",
     "node-config": "^0.0.2",
     "node-gyp": "^8.1.0",
@@ -94,7 +94,7 @@
     "rimraf": "^4.4.1",
     "semantic-release": "^21.0.2",
     "supertest": "^6.2.2",
-    "ts-jest": "^27.1.4",
+    "ts-jest": "^29.1.1",
     "ts-node": "^10.4.0",
     "tsc-alias": "^1.4.1",
     "tsconfig-paths": "^3.10.1",
