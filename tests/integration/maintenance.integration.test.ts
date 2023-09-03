@@ -24,7 +24,7 @@ describe('Testing Maintenance', function () {
     maintenancesRoute = new MaintenanceRoute();
     app = new App([maintenancesRoute, authRoute]);
 
-    email = 'j@j.com';
+    email = 'maintenance@test.com';
     password = 'password';
     userData = {
       email: email,

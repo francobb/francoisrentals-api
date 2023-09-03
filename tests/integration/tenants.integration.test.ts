@@ -21,7 +21,7 @@ describe('Testing Tenants', function () {
   beforeAll(async () => {
     app = new App([new TenantsRoute(), new AuthRoute()]);
 
-    email = 'j@j.com';
+    email = 'tenant@test.com';
     password = 'password';
     userData = {
       email: email,
