@@ -5,12 +5,12 @@ import UserService from '../../src/services/users.service';
 import { clearDatabase } from './setup/db-handler';
 
 afterAll(async () => {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+  await new Promise<void>(resolve => setTimeout(() => resolve(), 2000));
 });
 
 describe('Testing Auth', () => {
   let authRoute;
-  let app;
+  let app: App;
   let userData;
 
   beforeAll(function () {
@@ -56,7 +56,7 @@ describe('Testing Auth', () => {
   });
 
   describe('[POST] /logout', () => {
-    let cookies;
+    let cookies: string[];
     beforeAll(async () => {
       await new UserService().createUser({ email: 'testlogout@email.com', password: 'fakePassword', name: 'Bill', role: 'ADMIN' });
 
@@ -66,7 +66,11 @@ describe('Testing Auth', () => {
       cookies = loginReq.headers['set-cookie'];
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
+      const users = await new UserService().findAllUsers();
+      users.forEach(user => {
+        new UserService().deleteUser(user._id).then(() => console.log('usr deleted'));
+      });
       await clearDatabase();
     });
 
