@@ -20,10 +20,11 @@
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
     "mongodb:up": "mongod --dbpath data",
+    "mongodb:down": "pkill mongod || true",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "test:unit": "jest -c jest.config.ts --detectOpenHandles",
-    "test:int": "jest -c jest.integration.config.ts --runInBand --detectOpenHandles --forceExit",
-    "test": "npm run test:unit"
+    "test:int": "./scripts/mongodb-test.sh && jest -c jest.integration.config.ts --runInBand --no-cache --detectOpenHandles --forceExit && npm run mongodb:down",
+    "test": "npm run test:unit && npm run test:int"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.367.0",
