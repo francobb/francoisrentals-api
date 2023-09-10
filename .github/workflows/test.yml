@@ -51,7 +51,7 @@ jobs:
 
   intTest:
     env:
-      MONGO_URI: 'mongodb://0.0.0.0:27017'
+      MONGO_URI: 'mongodb://0.0.0.0:27018/test'
       LOG_DIR: '../logs'
       SECRET_KEY: 'secretKey'
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
@@ -59,7 +59,7 @@ jobs:
       ROOT_URI: 'http://localhost:3000'
       DB_MEMORY: 'false'
       DB_IP: '127.0.0.1'
-      DB_PORT: '27017'
+      DB_PORT: '27018'
       CI: true
       MONGO_USERNAME: admin
       MONGO_PASSWORD: adminpassword
