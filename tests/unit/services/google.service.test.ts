@@ -231,9 +231,9 @@ describe('Google Service', function () {
       const filesListMock = {
         data: {
           files: [
-            // { id: 'fileId1', name: 'Jan_Report.pdf' },
-            // { id: 'fileId2', name: 'Feb_Report.pdf' },
-            // { id: 'fileId3', name: 'Mar_Report.pdf' },
+            { id: 'fileId1', name: 'Jan_Report.pdf' },
+            { id: 'fileId2', name: 'Feb_Report.pdf' },
+            { id: 'fileId3', name: 'Mar_Report.pdf' },
           ],
         },
       };
