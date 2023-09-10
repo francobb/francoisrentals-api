@@ -92,7 +92,7 @@ jobs:
 
       - name: 🍃 🐳 Run MongoDB Docker Container
         run: |
-          docker run -d --name fr-db -p 27017:27017 mongo
+          docker run -d --name fr-db -p 27018:27018 mongo
 
       - name: 🕤 Wait for MongoDB to start
         run: sleep 20
