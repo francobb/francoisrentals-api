@@ -51,7 +51,7 @@ jobs:
 
   intTest:
     env:
-      MONGO_URI: 'mongodb://0.0.0.0:27018/test'
+      MONGO_URI: 'mongodb://0.0.0.0:27017/test'
       LOG_DIR: '../logs'
       SECRET_KEY: 'secretKey'
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
@@ -59,7 +59,7 @@ jobs:
       ROOT_URI: 'http://localhost:3000'
       DB_MEMORY: 'false'
       DB_IP: '127.0.0.1'
-      DB_PORT: '27018'
+      DB_PORT: '27017'
       CI: true
       MONGO_USERNAME: admin
       MONGO_PASSWORD: adminpassword
@@ -92,7 +92,7 @@ jobs:
 
       - name: 🍃 🐳 Run MongoDB Docker Container
         run: |
-          docker run -d --name fr-db -p 27018:27018 mongo
+          docker run -d --name fr-db -p 27017:27017 mongo
 
       - name: 🕤 Wait for MongoDB to start
         run: sleep 20
