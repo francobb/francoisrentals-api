@@ -64,6 +64,7 @@ jobs:
       CI: true
       MONGO_USERNAME: admin
       MONGO_PASSWORD: adminpassword
+      BUCKET_NAME: francoisrentals
 
     name: 🎛️ Integration Tests
     runs-on: ubuntu-latest
