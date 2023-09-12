@@ -1,7 +1,7 @@
 name: Lint & Test Fr-API 🃏
 on:
   push:
-    branches: [ chore/*, feat/*, refactor/* ]
+    branches: [ chore/*, feat/*, refactor/*, test/* ]
   pull_request:
     branches:
       - main
@@ -51,7 +51,8 @@ jobs:
 
   intTest:
     env:
-      MONGO_URI: 'mongodb://0.0.0.0:27017/test'
+      STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
+      MONGO_URI: 'mongodb://0.0.0.0:27017'
       LOG_DIR: '../logs'
       SECRET_KEY: 'secretKey'
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
@@ -63,7 +64,6 @@ jobs:
       CI: true
       MONGO_USERNAME: admin
       MONGO_PASSWORD: adminpassword
-
 
     name: 🎛️ Integration Tests
     runs-on: ubuntu-latest
@@ -82,14 +82,6 @@ jobs:
       - name: 👷🏽‍ Rebuild bcrypt
         run: npm rebuild --update-binary bcrypt
 
-#      - name: 🍃 🐳 Start MongoDB
-#        uses: supercharge/mongodb-github-action@v1.10.0
-#        with:
-#          mongodb-version: 6.0
-#
-#      - name: Set SYSTEM_BINARY for MongoMemoryServer
-#        run: echo "SYSTEM_BINARY=/usr/bin/mongod" >> $GITHUB_ENV
-
       - name: 🍃 🐳 Run MongoDB Docker Container
         run: |
           docker run -d --name fr-db -p 27017:27017 mongo
@@ -99,3 +91,5 @@ jobs:
 
       - name: Run Integration Tests
         run: npm run test:int
+        env:
+          STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }}
