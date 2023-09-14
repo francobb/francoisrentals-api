@@ -1,6 +1,7 @@
 import { compare, hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { sign } from 'jsonwebtoken';
+import mailer from '@clients/mailer.client';
 import tenantsModel from '@models/tenants.model';
 import userModel from '@models/users.model';
 import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
@@ -11,7 +12,7 @@ import { SECRET_KEY } from '@config';
 import { Tenant } from '@interfaces/tenants.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
-import mailer from '@clients/mailer.client';
+import { logger } from '@utils/logger';
 
 class AuthService {
   public users = userModel;
@@ -114,7 +115,7 @@ class AuthService {
       // Send the email
       await this.transporter.sendMail(mailOptions);
 
-      console.log(`Password reset email sent to ${email}`);
+      logger.info(`Password reset email sent to ${email}`);
     } catch (error) {
       throw new Error('Error sending password reset email');
     }
