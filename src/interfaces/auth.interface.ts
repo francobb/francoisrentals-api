@@ -1,5 +1,4 @@
 import { Request } from 'express';
-import { User } from '@interfaces/users.interface';
 import { Tenant } from '@interfaces/tenants.interface';
 
 export interface DataStoredInToken {
@@ -15,5 +14,12 @@ export interface TokenData {
 }
 
 export interface RequestWithUser extends Request {
-  user: User;
+  user: {
+    email: string;
+    name: string;
+    password: string;
+    role: string;
+    resetToken?: Promise<unknown>;
+    resetTokenExpires?: Date;
+  };
 }

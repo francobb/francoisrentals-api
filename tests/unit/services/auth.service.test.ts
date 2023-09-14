@@ -4,11 +4,14 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import { CreateTenantDto } from '@dtos/tenants.dto';
+import { Transporter } from 'nodemailer';
+import { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let mockUserRepository;
   let mockTenantRepository;
+  let mockTransporter: Transporter<SentMessageInfo>;
   let userData: CreateUserDto;
   let tenantData: CreateTenantDto;
 
@@ -16,6 +19,7 @@ describe('AuthService', () => {
     authService = new AuthService();
     mockTenantRepository = authService.tenants;
     mockUserRepository = authService.users;
+    mockTransporter = authService.transporter;
     userData = {
       email: 'test@example.com',
       password: 'password',
@@ -92,6 +96,17 @@ describe('AuthService', () => {
       expect(findUserByEmail).toHaveBeenCalledWith({ email: userData.email });
       expect(findTenant).toHaveBeenCalledWith({ email: userData.email });
     });
+
+    it('should not return a cookie and findUser for valid credentials', async () => {
+      bcrypt.compare = jest.fn().mockResolvedValue(false);
+      // const findTenant = jest.spyOn(mockTenantRepository, 'findOne').mockResolvedValue(tenantData);
+      const findUserByEmail = jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(userData);
+      // const result = await authService.login(userData as CreateUserDto);
+
+      await expect(authService.login(userData)).rejects.toThrow(HttpException);
+      expect(findUserByEmail).toHaveBeenCalledWith({ email: userData.email });
+      // expect(findTenant).toHaveBeenCalledWith({ email: userData.email });
+    });
   });
 
   describe('logout', () => {
@@ -108,6 +123,84 @@ describe('AuthService', () => {
 
       expect(result).toEqual(userData);
       expect(findUserByEmail).toHaveBeenCalledWith({ email: userData.email, password: userData.password });
+    });
+
+    it('should not log user out', async () => {
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(undefined);
+
+      await expect(authService.logout({ _id: expect.any(String), ...userData })).rejects.toThrow(
+        new Error('Your email test@example.com is not found'),
+      );
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should throw an error if the user with the given email does not exist', async () => {
+      // Arrange
+      const email = 'nonexistent@example.com';
+
+      // Mock the findOne method to return undefined, simulating a user not found scenario
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(undefined);
+
+      // Act and Assert
+      await expect(authService.forgotPassword(email)).rejects.toThrow(HttpException);
+    });
+
+    it('should generate a reset token and save it to the user', async () => {
+      // Arrange
+      const email = 'test@example.com';
+      const user: User = {
+        name: 'Jimmy',
+        password: 'fakePassword',
+        role: 'ADMIN',
+        _id: 'user_id',
+        email,
+      };
+
+      // Mock the findOne method to return the user
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+
+      const mockNodeMailer = jest.spyOn(mockTransporter, 'sendMail').mockResolvedValue(undefined);
+
+      // Mock the findByIdAndUpdate method to verify that it is called correctly
+      const mockUpdateUser = jest.fn().mockResolvedValue(user);
+      jest.spyOn(mockUserRepository, 'findByIdAndUpdate').mockImplementation(mockUpdateUser);
+
+      // Act
+      await authService.forgotPassword(email);
+
+      // Assert
+      expect(mockNodeMailer).toHaveBeenCalled();
+      expect(mockUpdateUser).toHaveBeenCalledWith(user._id, {
+        user: {
+          _id: 'user_id',
+          email: 'test@example.com',
+          name: 'Jimmy',
+          password: 'fakePassword',
+          resetToken: expect.any(Promise),
+          resetTokenExpires: expect.any(Date),
+          role: 'ADMIN',
+        },
+      });
+    });
+
+    it('should not send the password reset email', async () => {
+      const email = 'test@example.com';
+      const user: User = {
+        name: 'Jimmy',
+        password: 'fakePassword',
+        role: 'ADMIN',
+        _id: 'user_id',
+        email,
+      };
+
+      // Mock the findOne method to return the user
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(mockTransporter, 'sendMail').mockRejectedValue(new Error('Failed'));
+
+      // Act
+      // Assert
+      await expect(authService.forgotPassword(email)).rejects.toThrowError(new Error('Error sending password reset email'));
     });
   });
 });

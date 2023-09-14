@@ -1,11 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
 
 class AuthController {
   public authService = new AuthService();
+
+  public forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const email = req.body.email;
+      await this.authService.forgotPassword(email);
+
+      res.status(200).json({ message: 'Password reset email sent successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -21,7 +31,7 @@ class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: loginUserDto = req.body;
-      const { cookie, findUser, tenantInfo } = await this.authService.login(userData);
+      const { cookie, tenantInfo } = await this.authService.login(userData);
 
       res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json({ cookie, tenantInfo, message: 'accessToken' });
@@ -30,7 +40,7 @@ class AuthController {
     }
   };
 
-  public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public logOut = async (req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
     res.status(200).json({ message: 'logged out' });
   };

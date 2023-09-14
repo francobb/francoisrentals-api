@@ -1,4 +1,5 @@
 import { compare, hash } from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { sign } from 'jsonwebtoken';
 import tenantsModel from '@models/tenants.model';
 import userModel from '@models/users.model';
@@ -10,10 +11,33 @@ import { SECRET_KEY } from '@config';
 import { Tenant } from '@interfaces/tenants.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
+import mailer from '@clients/mailer.client';
 
 class AuthService {
   public users = userModel;
   public tenants = tenantsModel;
+  public transporter = mailer;
+
+  public async forgotPassword(email: string): Promise<void> {
+    const user = await this.users.findOne({ email });
+
+    if (!user) {
+      throw new HttpException(404, `User with email ${email} not found`);
+    }
+
+    // Generate a reset token (you should implement this)
+    const resetToken = this.generateResetToken(); // Implement this function
+
+    // Save the reset token and its expiration time in the user record
+    user.resetToken = resetToken;
+    user.resetTokenExpires = new Date(Date.now() + 3600000); // Token expiration time (e.g., 1 hour)
+
+    // Save the user record with the reset token
+    this.users.findByIdAndUpdate(user._id, { user });
+
+    // Send the password reset email (you should implement this)
+    await this.sendResetPasswordEmail(user.email, resetToken); // Implement this function
+  }
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -62,6 +86,38 @@ class AuthService {
 
   private createCookie(tokenData: TokenData): string {
     return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+  }
+
+  private generateResetToken(length = 32) {
+    return new Promise((resolve, reject) => {
+      randomBytes(length, (err, buffer) => {
+        if (err) {
+          reject(err);
+        } else {
+          const token = buffer.toString('hex');
+          resolve(token);
+        }
+      });
+    });
+  }
+
+  private async sendResetPasswordEmail(email: string, resetToken: Promise<unknown>) {
+    try {
+      // Email content
+      const mailOptions = {
+        from: 'your_email@gmail.com',
+        to: email,
+        subject: 'Password Reset',
+        text: `To reset your password, click the following link: http://example.com/reset-password?token=${resetToken}`,
+      };
+
+      // Send the email
+      await this.transporter.sendMail(mailOptions);
+
+      console.log(`Password reset email sent to ${email}`);
+    } catch (error) {
+      throw new Error('Error sending password reset email');
+    }
   }
 }
 
