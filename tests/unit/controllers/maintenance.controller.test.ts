@@ -4,6 +4,7 @@ import MaintenanceService from '@services/maintenance.service';
 import { HttpException } from '@exceptions/HttpException';
 import { MaintenanceRequest } from '@interfaces/request.interface';
 import { MaintenanceRequestDto } from '@dtos/request.dto';
+import { S3Client } from '@aws-sdk/client-s3';
 
 describe('MaintenanceController', () => {
   const mNext: NextFunction = jest.fn();
@@ -12,6 +13,7 @@ describe('MaintenanceController', () => {
   let mRes: Partial<Response>;
   let maintenanceController: MaintenanceController;
   let mockRequestService: MaintenanceService;
+  let mockS3: S3Client;
   let requestData: MaintenanceRequestDto;
   let responseData: MaintenanceRequest;
   const date: Date = new Date();
@@ -35,12 +37,19 @@ describe('MaintenanceController', () => {
     err = new HttpException(404, 'Invalid Email');
     maintenanceController = new MaintenanceController();
     mockRequestService = maintenanceController.maintenanceService;
+    mockS3 = maintenanceController.s3;
     mReq = {
       params: {
         id: '123',
       },
       body: requestData,
-      files: [],
+      files: [
+        <Express.Multer.File>{
+          buffer: Buffer.alloc(23),
+          mimetype: 'text/plain',
+          originalname: 'fake name',
+        },
+      ],
     };
     mRes = {
       status: jest.fn().mockReturnThis(),
@@ -54,10 +63,12 @@ describe('MaintenanceController', () => {
 
   describe('create Request', () => {
     it('should receive request', async () => {
+      jest.spyOn(mockS3, 'send');
       jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue(responseData);
 
       await maintenanceController.saveRequest(mReq as Request, mRes as Response, mNext);
 
+      expect(mockS3.send).toHaveBeenCalled();
       expect(mRes.status).toHaveBeenCalledWith(201);
       expect(mRes.json).toHaveBeenCalledWith({ data: responseData, message: 'request created' });
     });
@@ -85,6 +96,15 @@ describe('MaintenanceController', () => {
         data: request,
         message: 'found request',
       });
+    });
+
+    it('should not get request ', async () => {
+      jest.spyOn(mockRequestService, 'findRequestById').mockRejectedValue(new Error('failure'));
+
+      await maintenanceController.getRequestById(mReq as Request, mRes as Response, mNext);
+
+      expect(mockRequestService.findRequestById).toHaveBeenCalledWith('123');
+      expect(mNext).toHaveBeenCalledWith(new Error('failure'));
     });
   });
 });

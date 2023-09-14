@@ -4,4 +4,6 @@ export interface User {
   name: string;
   password: string;
   role: string;
+  resetToken?: Promise<unknown>;
+  resetTokenExpires?: Date;
 }
