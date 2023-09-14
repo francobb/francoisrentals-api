@@ -1,14 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
+import { PutObjectCommand, S3Client, ServiceInputTypes, ServiceOutputTypes } from '@aws-sdk/client-s3';
+import { AwsStub, mockClient } from 'aws-sdk-client-mock';
+import { SmithyResolvedConfiguration } from '@smithy/smithy-client';
+import { HttpHandlerOptions } from '@smithy/types';
 import MaintenanceController from '@controllers/maintenance.controller';
-import MaintenanceService from '@services/maintenance.service';
-import { HttpException } from '@exceptions/HttpException';
-import { MaintenanceRequest } from '@interfaces/request.interface';
 import { MaintenanceRequestDto } from '@dtos/request.dto';
-import { S3Client } from '@aws-sdk/client-s3';
+import MaintenanceService from '@services/maintenance.service';
+import { MaintenanceRequest } from '@interfaces/request.interface';
 
 describe('MaintenanceController', () => {
   const mNext: NextFunction = jest.fn();
-  let err: HttpException;
   let mReq: Partial<Request>;
   let mRes: Partial<Response>;
   let maintenanceController: MaintenanceController;
@@ -17,6 +18,7 @@ describe('MaintenanceController', () => {
   let requestData: MaintenanceRequestDto;
   let responseData: MaintenanceRequest;
   const date: Date = new Date();
+  let s3ClientMock: AwsStub<ServiceInputTypes, ServiceOutputTypes, SmithyResolvedConfiguration<HttpHandlerOptions>>;
 
   beforeEach(() => {
     requestData = {
@@ -34,10 +36,11 @@ describe('MaintenanceController', () => {
       imagePaths: [],
       date: date,
     };
-    err = new HttpException(404, 'Invalid Email');
     maintenanceController = new MaintenanceController();
     mockRequestService = maintenanceController.maintenanceService;
     mockS3 = maintenanceController.s3;
+    s3ClientMock = mockClient(mockS3);
+
     mReq = {
       params: {
         id: '123',
@@ -63,6 +66,7 @@ describe('MaintenanceController', () => {
 
   describe('create Request', () => {
     it('should receive request', async () => {
+      s3ClientMock.on(PutObjectCommand).resolves({});
       jest.spyOn(mockS3, 'send');
       jest.spyOn(mockRequestService, 'createRequest').mockResolvedValue(responseData);
 
@@ -71,6 +75,14 @@ describe('MaintenanceController', () => {
       expect(mockS3.send).toHaveBeenCalled();
       expect(mRes.status).toHaveBeenCalledWith(201);
       expect(mRes.json).toHaveBeenCalledWith({ data: responseData, message: 'request created' });
+    });
+
+    it('should not receive request', async () => {
+      s3ClientMock.on(PutObjectCommand).rejects(new Error('failure'));
+
+      await maintenanceController.saveRequest(mReq as Request, mRes as Response, mNext);
+
+      expect(mNext).toHaveBeenCalledWith(new Error('failure'));
     });
   });
 

@@ -27,6 +27,7 @@ class MaintenanceController {
             originalname: file.originalname,
           },
         };
+
         const command = new PutObjectCommand(params);
         const response = await this.s3.send(command);
         logger.info(`File ${index + 1} uploaded successfully to S3:`);
