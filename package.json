@@ -19,12 +19,13 @@
     "heroku:local": "heroku local -e .env.development.local ",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "mongodb:up": "mongod --dbpath data",
     "mongodb:down": "pkill mongod || true",
+    "mongodb:up": "mongod --dbpath data",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test:unit": "jest -c jest.config.ts --detectOpenHandles",
+    "test": "npm run test:unit && npm run test:int",
     "test:int": "./scripts/mongodb-test.sh && jest -c jest.integration.config.ts --runInBand --no-cache --detectOpenHandles --forceExit && npm run mongodb:down",
-    "test": "npm run test:unit && npm run test:int"
+    "test:unit": "jest -c jest.config.ts --detectOpenHandles --runInBand",
+    "test:unit:coverage": "jest -c jest.config.ts --detectOpenHandles --runInBand --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.367.0",
@@ -51,6 +52,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.2",
+    "nodemailer": "^6.9.5",
     "pdf-parse": "^1.1.1",
     "stripe": "^12.14.0",
     "swagger-jsdoc": "^6.0.0",
@@ -75,6 +77,7 @@
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
     "@types/node": "^18.14.6",
+    "@types/nodemailer": "^6.4.9",
     "@types/pdf-parse": "^1.1.1",
     "@types/supertest": "^2.0.11",
     "@types/swagger-jsdoc": "^6.0.1",

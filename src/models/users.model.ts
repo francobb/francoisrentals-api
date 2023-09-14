@@ -20,6 +20,14 @@ const userSchema: Schema = new Schema({
     required: true,
     enum: ['OWNER', 'ADMIN', 'TENANT'],
   },
+  resetTokenExpires: {
+    type: Date,
+    required: false,
+  },
+  resetToken: {
+    type: String,
+    required: false,
+  },
 });
 
 const userModel = model<User & Document>('User', userSchema);
