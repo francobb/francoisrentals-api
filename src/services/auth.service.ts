@@ -8,7 +8,7 @@ import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { GoogleUserDto } from '@dtos/gusers.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { SECRET_KEY } from '@config';
+import { EMAIL_ADDRESS, SECRET_KEY } from '@config';
 import { Tenant } from '@interfaces/tenants.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
@@ -23,6 +23,7 @@ class AuthService {
     const user = await this.users.findOne({ email });
 
     if (!user) {
+      logger.info(`User with email ${email} not found`);
       throw new HttpException(404, `User with email ${email} not found`);
     }
 
@@ -104,12 +105,12 @@ class AuthService {
 
   private async sendResetPasswordEmail(email: string, resetToken: Promise<unknown>) {
     try {
-      // Email content
+      const token = await resetToken;
       const mailOptions = {
-        from: 'your_email@gmail.com',
+        from: EMAIL_ADDRESS,
         to: email,
         subject: 'Password Reset',
-        text: `To reset your password, click the following link: http://example.com/reset-password?token=${resetToken}`,
+        text: `To reset your password, click the following link: <frontend prod endpoint>=${token}`,
       };
 
       // Send the email
