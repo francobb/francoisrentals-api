@@ -135,3 +135,6 @@ data/
 /.idea/
 
 req/
+
+# temporary test directory
+/tmp/*

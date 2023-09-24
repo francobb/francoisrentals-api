@@ -1,7 +1,7 @@
 import Parser from '@utils/parser';
 import { CARRINGTON, LLC } from '@utils/constants';
 import { logger } from '@utils/logger';
-const fs = require('fs');
+import fs from 'fs';
 
 const WELLES_REPORT = fs.readFileSync('tests/unit/assets/welles_only_report.txt', 'utf8');
 describe('Testing Report Parser Utility', () => {

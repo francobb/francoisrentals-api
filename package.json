@@ -12,7 +12,6 @@
     "build:tsc": "tsc && tsc-alias",
     "clean": "rimraf dist coverage",
     "clean:logs": "rimraf logs",
-    "debug": "NODE_ENV=development nodemon --inspect src/server.ts",
     "deploy:dev": "pm2 start ecosystem.config.js --only dev",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "dev": "./scripts/mongodb-test.sh && cross-env NODE_ENV=development nodemon",
@@ -21,8 +20,12 @@
     "lint:fix": "npm run lint -- --fix",
     "mongodb:down": "pkill mongod || true",
     "mongodb:up": "mongod --dbpath data",
+    "prestart:development": "npm run clean && npm run build && MONGO_CONFIG=/opt/homebrew/etc/mongod.conf ./scripts/mongodb-test.sh",
     "start": "cross-env NODE_ENV=production node dist/server.js",
+    "start:development": "NODE_ENV=development node --inspect dist/server.js",
+    "start:production": "NODE_ENV=production cross-env node dist/server.js",
     "test": "npm run test:unit && npm run test:int",
+    "test:api:development": "rm -rf tmp && swc ./tests -d ./tmp/tests && NODE_ENV=development node --test --test-reporter spec ./tmp/tests/api/*",
     "test:int": "./scripts/mongodb-test.sh && jest -c jest.integration.config.ts --runInBand --no-cache --detectOpenHandles --forceExit && npm run mongodb:down",
     "test:unit": "jest -c jest.config.ts --detectOpenHandles --runInBand",
     "test:unit:coverage": "jest -c jest.config.ts --detectOpenHandles --runInBand --coverage"
@@ -85,6 +88,7 @@
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "aws-sdk-client-mock": "^3.0.0",
+    "esbuild-register": "^3.5.0",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
@@ -103,7 +107,8 @@
     "ts-node": "^10.4.0",
     "tsc-alias": "^1.4.1",
     "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "undici": "^5.24.0"
   },
   "version": "v1.1.1",
   "release": {
