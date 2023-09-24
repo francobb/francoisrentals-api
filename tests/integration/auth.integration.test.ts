@@ -49,7 +49,7 @@ describe('Testing Auth', () => {
 
     it('response should have the Set-Cookie header with the Authorization token', async () => {
       return request(app.getServer())
-        .get(`${authRoute.path}login`)
+        .post(`${authRoute.path}login`)
         .send({ email: 'test1@email.com', password: 'fakePassword' })
         .expect('Set-Cookie', /^Authorization=.+/);
     });
