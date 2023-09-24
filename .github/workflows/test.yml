@@ -11,8 +11,8 @@ jobs:
   lint:
     name: 🚦 ESLint
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/common-jobs.yml
     steps:
+      - uses: ./.github/workflows/common-jobs.yml
       - name: 🔬 Lint
         run: npm run lint
 
