@@ -76,7 +76,7 @@ describe('Testing Auth', () => {
 
     it('logout Set-Cookie Authorization=; Max-age=0', async () => {
       return request(app.getServer())
-        .post(`${authRoute.path}logout`)
+        .get(`${authRoute.path}logout`)
         .set('Cookie', cookies)
         .expect('Set-Cookie', /^Authorization=\; Max-age=0/);
     });
