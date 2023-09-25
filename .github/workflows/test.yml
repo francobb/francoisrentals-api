@@ -9,10 +9,13 @@ on:
   workflow_dispatch:
 jobs:
   lint:
-    uses: common-steps ./.github/workflows/common-jobs.yml
     name: 🚦 ESLint
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - name: Common steps
+        uses: ./.github/workflows/common-jobs.yml
+
       - name: 🔬 Lint
         run: npm run lint
 
