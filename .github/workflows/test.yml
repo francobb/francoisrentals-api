@@ -122,7 +122,6 @@ jobs:
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
       TWILIO_AUTH_TOKEN: 'fakeAuthToken'
       USER_EMAIL: 'tenant1@gmail.com'
-      NODE_ENV: 'production'
 
     name: 🧬 API Tests
     runs-on: ubuntu-latest
