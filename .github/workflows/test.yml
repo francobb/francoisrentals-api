@@ -8,6 +8,7 @@ on:
       - develop
   workflow_dispatch:
 jobs:
+
   lint:
     name: 🚦 ESLint
     runs-on: ubuntu-latest
@@ -114,12 +115,14 @@ jobs:
       MONGO_PASSWORD: adminpassword
       MONGO_URI: 'mongodb://0.0.0.0:27017'
       MONGO_USERNAME: admin
+      PORT: 3000
       ROOT_URI: 'http://localhost:3000'
       SECRET_KEY: 'secretKey'
       STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
       TWILIO_AUTH_TOKEN: 'fakeAuthToken'
       USER_EMAIL: 'tenant1@gmail.com'
+      NODE_ENV: 'production'
 
     name: 🧬 API Tests
     runs-on: ubuntu-latest
