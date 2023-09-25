@@ -100,6 +100,26 @@ jobs:
           STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }}
 
   apiTest:
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Set the Stripe access key from GitHub secret
+      AWS_BUCKET: 'francoisrentals'
+      AWS_REGION: 'us-east-2'
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
+      BUCKET_NAME: 'francoisrentals'
+      CI: true
+      DB_IP: '127.0.0.1'
+      DB_MEMORY: 'false'
+      DB_PORT: '27017'
+      LOG_DIR: '../logs'
+      MONGO_PASSWORD: adminpassword
+      MONGO_URI: 'mongodb://0.0.0.0:27017'
+      MONGO_USERNAME: admin
+      ROOT_URI: 'http://localhost:3000'
+      SECRET_KEY: 'secretKey'
+      STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
+      TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
+      TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+
     name: 🧬 API Tests
     runs-on: ubuntu-latest
     steps:
