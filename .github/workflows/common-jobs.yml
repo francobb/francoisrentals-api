@@ -6,9 +6,6 @@ jobs:
   common-steps:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-        name: Checkout
-
       - name: ⚙ Setup node
         uses: actions/setup-node@v3
         with:
