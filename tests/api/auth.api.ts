@@ -1,4 +1,4 @@
-import { describe, test, it, beforeEach, before } from 'node:test';
+import { describe, it } from 'node:test';
 import { strictEqual, equal } from 'node:assert';
 import { deepStrictEqual } from 'assert';
 
@@ -7,20 +7,6 @@ const API_USER_EMAIL = process.env.USER_EMAIL;
 const API_USER_PASSWORD = process.env.USER_PASSWORD;
 
 describe('API Workflow', () => {
-  // let _server: App;
-  // let fr_api: http.Server;
-  // before(async () => {
-  // _server = new App([new AuthRoute(), new IndexRoute()]);
-  // _server.listen();
-  // await new Promise(resolve => {
-  //   _server.getServer().once('listening', resolve);
-  // });
-  // });
-  //
-  // after(() => {
-  //   process.exit(0);
-  // });
-
   it('should receive not authorized given wrong user and password', async () => {
     const data = {
       email: 'tenantDoesNotExist@gmail.com',

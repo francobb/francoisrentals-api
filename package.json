@@ -22,7 +22,7 @@
     "mongodb:up": "mongod --dbpath data",
     "prestart:development": "npm run clean && npm run build && MONGO_CONFIG=/opt/homebrew/etc/mongod.conf ./scripts/mongodb-test.sh",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "start:development": "NODE_ENV=development node --inspect dist/server.js",
+    "start:development": "NODE_ENV=development cross-env node --inspect dist/server.js",
     "start:production": "NODE_ENV=production cross-env node dist/server.js",
     "test": "npm run test:unit && npm run test:int",
     "test:api:development": "rm -rf tmp && swc ./tests -d ./tmp/tests && NODE_ENV=development node --test --test-reporter spec ./tmp/tests/api/*",

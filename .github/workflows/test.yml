@@ -98,3 +98,43 @@ jobs:
         run: npm run test:int
         env:
           STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }}
+
+  apiTest:
+    name: 🧬 API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "19.x"
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: 👷🏽‍ Rebuild bcrypt
+        run: npm rebuild --update-binary bcrypt
+
+      - name: 🍃 🐳 Run MongoDB Docker Container
+        run: |
+          docker run -d --name fr-db -p 27017:27017 mongo
+
+      - name: 🕤 Wait for MongoDB to start
+        run: sleep 20
+
+      - name: build the API
+        run: |
+          npm run build
+
+      - name: start the API
+        run: |
+          npm run start
+
+      - name: 🕤 Wait for App to start
+        run: sleep 10
+
+      - name: Run API tests
+        run: |
+          npm run test:api:development
