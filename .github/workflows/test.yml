@@ -119,6 +119,7 @@ jobs:
       STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
       TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+      USER_EMAIL: 'tenant1@gmail.com'
 
     name: 🧬 API Tests
     runs-on: ubuntu-latest
@@ -144,13 +145,9 @@ jobs:
       - name: 🕤 Wait for MongoDB to start
         run: sleep 20
 
-      - name: build the API
-        run: |
-          npm run build
-
       - name: start the API
         run: |
-          npm run start
+          npm run build && npm run start
 
       - name: 🕤 Wait for App to start
         run: sleep 10
