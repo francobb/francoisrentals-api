@@ -82,7 +82,7 @@ describe('Auth Controller Unit Tests', function () {
   describe('logOut()', () => {
     it('should log user out', async () => {
       mockAuthService.logout = jest.fn().mockResolvedValue(userData);
-      await subject.logOut(mReq as Request, mRes as Response, mNext);
+      await subject.logOut(mReq as Request, mRes as Response);
 
       expect(mRes.setHeader).toHaveBeenCalledWith('Set-Cookie', ['Authorization=; Max-age=0']);
       expect(mRes.status).toHaveBeenCalledWith(200);
