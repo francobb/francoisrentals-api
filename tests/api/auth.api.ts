@@ -7,13 +7,32 @@ const API_USER_EMAIL = process.env.USER_EMAIL;
 const API_USER_PASSWORD = process.env.USER_PASSWORD;
 
 describe('API Workflow', () => {
+  let userData: { email: string; password: string; role: string; name: string };
+
+  it('should signup user', async () => {
+    userData = {
+      email: API_USER_EMAIL,
+      password: API_USER_PASSWORD,
+      role: 'TENANT',
+      name: 'Bob Barker',
+    };
+    const request = await global.fetch(`${BASE_URL}/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+    const expectedValues = [200, 409];
+    equal(expectedValues.includes(request.status), true);
+  });
+
   it('should receive not authorized given wrong user and password', async () => {
     const data = {
       email: 'tenantDoesNotExist@gmail.com',
       password: 'iL!v3un!7',
     };
 
-    // let response: request.Response;
     const request = await global.fetch(`${BASE_URL}/login`, {
       method: 'POST',
       headers: {
