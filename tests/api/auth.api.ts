@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import { strictEqual, equal } from 'node:assert';
 import { deepStrictEqual } from 'assert';
 
-const BASE_URL = process.env.ROOT_URL || 'http://localhost:3000';
+const BASE_URL = process.env.ROOT_URI || 'http://localhost:3000';
 const API_USER_EMAIL = process.env.USER_EMAIL;
 const API_USER_PASSWORD = process.env.USER_PASSWORD;
 
