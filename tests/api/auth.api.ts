@@ -24,6 +24,7 @@ describe('API Workflow', () => {
       body: JSON.stringify(userData),
     });
     const expectedValues = [200, 409];
+    console.log('VALUE::: ', expectedValues.includes(request.status));
     equal(expectedValues.includes(request.status), true);
   });
 
