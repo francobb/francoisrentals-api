@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import { strictEqual, equal } from 'node:assert';
 import { deepStrictEqual } from 'assert';
+import { EMAIL_ADDRESS, EMAIL_PASSWORD } from '../../src/config';
 
 const BASE_URL = process.env.ROOT_URI || 'http://localhost:3000';
 const API_USER_EMAIL = process.env.USER_EMAIL;
@@ -81,6 +82,8 @@ describe('API Workflow', () => {
     const data = {
       email: API_USER_EMAIL,
     };
+
+    console.log('INFORMATION: ', { EMAIL_ADDRESS, EMAIL_PASSWORD });
 
     const request = await global.fetch(`${BASE_URL}/forgot`, {
       method: 'POST',
