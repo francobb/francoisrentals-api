@@ -122,7 +122,7 @@ jobs:
       TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
       TWILIO_AUTH_TOKEN: 'fakeAuthToken'
       USER_EMAIL: 'tenant1@gmail.com'
-      USER_PASSWORD: 'tenant1@gmail.com'
+      USER_PASSWORD: 'password'
       EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
