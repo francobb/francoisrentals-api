@@ -123,8 +123,7 @@ jobs:
       TWILIO_AUTH_TOKEN: 'fakeAuthToken'
       USER_EMAIL: 'tenant1@gmail.com'
       USER_PASSWORD: 'password'
-      EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
 
     name: 🧬 API Tests
     runs-on: ubuntu-latest
@@ -169,6 +168,9 @@ jobs:
 
       - name: Run API tests
         run: npm run test:api:development
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
       - name: Kill Running Application
         run: pkill -f "npm run start:ci"
