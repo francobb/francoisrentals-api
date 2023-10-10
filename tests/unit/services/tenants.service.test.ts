@@ -1,7 +1,7 @@
 import TenantService from '@services/tenants.service';
 import { HttpException } from '@exceptions/HttpException';
-import { CreateTenantDto } from '@dtos/tenants.dto';
 import stripe from '../../../src/services/clients/stripe.client';
+import { Tenant } from '../../../src/interfaces/tenants.interface';
 
 describe('Tenants service', function () {
   let tenantService: TenantService;
@@ -70,7 +70,7 @@ describe('Tenants service', function () {
     });
 
     it('should not update the tenant if there is not tenant data', async () => {
-      await expect(tenantService.updateTenant(tenantId, {} as CreateTenantDto)).rejects.toThrow(new HttpException(400, "You're not tenantData"));
+      await expect(tenantService.updateTenant(tenantId, {} as Tenant)).rejects.toThrow(new HttpException(400, "You're not tenantData"));
     });
 
     it('should not update tenants that do not exist', async () => {
