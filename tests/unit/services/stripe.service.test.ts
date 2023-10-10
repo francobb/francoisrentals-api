@@ -1,15 +1,22 @@
 import StripeService from '../../../src/services/stripe.service';
 import stripe from '../../../src/services/clients/stripe.client';
 import { ROOT_URI } from '../../../src/config';
+import { Tenant } from '../../../src/interfaces/tenants.interface';
+import { MONTHS } from '../../../src/utils/constants';
+import { Document } from 'mongoose';
 
 describe('StripeService', function () {
-  let tenantData;
+  let tenantData: Tenant & Partial<Document>;
   let stripeService;
   let createMock;
   let mTenantRepository;
 
   beforeAll(() => {
     tenantData = {
+      id: '1232',
+      _id: '1232',
+      rentalAmount: 0,
+      rentalBalance: 2000,
       email: 'j@j.com',
       lease_to: new Date(),
       move_in: new Date(),
@@ -33,6 +40,10 @@ describe('StripeService', function () {
       amount: 200000,
       currency: 'usd',
       setup_future_usage: 'off_session',
+      receipt_email: tenantData.email,
+      description: `Rent Payment for ${MONTHS[new Date().getMonth()]}`,
+      metadata: { name: tenantData.name, email: tenantData.email, id: tenantData._id },
+
       // automatic_payment_methods: {
       //   enabled: true,
       // },
