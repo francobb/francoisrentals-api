@@ -102,8 +102,10 @@ describe('Stripe Controller Unit Tests', function () {
         headers: { 'stripe-signature': 'mocked-signature' },
       } as unknown as Request;
       const error = new Error('Some error');
-      createMock = jest.fn().mockRejectedValue(error);
-      (stripe.webhooks.constructEvent as jest.Mock) = createMock;
+      createMock = jest.fn().mockImplementation(() => {
+        throw error;
+      });
+      (stripe.webhooks.constructEvent as jest.MockedFn<typeof stripe.webhooks.constructEvent>) = createMock;
 
       await stripeController.processStripeWebhook(mReq, mRes, mNext);
       expect(mNext).toHaveBeenCalledWith(error);

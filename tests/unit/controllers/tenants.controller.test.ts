@@ -47,8 +47,8 @@ describe('Tenant Controller', function () {
 
       expect(mRes.status).toHaveBeenCalledWith(200);
       expect(mRes.json).toHaveBeenCalledWith({
-        data: expect.any(Object),
-        message: 'getTenants',
+        tenants: [],
+        message: 'get All Tenants',
       });
       expect(mNext).not.toHaveBeenCalled();
     });
