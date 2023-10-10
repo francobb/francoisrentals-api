@@ -23,7 +23,7 @@
     "mongodb:up": "mongod --dbpath data",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "test": "npm run test:unit && npm run test:int",
-    "test:int": "./scripts/mongodb-test.sh && jest -c jest.integration.config.ts --runInBand --no-cache --detectOpenHandles --forceExit && npm run mongodb:down",
+    "test:int": "./scripts/mongodb-test.sh && NODE_ENV=test jest -c jest.integration.config.ts --runInBand --no-cache --detectOpenHandles --forceExit && npm run mongodb:down",
     "test:unit": "jest -c jest.config.ts --detectOpenHandles --runInBand",
     "test:unit:coverage": "jest -c jest.config.ts --detectOpenHandles --runInBand --coverage"
   },

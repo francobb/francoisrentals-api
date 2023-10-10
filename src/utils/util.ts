@@ -18,7 +18,7 @@ export const isEmpty = (value: string | number | object): boolean => {
   }
 };
 
-export function getLastDayOfMonth(year, monthNumber) {
+export function getLastDayOfMonth(year: number, monthNumber: number) {
   // Convert 1-indexed month number to 0-indexed value
   const month = monthNumber - 1;
   // Month parameter is 0-indexed, so we need to add 1 to get the next month
