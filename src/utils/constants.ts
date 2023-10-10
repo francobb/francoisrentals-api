@@ -11,4 +11,4 @@ export const PREV_YEAR = new Date().getFullYear() - 1;
 export const WELLES = '212 Welles Street';
 export const DATES_REGEX_PATTERN = /(?<! - )\b(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{4})/gi;
 export const ID_OF_FOLDER = '1jXtb1PHlAoHtHs3vfmSIgQF5rofvzO3Y';
-export const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
