@@ -15,6 +15,7 @@ class TenantsRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.#path}`, authMiddleware, checkRole(['ADMIN']), this.tenantsController.getTenants);
+    this.router.get(`${this.#path}/getById`, authMiddleware, checkRole(['ADMIN', 'TENANT']), this.tenantsController.getTenantById);
     this.router.post(
       `${this.#path}`,
       authMiddleware,

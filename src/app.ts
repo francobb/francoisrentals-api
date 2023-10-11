@@ -15,12 +15,13 @@ import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { frAscii } from '@utils/frAscii';
 import TenantService from '@services/tenants.service';
+import { Tenant } from '@interfaces/tenants.interface';
 
 class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
-  public tenantService;
+  public tenantService: TenantService;
 
   constructor(routes: Routes[]) {
     this.app = express();
@@ -69,11 +70,19 @@ class App {
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
-    this.app.use(express.json());
+
+    // used to transform stripe webhook response
+    // this.app.use('/payment/stripe', express.raw({ type: '*/*' }));
+    this.app.use(
+      express.json({
+        limit: '5mb',
+        verify: (req, res, buf) => {
+          (req as any).rawBody = buf.toString();
+        },
+      }),
+    );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    // todo: add url to url obj
-    // this.app.use('/payment/stripe', express.raw({ type: '*/*' }));
   }
 
   private initializeRoutes(routes: Routes[]) {
@@ -145,7 +154,7 @@ class App {
       for (const tnt of tenants) {
         logger.info('Updating rental amount for tenant ' + tnt.name);
         tnt.rentalBalance += tnt.rentalAmount;
-        await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance });
+        await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance } as Tenant);
       }
     }
   }

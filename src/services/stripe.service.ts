@@ -1,6 +1,7 @@
 import stripe from '@clients/stripe.client';
 import { ROOT_URI } from '@config';
 import tenantsModel from '@models/tenants.model';
+import { MONTHS } from '@utils/constants';
 
 class StripeService {
   public tenants = tenantsModel;
@@ -9,7 +10,7 @@ class StripeService {
     const tenant = await this.tenants.findOne({ email });
     return await stripe.paymentIntents.create({
       customer: tenant.customerId,
-      amount: 200000,
+      amount: tenant.rentalBalance * 100,
       currency: 'usd',
       setup_future_usage: 'off_session',
       // automatic_payment_methods: {
@@ -23,7 +24,9 @@ class StripeService {
           },
         },
       },
-      // metadata: { name: 'William' },
+      description: `Rent Payment for ${MONTHS[new Date().getMonth()]}`,
+      receipt_email: tenant.email,
+      metadata: { name: tenant.name, email: tenant.email, id: tenant.id },
     });
   };
 
@@ -55,6 +58,19 @@ class StripeService {
       success_url: `${ROOT_URI}?success`,
       cancel_url: `${ROOT_URI}?cancel`,
     });
+  };
+
+  public getCustomerTransactions = async customerId => {
+    try {
+      const transactions = await stripe.paymentIntents.list({
+        customer: customerId,
+        limit: 200,
+      });
+      return transactions.data;
+    } catch (error) {
+      console.error('Error fetching customer transactions:', error);
+      throw error;
+    }
   };
 }
 
