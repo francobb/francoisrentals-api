@@ -8,7 +8,16 @@ class TenantsController {
   public getTenants = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenants: Tenant[] = await this.tenantService.findAllTenants();
-      res.status(200).json({ data: tenants, message: 'getTenants' });
+      res.status(200).json({ tenants, message: 'get All Tenants' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getTenantById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const tenant: Tenant = await this.tenantService.findTenantById(req.query.tenantId as string);
+      res.status(200).json({ tenant, message: 'getTenant' });
     } catch (error) {
       next(error);
     }
