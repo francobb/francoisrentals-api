@@ -2,9 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import stripe from '@services/clients/stripe.client';
 import { logger } from '@utils/logger';
 import StripeService from '@services/stripe.service';
+import { STRIPE_WEBHOOK_SECRET } from '@config';
+import TenantService from '@services/tenants.service';
+import { Tenant } from '@interfaces/tenants.interface';
 
 class StripeController {
   public stripeService: StripeService = new StripeService();
+  public tenantService = new TenantService();
 
   public receiveRentPayment = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -27,26 +31,42 @@ class StripeController {
   };
 
   public processStripeWebhook = async (req: Request, res: Response, next: NextFunction) => {
+    const payload = (req as any).rawBody;
+
     // Get the signature from the headers
     const sig = req.headers['stripe-signature'];
     let event;
     try {
-      // Check if the event is sent from Stripe or a third party
-      // And parse the event
-      event = await stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(payload, sig, STRIPE_WEBHOOK_SECRET);
 
       // Event when a payment is initiated
       if (event.type === 'payment_intent.created') {
-        logger.info(`${event.data.object.metadata.name} initated payment!`);
+        logger.info(`${event.data.object.metadata.name} initiated payment!`);
       }
+
       // Event when a payment is succeeded
       if (event.type === 'payment_intent.succeeded') {
-        logger.info(`${event.data.object.metadata.name} succeeded payment!`);
+        const paymentIntentSucceeded = event.data.object;
+        const tenant = await this.tenantService.findTenantById(paymentIntentSucceeded.metadata.id);
+        const balance = Number(tenant.rentalBalance) - Number(paymentIntentSucceeded.amount_received) / 100;
+        await this.tenantService.updateTenant(paymentIntentSucceeded.metadata.id, { rentalBalance: balance } as Tenant);
+
+        logger.info(`${paymentIntentSucceeded.metadata.name} succeeded payment!`);
       }
 
       res.status(200).json({ ok: true });
     } catch (err) {
       next(err);
+    }
+  };
+
+  public getTransactions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const transactions = await this.stripeService.getCustomerTransactions(req.query.customerId);
+      const successfulTransactions = transactions.filter(transaction => transaction.status === 'succeeded');
+      res.status(200).json({ message: 'Retrieved Transactions', transactions: successfulTransactions });
+    } catch (e) {
+      next(e);
     }
   };
 }

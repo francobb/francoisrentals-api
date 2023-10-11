@@ -14,6 +14,10 @@ class TenantService {
     return this.tenants.find();
   }
 
+  public async findTenantById(id: string): Promise<Tenant> {
+    return this.tenants.findById(id);
+  }
+
   public async createTenant(tenantData: CreateTenantDto): Promise<Tenant> {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
@@ -21,11 +25,10 @@ class TenantService {
     if (findTenant) throw new HttpException(409, `You're already registered`);
 
     const customer = await this.createCustomer(tenantData);
-
     return await this.tenants.create({ ...tenantData, customerId: customer.id });
   }
 
-  async updateTenant(tenantId: string, tenantData: CreateTenantDto) {
+  async updateTenant(tenantId: string, tenantData: Tenant) {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
     const findTenant: Tenant = await this.tenants.findByIdAndUpdate({ _id: tenantId }, { ...tenantData }, { new: true, useFindAndModify: false });
@@ -34,7 +37,7 @@ class TenantService {
     return findTenant;
   }
 
-  createCustomer = async tenantData => {
+  createCustomer = async (tenantData: CreateTenantDto) => {
     const params: Stripe.CustomerCreateParams = {
       description: `Unit #${tenantData.unit} at ${tenantData.property}`,
       email: tenantData.email,
