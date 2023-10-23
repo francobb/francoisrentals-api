@@ -1,6 +1,7 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response, Request } from 'express';
 import { verify } from 'jsonwebtoken';
-import { SECRET_KEY } from '@config';
+import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
+import crypto from 'crypto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import userModel from '@models/users.model';
@@ -37,6 +38,29 @@ export const checkRole = (roles: string | string[]) => async (req, res: Response
     !roles.includes(role) ? res.status(401).json('Sorry you do not have access to this route') : next();
   } else {
     next(new HttpException(401, 'Authentication token missing'));
+  }
+};
+
+export const checkClient = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const FR_TOKEN = req.header('FR-TOKEN');
+    if (FR_TOKEN) {
+      console.log({ FR_TOKEN });
+      const timestamp = new Date().getHours();
+      const dataToHash = `${SECRET_CLIENT_KEY}-${timestamp}`;
+      // Recreate the token using the same logic as on the client-side
+      const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
+
+      if (serverToken === FR_TOKEN) {
+        next();
+      } else {
+        next(new HttpException(401, 'Supplied token is not valid'));
+      }
+    } else {
+      next(new HttpException(401, 'Expected client token missing'));
+    }
+  } catch (e) {
+    next(new HttpException(401, 'Request did not come from the expected client'));
   }
 };
 

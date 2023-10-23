@@ -5,7 +5,7 @@ import validationMiddleware from '@middlewares/validation.middleware';
 import { MaintenanceRequestDto } from '@dtos/request.dto';
 import { Routes } from '@interfaces/routes.interface';
 import { ImageDto } from '@dtos/images.dto';
-import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
+import authMiddleware, { checkClient, checkRole } from '@middlewares/auth.middleware';
 
 class MaintenanceRoute implements Routes {
   public path = '/maintenance';
@@ -33,6 +33,7 @@ class MaintenanceRoute implements Routes {
     this.router.post(
       `${this.path}`,
       uploader.array('images', 10),
+      checkClient,
       authMiddleware,
       checkRole(['ADMIN', 'OWNER', 'TENANT']),
       validationMiddleware(MaintenanceRequestDto, 'body'),

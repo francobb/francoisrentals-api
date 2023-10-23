@@ -5,6 +5,8 @@ import { clearDatabase } from './setup/db-handler';
 import UserService from '../../src/services/users.service';
 import AuthRoute from '../../src/routes/auth.route';
 import { MaintenanceRoute } from '../../src/routes';
+import { SECRET_CLIENT_KEY } from '../../src/config';
+import crypto from 'crypto';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
@@ -16,8 +18,9 @@ describe('Testing Maintenance', function () {
   let email: string;
   let password: string;
   let maintenancesRoute: Routes;
-  let maintenanceData;
+  let maintenanceData: { details: any; location: any; room: any; unit: any };
   let userData: string | object;
+  let token: string;
 
   beforeAll(async () => {
     authRoute = new AuthRoute();
@@ -40,6 +43,10 @@ describe('Testing Maintenance', function () {
 
   describe('[POST] Methods', function () {
     beforeAll(async () => {
+      const timestamp = new Date().getHours();
+      const dataToHash = `${SECRET_CLIENT_KEY}-${timestamp}`;
+      // Recreate the token using the same logic as on the client-side
+      token = crypto.createHash('sha256').update(dataToHash).digest('hex');
       await new UserService().createUser({
         email: email,
         password: password,
@@ -66,6 +73,7 @@ describe('Testing Maintenance', function () {
         const req = await request(app.getServer())
           .post(`${maintenancesRoute.path}`)
           .set('Cookie', cookies)
+          .set('FR-TOKEN', token)
           .field('details', maintenanceData.details)
           .field('location', maintenanceData.location)
           .field('room', maintenanceData.room)
@@ -81,6 +89,7 @@ describe('Testing Maintenance', function () {
         const req = await request(app.getServer())
           .post(`${maintenancesRoute.path}`)
           .set('Cookie', cookies)
+          .set('FR-TOKEN', token)
           .field('details', maintenanceData.details)
           .field('room', maintenanceData.room)
           .field('unit', maintenanceData.unit)
