@@ -1,10 +1,11 @@
+import crypto from 'crypto';
+import passport from 'passport';
 import { NextFunction, Response, Request } from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
-import crypto from 'crypto';
-import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import userModel from '@models/users.model';
+import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
+import { HttpException } from '@exceptions/HttpException';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
@@ -63,5 +64,11 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
     next(new HttpException(401, 'Request did not come from the expected client'));
   }
 };
+
+/* passport handlers */
+export const localAuth = passport.authenticate('local', { session: false });
+export const requireJwtAuth = passport.authenticate('jwt', { session: false });
+export const authWithGoogle = passport.authenticate('google', { scope: ['profile', 'email'] });
+export const authWithGoogleCallback = passport.authenticate('google', { failureRedirect: '/', session: false });
 
 export default authMiddleware;

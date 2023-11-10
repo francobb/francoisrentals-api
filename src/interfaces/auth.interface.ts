@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { Tenant } from '@interfaces/tenants.interface';
+import { User } from '@interfaces/users.interface';
 
 export interface DataStoredInToken {
   _id: string;
@@ -13,13 +14,6 @@ export interface TokenData {
   expiresIn: number;
 }
 
-export interface RequestWithUser extends Request {
-  user: {
-    email: string;
-    name: string;
-    password: string;
-    role: string;
-    resetToken?: Promise<unknown>;
-    resetTokenExpires?: Date;
-  };
-}
+export type RequestWithUser = Request & {
+  user: User;
+};

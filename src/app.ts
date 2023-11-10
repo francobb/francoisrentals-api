@@ -5,17 +5,19 @@ import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
-import { connect, set } from 'mongoose';
+import passport from 'passport';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, ROOT_URI } from '@config';
-import { dbConnection } from '@databases';
-import { Routes } from '@interfaces/routes.interface';
-import errorMiddleware from '@middlewares/error.middleware';
-import { logger, stream } from '@utils/logger';
-import { frAscii } from '@utils/frAscii';
+import { connect, set } from 'mongoose';
+import '@clients/passport.client';
 import TenantService from '@services/tenants.service';
+import errorMiddleware from '@middlewares/error.middleware';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, ROOT_URI } from '@config';
+import { Routes } from '@interfaces/routes.interface';
 import { Tenant } from '@interfaces/tenants.interface';
+import { dbConnection } from '@databases';
+import { frAscii } from '@utils/frAscii';
+import { logger, stream } from '@utils/logger';
 
 class App {
   public app: express.Application;
@@ -83,6 +85,7 @@ class App {
     );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(passport.initialize());
   }
 
   private initializeRoutes(routes: Routes[]) {

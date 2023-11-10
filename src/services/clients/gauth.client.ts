@@ -3,8 +3,8 @@ import { APP_ID, APP_SECRET, REDIRECT_URI, PRIVATE_KEY, CLIENT_EMAIL } from '@co
 import { OAuth2Client } from 'google-auth-library/build/src/auth/oauth2client';
 import { JWT } from 'google-auth-library/build/src/auth/jwtclient';
 class GoogleClient {
-  private static JWTClient;
-  private static OAuth2Client;
+  private static JWTClient: JWT;
+  private static OAuth2Client: OAuth2Client;
 
   private static initializeJWTClient() {
     return new google.auth.JWT(CLIENT_EMAIL, null, PRIVATE_KEY, [

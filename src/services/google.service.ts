@@ -38,9 +38,11 @@ class GoogleService {
   public parser: Parser = new Parser();
   public payeesPayers = payeePayerModel;
   public transactionService: TransactionService = new TransactionService();
+
   public async getAllPayeesAndPayers(): Promise<PayeePayer[]> {
     return this.payeesPayers.find();
   }
+
   public getAuthUrl() {
     return this.oauthClient.generateAuthUrl({
       // 'online' (default) or 'offline' (gets refresh_token)
@@ -58,6 +60,7 @@ class GoogleService {
       include_granted_scopes: true,
     });
   }
+
   async getGoogleUser({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> {
     try {
       const { data } = await axios.get<GoogleUserResult>(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`, {
@@ -71,6 +74,7 @@ class GoogleService {
       throw new HttpException(404, err.message);
     }
   }
+
   async authenticateWithGoogle(code: string): Promise<GoogleOauthToken> {
     let tr: any = {};
     // Create a new OAuth2 client if it doesn't exist yet
@@ -108,6 +112,7 @@ class GoogleService {
 
     return tr;
   }
+
   async listDriveFiles() {
     const filesFromDB = await this.transactionService.getAllReports();
     const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
@@ -140,6 +145,8 @@ class GoogleService {
             } catch (err) {
               logger.error(err);
             }
+          } else {
+            logger.info('No New Files to upload');
           }
         }
       } else {
@@ -147,7 +154,8 @@ class GoogleService {
       }
     });
   }
-  async exportFile(documentId) {
+
+  async exportFile(documentId: any) {
     return new Promise<Buffer>(async (resolve, reject) => {
       const bufferChunks: Buffer[] = [];
 
