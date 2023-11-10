@@ -2,7 +2,7 @@ import { Router } from 'express';
 import AuthController from '@controllers/auth.controller';
 import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
-import authMiddleware from '@middlewares/auth.middleware';
+import authMiddleware, { localAuth } from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 
 class AuthRoute implements Routes {
@@ -19,6 +19,8 @@ class AuthRoute implements Routes {
     this.router.post(`${this.path}login`, validationMiddleware(loginUserDto, 'body'), this.authController.logIn);
     this.router.post(`${this.path}logout`, authMiddleware, this.authController.logOut);
     this.router.post(`${this.path}forgot`, this.authController.forgotPassword);
+    /* passportJs route */
+    this.router.post(`${this.path}signin`, localAuth, this.authController.signIn);
   }
 }
 
