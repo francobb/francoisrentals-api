@@ -40,6 +40,24 @@ class AuthController {
     }
   };
 
+  /* passport handlers */
+
+  public signIn = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user: { cookie, tenantInfo },
+      }: any = req;
+
+      const auth = cookie.split(';')[0];
+      const token = auth.split('=')[1];
+
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json({ token, tenantInfo, message: 'accessToken' });
+    } catch (e) {
+      next(e);
+    }
+  };
+
   public logOut = async (req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
     res.status(200).json({ message: 'logged out' });

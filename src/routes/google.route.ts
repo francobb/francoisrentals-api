@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import GoogleController from '@controllers/google.controller';
-import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
+import { authWithGoogle, authWithGoogleCallback, checkRole, requireJwtAuth } from '@middlewares/auth.middleware';
 
 class GoogleRoute implements Routes {
   public path = '/';
@@ -13,9 +13,11 @@ class GoogleRoute implements Routes {
     this.initializeRoutes();
   }
   private initializeRoutes() {
-    this.router.get(`${this.path}getAuthUrl`, this.googleController.getAuthUrl);
-    this.router.get(`${this.path}auth/google/callback`, this.googleController.googleOauthHandler);
-    this.router.get(`${this.path}listFiles`, authMiddleware, checkRole(['ADMIN']), this.googleController.getFilesFromDrive);
+    /* passport google routes */
+    this.router.get(`${this.path}google`, authWithGoogle);
+    this.router.get(`${this.path}auth/google/callback`, authWithGoogleCallback, this.googleController.googleOauth20Handler);
+    /* passport google routes */
+    this.router.get(`${this.path}listFiles`, requireJwtAuth, checkRole(['ADMIN']), this.googleController.getFilesFromDrive);
   }
 }
 
