@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { decode } from 'jsonwebtoken';
 import { Profile } from 'passport-google-oauth20';
 import GoogleService from '@services/google.service';
 import AuthService from '@services/auth.service';
@@ -19,6 +20,19 @@ class GoogleController {
     }
   };
 
+  public handleClientAuthRequest = async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.body;
+    const decodedToken = decode(token, { complete: true });
+    const { payload } = decodedToken;
+
+    const { cookie, tenantInfo } = await this.authService.login({ email: payload['email'], name: payload['name'] });
+    const COOKIE_NAME = 'Authorization';
+    const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
+    res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
+
+    res.status(200).json({ cookie, tenantInfo, message: 'accessToken' });
+  };
+
   public googleOauthHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const code = req.query.code as string;
@@ -36,12 +50,12 @@ class GoogleController {
       if (!verified_email) {
         this.handleError(403, "You're not user data");
       }
-      const { cookie, findUser } = await this.authService.login({ email, name });
+      const { cookie, tenantInfo } = await this.authService.login({ email, name });
       const COOKIE_NAME = 'Authorization';
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
       res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
 
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: tenantInfo, message: 'login' });
     } catch (err: any) {
       logger.error('Failed to authorize Google User', err);
       next(err);
@@ -63,14 +77,12 @@ class GoogleController {
     try {
       const email = (req.user as Profile).emails[0].value;
       const name = (req.user as Profile).displayName;
-      const { cookie, findUser } = await this.authService.login({ email, name });
+      const { cookie, tenantInfo } = await this.authService.login({ email, name });
       const COOKIE_NAME = 'Authorization';
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
       res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
 
-      // res.setHeader('Authorization', `Bearer ${COOKIE_VALUE}`);
-
-      res.status(200).json({ data: findUser, token: COOKIE_VALUE, message: 'login' });
+      res.status(200).json({ data: tenantInfo, token: COOKIE_VALUE, message: 'login' });
     } catch (err: any) {
       logger.error('Failed to authorize Google User', err);
       next(err);
