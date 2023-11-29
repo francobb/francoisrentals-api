@@ -49,7 +49,6 @@ describe('Google controller', function () {
   afterEach(() => {
     jest.clearAllMocks();
     jest.resetAllMocks();
-    // jest.restoreAllMocks();
   });
 
   describe('getAuthUrl()', function () {
@@ -158,7 +157,6 @@ describe('Google controller', function () {
     });
 
     it('should return 200', async () => {
-      //todo: cleanup overriding of mRes;
       mRes = {
         cookie: jest.fn(),
         json: jest.fn().mockReturnThis(),
@@ -168,7 +166,7 @@ describe('Google controller', function () {
       const options = { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' };
       mGoogleService.authenticateWithGoogle = jest.fn().mockResolvedValueOnce({ id_token: '', access_token: '' });
       mGoogleService.getGoogleUser = jest.fn().mockResolvedValueOnce({ name: '', verified_email: true, email: '' });
-      mAuthService.login = jest.fn().mockResolvedValueOnce({ cookie: `Authorization=${cookieVal}; `, findUser: userData });
+      mAuthService.login = jest.fn().mockResolvedValueOnce({ cookie: `Authorization=${cookieVal};`, tenantInfo: userData });
 
       await googleController.googleOauthHandler(mReq, mRes as Response, mNext);
       expect(mRes.status).toHaveBeenCalledWith(200);

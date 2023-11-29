@@ -46,7 +46,6 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
   try {
     const FR_TOKEN = req.header('FR-TOKEN');
     if (FR_TOKEN) {
-      console.log({ FR_TOKEN });
       const timestamp = new Date().getHours();
       const dataToHash = `${SECRET_CLIENT_KEY}-${timestamp}`;
       // Recreate the token using the same logic as on the client-side
