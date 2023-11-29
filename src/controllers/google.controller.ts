@@ -21,16 +21,29 @@ class GoogleController {
   };
 
   public handleClientAuthRequest = async (req: Request, res: Response, next: NextFunction) => {
-    const { token } = req.body;
-    const decodedToken = decode(token, { complete: true });
-    const { payload } = decodedToken;
+    try {
+      const { token } = req.body;
+      const decodedToken = decode(token, { complete: true });
+      const { payload } = decodedToken;
 
-    const { cookie, tenantInfo } = await this.authService.login({ email: payload['email'], name: payload['name'] });
-    const COOKIE_NAME = 'Authorization';
-    const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
-    res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
+      const { cookie, tenantInfo } = await this.authService.login({ email: payload['email'], name: payload['name'] });
+      const COOKIE_NAME = 'Authorization';
+      const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
+      res.cookie(COOKIE_NAME, COOKIE_VALUE, {
+        sameSite: 'none',
+        maxAge: 900000,
+        httpOnly: true,
+        secure: true,
+        path: '/',
+      });
+      console.log({ cookie });
 
-    res.status(200).json({ cookie, tenantInfo, message: 'accessToken' });
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json({ cookie, tenantInfo, message: 'accessToken' });
+    } catch (e) {
+      logger.error('Failed to authorize Google User', e);
+      next(e);
+    }
   };
 
   public googleOauthHandler = async (req: Request, res: Response, next: NextFunction) => {
