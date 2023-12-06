@@ -59,6 +59,7 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
       const dataToHash = `${SECRET_CLIENT_KEY}-${clientTimestamp}`;
 
       logger.info('timestamp: ' + timestamp);
+      logger.info('clientTimestampUTC: ' + clientTimestampUTC);
 
       if (Math.abs(timestamp - clientTimestampUTC) > allowedTimeDifference) {
         return res.status(401).json({ message: 'Invalid timestamp' });
