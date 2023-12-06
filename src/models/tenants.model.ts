@@ -31,7 +31,7 @@ const tenantsSchema: Schema = new Schema({
   unit: {
     type: String,
     required: true,
-    enum: ['basement', '1', '2', '3'],
+    enum: ['0', '1', '2', '3'],
   },
   customerId: {
     type: String,
