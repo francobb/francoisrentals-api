@@ -44,10 +44,19 @@ export const checkRole = (roles: string | string[]) => async (req, res: Response
 
 export const checkClient = (req: Request, res: Response, next: NextFunction) => {
   try {
+    const allowedTimeDifference = 300000;
     const FR_TOKEN = req.header('FR-TOKEN');
+    const clientTimestamp = req.header('FR-Timestamp');
+
     if (FR_TOKEN) {
-      const timestamp = new Date().getHours();
-      const dataToHash = `${SECRET_CLIENT_KEY}-${timestamp}`;
+      const timestamp = new Date().getTime();
+      const clientTimestampUTC = new Date(clientTimestamp).getTime();
+      const dataToHash = `${SECRET_CLIENT_KEY}-${clientTimestamp}`;
+
+      if (Math.abs(timestamp - clientTimestampUTC) > allowedTimeDifference) {
+        return res.status(401).json({ message: 'Invalid timestamp' });
+      }
+
       // Recreate the token using the same logic as on the client-side
       const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
 

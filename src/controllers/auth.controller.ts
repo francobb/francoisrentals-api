@@ -32,9 +32,10 @@ class AuthController {
     try {
       const userData: loginUserDto = req.body;
       const { cookie, tenantInfo } = await this.authService.login(userData);
+      const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ cookie, tenantInfo, message: 'accessToken' });
+      res.status(200).json({ cookie: COOKIE_VALUE, tenantInfo, message: 'accessToken' });
     } catch (error) {
       next(error);
     }
