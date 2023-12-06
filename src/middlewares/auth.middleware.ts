@@ -57,7 +57,6 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
         return res.status(401).json({ message: 'Invalid timestamp' });
       }
 
-      // Recreate the token using the same logic as on the client-side
       const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
 
       if (serverToken === FR_TOKEN) {
