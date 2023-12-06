@@ -58,12 +58,16 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
       const clientTimestampUTC = new Date(clientTimestamp).getTime();
       const dataToHash = `${SECRET_CLIENT_KEY}-${clientTimestamp}`;
 
+      logger.info('timestamp: ' + timestamp);
+
       if (Math.abs(timestamp - clientTimestampUTC) > allowedTimeDifference) {
         return res.status(401).json({ message: 'Invalid timestamp' });
       }
 
       // Recreate the token using the same logic as on the client-side
       const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
+
+      logger.info('serverToken: ' + serverToken);
 
       if (serverToken === FR_TOKEN) {
         next();
