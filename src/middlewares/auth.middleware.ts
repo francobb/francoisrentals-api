@@ -6,6 +6,7 @@ import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
 import userModel from '@models/users.model';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { HttpException } from '@exceptions/HttpException';
+import {logger} from "@utils/logger";
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
@@ -47,6 +48,10 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
     const allowedTimeDifference = 300000;
     const FR_TOKEN = req.header('FR-TOKEN');
     const clientTimestamp = req.header('FR-Timestamp');
+
+    logger.info('FR_TOKEN: ' + FR_TOKEN);
+    logger.info('clientTimestamp: ' + clientTimestamp);
+    logger.info('SECRET_CLIENT_KEY: ' + SECRET_CLIENT_KEY);
 
     if (FR_TOKEN) {
       const timestamp = new Date().getTime();
