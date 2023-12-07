@@ -26,11 +26,11 @@ class GoogleController {
       const decodedToken = decode(token, { complete: true });
       const { payload } = decodedToken;
 
-      const { cookie, tenantInfo } = await this.authService.login({ email: payload['email'], name: payload['name'] });
+      const { cookie, tenantInfo, findUser } = await this.authService.login({ email: payload['email'], name: payload['name'] });
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ cookie: COOKIE_VALUE, tenantInfo, message: 'accessToken' });
+      res.status(200).json({ cookie: COOKIE_VALUE, tenantInfo, user: findUser, message: 'accessToken' });
     } catch (e) {
       logger.error('Failed to authorize Google User', e);
       next(e);

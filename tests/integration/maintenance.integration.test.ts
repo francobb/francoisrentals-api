@@ -14,13 +14,14 @@ afterAll(async () => {
 describe('Testing Maintenance', function () {
   let app: App;
   let authRoute: Routes;
-  let cookies: string[];
+  let cookies: string;
   let email: string;
   let password: string;
   let maintenancesRoute: Routes;
   let maintenanceData: { details: any; location: any; room: any; unit: any };
   let userData: string | object;
   let token: string;
+  let timestamp: string;
 
   beforeAll(async () => {
     authRoute = new AuthRoute();
@@ -43,7 +44,7 @@ describe('Testing Maintenance', function () {
 
   describe('[POST] Methods', function () {
     beforeAll(async () => {
-      const timestamp = new Date().getHours();
+      timestamp = new Date().toJSON();
       const dataToHash = `${SECRET_CLIENT_KEY}-${timestamp}`;
       // Recreate the token using the same logic as on the client-side
       token = crypto.createHash('sha256').update(dataToHash).digest('hex');
@@ -74,6 +75,7 @@ describe('Testing Maintenance', function () {
           .post(`${maintenancesRoute.path}`)
           .set('Cookie', cookies)
           .set('FR-TOKEN', token)
+          .set('FR-TIMESTAMP', timestamp)
           .field('details', maintenanceData.details)
           .field('location', maintenanceData.location)
           .field('room', maintenanceData.room)
@@ -95,7 +97,7 @@ describe('Testing Maintenance', function () {
           .field('unit', maintenanceData.unit)
           .attach('images', mockFile, 'test-file.png');
 
-        expect(req.status).toBe(400);
+        expect(req.status).toBe(401);
       });
     });
   });
