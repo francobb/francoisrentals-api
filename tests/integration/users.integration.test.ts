@@ -116,7 +116,6 @@ describe('Testing Users', () => {
       });
       const loginReq = await request(app.getServer()).post(`${authRoute.path}login`).send({ email: expectedUser.email, password: 'password' });
       cookies = loginReq.headers['set-cookie'];
-      console.log({ cookies });
     });
 
     afterAll(async () => {
