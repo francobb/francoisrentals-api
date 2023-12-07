@@ -6,7 +6,6 @@ import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
 import userModel from '@models/users.model';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { HttpException } from '@exceptions/HttpException';
-import {logger} from "@utils/logger";
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
@@ -49,26 +48,16 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
     const FR_TOKEN = req.header('FR-TOKEN');
     const clientTimestamp = req.header('FR-Timestamp');
 
-    logger.info('FR_TOKEN: ' + FR_TOKEN);
-    logger.info('clientTimestamp: ' + clientTimestamp);
-    logger.info('SECRET_CLIENT_KEY: ' + SECRET_CLIENT_KEY);
-
     if (FR_TOKEN) {
       const timestamp = new Date().getTime();
       const clientTimestampUTC = new Date(clientTimestamp).getTime();
       const dataToHash = `${SECRET_CLIENT_KEY}-${clientTimestamp}`;
 
-      logger.info('timestamp: ' + timestamp);
-      logger.info('clientTimestampUTC: ' + clientTimestampUTC);
-
       if (Math.abs(timestamp - clientTimestampUTC) > allowedTimeDifference) {
         return res.status(401).json({ message: 'Invalid timestamp' });
       }
 
-      // Recreate the token using the same logic as on the client-side
       const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
-
-      logger.info('serverToken: ' + serverToken);
 
       if (serverToken === FR_TOKEN) {
         next();
