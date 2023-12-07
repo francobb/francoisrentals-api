@@ -37,6 +37,9 @@ class GoogleController {
     }
   };
 
+  /**
+   * NOTE: NOT IN USE
+   */
   public googleOauthHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const code = req.query.code as string;
