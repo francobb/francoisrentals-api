@@ -113,7 +113,7 @@
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.5.2"
   },
-  "version": "v1.1.1",
+  "version": "v1.5.0",
   "release": {
     "repositoryUrl": "https://github.com/francobb/francoisrentals-api",
     "branches": [
