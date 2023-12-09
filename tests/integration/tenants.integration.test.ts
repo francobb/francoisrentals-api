@@ -12,7 +12,7 @@ afterAll(async () => {
 });
 describe('Testing Tenants', function () {
   let app: App;
-  let cookies: string[];
+  let cookies: string;
   let email: string;
   let password: string;
   let tenantsData: CreateTenantDto;
