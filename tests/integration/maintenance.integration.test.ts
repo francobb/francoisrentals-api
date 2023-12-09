@@ -14,7 +14,7 @@ afterAll(async () => {
 describe('Testing Maintenance', function () {
   let app: App;
   let authRoute: Routes;
-  let cookies: string[];
+  let cookies: string;
   let email: string;
   let password: string;
   let maintenancesRoute: Routes;

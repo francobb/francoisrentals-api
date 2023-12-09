@@ -56,7 +56,7 @@ describe('Testing Auth', () => {
   });
 
   describe('[POST] /logout', () => {
-    let cookies: string[];
+    let cookies: string;
     beforeAll(async () => {
       await new UserService().createUser({ email: 'testlogout@email.com', password: 'fakePassword', name: 'Bill', role: 'ADMIN' });
 
