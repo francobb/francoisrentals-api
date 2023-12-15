@@ -1,5 +1,5 @@
 module.exports = {
-  repositoryUrl: "https://github.com/francobb/rizzle_auth",
+  repositoryUrl: "https://github.com/francobb/francoisrentals-api",
   plugins: [
     "@semantic-release/commit-analyzer",
     "@semantic-release/github",
