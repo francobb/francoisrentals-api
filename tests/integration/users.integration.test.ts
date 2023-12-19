@@ -36,7 +36,7 @@ describe('Testing Users', () => {
   });
 
   describe('[GET] METHODS', function () {
-    let cookies: string[];
+    let cookies: string;
 
     afterAll(async () => {
       await clearDatabase();
@@ -99,7 +99,7 @@ describe('Testing Users', () => {
 
   describe('[PUT] /users/:id', () => {
     let userToUpdate;
-    let cookies: string[];
+    let cookies: string;
 
     beforeAll(async () => {
       expectedUser = await new UserService().createUser({
@@ -147,7 +147,7 @@ describe('Testing Users', () => {
 
   describe('[DELETE] /users/:id', () => {
     let userToDelete;
-    let cookies: string[];
+    let cookies: string;
     beforeAll(async () => {
       expectedUser = await new UserService().createUser({
         email: 'user2delete@mail.com',
