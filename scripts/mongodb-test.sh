@@ -2,7 +2,7 @@
 
 # Function to check if MongoDB is running
 is_mongodb_running() {
-  if pgrep mongod >/dev/null; then
+  if pgrep mongod >/dev/null || lsof -Pi :27017 -sTCP:LISTEN -t >/dev/null; then
     return 0  # MongoDB is running
   else
     return 1  # MongoDB is not running
@@ -22,7 +22,7 @@ else
   # Start MongoDB if it's not running
   if ! is_mongodb_running; then
     echo "Starting MongoDB..."
-    mongod --dbpath data --port 27018 --fork --config "$MONGO_CONFIG"
+    mongod --dbpath data --port 27017 --fork --config "$MONGO_CONFIG"
   fi
 
   # Wait for MongoDB to be up and running
