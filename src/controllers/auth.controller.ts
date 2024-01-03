@@ -31,11 +31,11 @@ class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: loginUserDto = req.body;
-      const { cookie, tenantInfo } = await this.authService.login(userData);
+      const { cookie, tenantInfo, findUser } = await this.authService.login(userData);
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ cookie: COOKIE_VALUE, tenantInfo, message: 'accessToken' });
+      res.status(200).json({ cookie: COOKIE_VALUE, tenantInfo, user: findUser, message: 'accessToken' });
     } catch (error) {
       next(error);
     }
@@ -46,14 +46,14 @@ class AuthController {
   public signIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
-        user: { cookie, tenantInfo },
+        user: { cookie, tenantInfo, findUser },
       }: any = req;
 
       const auth = cookie.split(';')[0];
       const token = auth.split('=')[1];
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ token, tenantInfo, message: 'accessToken' });
+      res.status(200).json({ token, tenantInfo, user: findUser, message: 'accessToken' });
     } catch (e) {
       next(e);
     }
