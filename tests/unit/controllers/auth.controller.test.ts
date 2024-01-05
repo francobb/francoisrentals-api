@@ -66,6 +66,7 @@ describe('Auth Controller Unit Tests', function () {
       expect(mRes.json).toHaveBeenCalledWith({
         cookie: 'oihoihow',
         tenantInfo: {},
+        user: userData,
         message: 'accessToken',
       });
       expect(mNext).not.toHaveBeenCalled();
