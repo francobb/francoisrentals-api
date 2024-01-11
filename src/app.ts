@@ -149,7 +149,7 @@ class App {
   }
 
   public async updateRentalBalance() {
-    const tenants = await this.tenantService.findAllTenants();
+    const tenants = await this.tenantService.findAllActiveTenants();
     const currentDate = new Date();
     const isFirstDayOfMonth = currentDate.getDate() === 1;
 

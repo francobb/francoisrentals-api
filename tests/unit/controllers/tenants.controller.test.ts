@@ -42,7 +42,7 @@ describe('Tenant Controller', function () {
 
   describe('getTenants()', function () {
     it('should get tenants', async () => {
-      mTenantService.findAllTenants = jest.fn().mockResolvedValueOnce([]);
+      mTenantService.findAllActiveTenants = jest.fn().mockResolvedValueOnce([]);
       await tenantsController.getTenants(mReq, mRes as Response, mNext);
 
       expect(mRes.status).toHaveBeenCalledWith(200);
@@ -55,7 +55,7 @@ describe('Tenant Controller', function () {
 
     it('should not get tenants', async () => {
       const error = new HttpException(401, 'error, HORr');
-      mTenantService.findAllTenants = jest.fn().mockRejectedValueOnce(error);
+      mTenantService.findAllActiveTenants = jest.fn().mockRejectedValueOnce(error);
       await tenantsController.getTenants(mReq, mRes as Response, mNext);
 
       expect(mNext).toHaveBeenCalledWith(error);

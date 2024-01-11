@@ -37,3 +37,13 @@ export class CreateTenantDto {
   @IsNumber()
   public rentalBalance: number;
 }
+
+export class UpdateTenantDto extends CreateTenantDto{
+  @IsNotEmpty()
+  @IsString()
+  public _id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public customerId: string;
+}
