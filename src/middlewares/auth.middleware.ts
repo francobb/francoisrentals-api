@@ -76,6 +76,6 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
 export const localAuth = passport.authenticate('local', { session: false });
 export const requireJwtAuth = passport.authenticate('jwt', { session: false });
 export const authWithGoogle = passport.authenticate('google', { scope: ['profile', 'email'] });
-export const authWithGoogleCallback = passport.authenticate('google', { failureRedirect: '/', session: false });
+export const authWithGoogleCallback = passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/', session: false });
 
 export default authMiddleware;
