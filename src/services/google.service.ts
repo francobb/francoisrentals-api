@@ -44,21 +44,7 @@ class GoogleService {
   }
 
   public getAuthUrl() {
-    return this.oauthClient.generateAuthUrl({
-      // 'online' (default) or 'offline' (gets refresh_token)
-      access_type: 'offline',
-
-      // scopes are documented here: https://developers.google.com/identity/protocols/oauth2/scopes#calendar
-      scope: [
-        'profile',
-        'email',
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.appdata',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.readonly',
-      ],
-      include_granted_scopes: true,
-    });
+    return GoogleClient.generateAuthURL();
   }
 
   async getGoogleUser({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> {
@@ -89,7 +75,7 @@ class GoogleService {
       this.oauthClient.setCredentials(credentials.toObject() as Credentials);
     } else {
       // If credentials don't exist, obtain them from Google and store them in the database
-      const tokenResponse = await this.oauthClient.getToken(code);
+      const tokenResponse = await GoogleClient.getOAuthClient().getToken(code);
       this.oauthClient.setCredentials(tokenResponse.tokens);
       tr = tokenResponse.tokens;
       const newCredentials = await this.googleUser.create(tokenResponse.tokens);
