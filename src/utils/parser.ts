@@ -3,14 +3,16 @@ import {
   CARRINGTON,
   CITY_STATE,
   CURRENT_YEAR,
-  DATES_REGEX_PATTERN,
   D_MM_YY_REGEX_PATTERN,
+  DOLLAR_PARENTHESIS_REGEX_PATTERN,
   LLC,
+  MM_DD_REGEX_PATTERN,
   MM_YYYY_REGEX_PATTERN,
   MONEY_REGEX_PATTERN,
   PARADIS,
   PERSONAL,
   PREV_YEAR,
+  TRANSACTION_DATES_REGEX_PATTERN,
   WELLES,
 } from '@utils/constants';
 
@@ -33,7 +35,14 @@ class Parser {
 
     for (let i = 0; i < houseData.length; i += 2) {
       const transaction = this.createTransactionFromData(loc, ogBalance, houseData[i], houseData[i + 1].trim());
-      ogBalance = parseFloat(transaction.balance[1].replace(/,/g, ''));
+
+      if (transaction.outcome === 'expense') {
+        if (transaction.balance.at(0) != (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2)) {
+          transaction.balance[0] = (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2);
+        }
+      }
+
+      ogBalance = Number(parseFloat(transaction.balance.at(1).replace(/,/g, '')).toFixed(2));
       totalTransactions.push(transaction);
     }
 
@@ -41,8 +50,8 @@ class Parser {
   }
   public createTransactionFromData(loc: string, ogBalance: number, date: any, desc: any) {
     let payeePayer = this.payeesPayers.find(v => desc.includes(v.name))?.name; // extract Payee / Payer
-    const isPayout = payeePayer === PERSONAL || payeePayer === LLC;
     const balanceArray = this.getBalanceFromText(desc);
+    const isPayout = (payeePayer === PERSONAL || payeePayer === LLC) && +balanceArray[0].replace(',', '') === ogBalance;
     const outcome = isPayout ? 'payout' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
 
     if (!outcome) {
@@ -63,11 +72,11 @@ class Parser {
       payeePayer,
     };
   }
-  public getTransactionsTextForLoc(info, location) {
+  public getTransactionsTextForLoc(info: string, location: string) {
     let transactionsInMonth = '';
 
     const [first_line, last_line, other_last_line] = [
-      /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}\d+\.\d{2}/gi,
+      /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}-?\d+\.\d{2}/gi,
       /Ending Cash Balance+-?(\d{1,3}(,\d{3})*\.\d{2})/gi,
       // /Total+(\d{1,3}(,\d{3})*\.\d{2})+(\d{1,3}(,\d{3})*\.\d{2})/gi,
       /Total/gi,
@@ -85,7 +94,7 @@ class Parser {
       return [];
     }
     cleanedUp = cleanedUp.substring(cleanedUp.search(location));
-
+    //todo: do checks before getting indexed data
     const firstLineMatch = first_line.exec(cleanedUp)[0];
     const lastLineMatch = last_line.exec(cleanedUp);
     const otherLastLineMatch = other_last_line.exec(cleanedUp);
@@ -102,26 +111,32 @@ class Parser {
     transactionsInMonth = this.#cleanUpTableHeadersFromText(transactionsInMonth);
 
     return transactionsInMonth
-      .split(DATES_REGEX_PATTERN)
+      .split(TRANSACTION_DATES_REGEX_PATTERN)
       .filter(w => w)
       .filter(w => w !== '/');
   }
 
-  getBalanceFromText(desc) {
+  getBalanceFromText(desc: string) {
     const balanceArray = this.#cleanDatesFromText(desc).match(MONEY_REGEX_PATTERN);
 
-    if (!balanceArray || balanceArray.length < 2) {
-      this.#_logError('balanceArray', desc);
-      throw new Error(`balanceArray is bad for: ${desc}`);
+    if (!balanceArray || balanceArray.length !== 2) {
+      this.#_logError(`balanceArray is returning ${balanceArray.length}`, desc);
+      // throw new Error(`balanceArray is bad for: ${desc}`);
     }
 
-    return balanceArray;
+    return balanceArray.slice(-2);
   }
   #cleanDatesFromText(text) {
-    return text.replaceAll(D_MM_YY_REGEX_PATTERN, '').replaceAll(MM_YYYY_REGEX_PATTERN, '').replaceAll(CURRENT_YEAR, '').replaceAll(PREV_YEAR, '');
+    return text
+      .replaceAll(DOLLAR_PARENTHESIS_REGEX_PATTERN, '')
+      .replaceAll(MM_YYYY_REGEX_PATTERN, '')
+      .replaceAll(MM_DD_REGEX_PATTERN, '')
+      .replaceAll(D_MM_YY_REGEX_PATTERN, '')
+      .replaceAll(CURRENT_YEAR, '')
+      .replaceAll(PREV_YEAR, '');
   }
   #cleanUpTableHeadersFromText(
-    text,
+    text: string,
     ttr: Array<string | RegExp> = [
       'DatePayee / PayerTypeReferenceDescriptionIncomeExpenseBalance',
       /Please Remit Balance Due(\d{1,3}(,\d{3})*\.\d{2})/gi,
@@ -132,7 +147,7 @@ class Parser {
     });
     return text.trim();
   }
-  #cleanUpPageOfText(text) {
+  #cleanUpPageOfText(text: string) {
     const rgx = /page \d+ of \d/gi;
     return text.replaceAll(rgx, '');
   }

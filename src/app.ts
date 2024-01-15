@@ -18,6 +18,8 @@ import { Tenant } from '@interfaces/tenants.interface';
 import { dbConnection } from '@databases';
 import { frAscii } from '@utils/frAscii';
 import { logger, stream } from '@utils/logger';
+import payeePayerModel from '@models/payeePayer.model';
+import payeePayerJson from './assets/payeePayer.json';
 
 class App {
   public app: express.Application;
@@ -33,6 +35,7 @@ class App {
 
     this.readInAsciiFile();
     this.connectToDatabase();
+    this.initPayeePayerData();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -64,6 +67,16 @@ class App {
         logger.info(`=================================`);
       })
       .catch(err => logger.error(`🔻 Database Connection Error: ${err}`));
+  }
+  private initPayeePayerData() {
+    const payeePayerMap = payeePayerJson.map(p => {
+      return { name: p };
+    });
+
+    payeePayerModel
+      .insertMany(payeePayerMap)
+      .then(() => logger.info(`��� Saved payees to database`))
+      .catch(err => logger.error(`Error from saving payees & payers ${err}`));
   }
 
   private initializeMiddlewares() {

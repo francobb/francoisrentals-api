@@ -75,7 +75,7 @@ class GoogleService {
       this.oauthClient.setCredentials(credentials.toObject() as Credentials);
     } else {
       // If credentials don't exist, obtain them from Google and store them in the database
-      const tokenResponse = await GoogleClient.getOAuthClient().getToken(code);
+      const tokenResponse = await this.oauthClient.getToken(code);
       this.oauthClient.setCredentials(tokenResponse.tokens);
       tr = tokenResponse.tokens;
       const newCredentials = await this.googleUser.create(tokenResponse.tokens);

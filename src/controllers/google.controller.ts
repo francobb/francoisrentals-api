@@ -62,7 +62,7 @@ class GoogleController {
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
       res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
 
-      res.status(200).json({ data: tenantInfo, message: 'login' });
+      res.status(200).json({ data: tenantInfo, token: COOKIE_VALUE, message: 'login' });
     } catch (err: any) {
       logger.error('Failed to authorize Google User', err);
       next(err);
