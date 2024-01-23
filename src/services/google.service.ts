@@ -63,10 +63,7 @@ class GoogleService {
 
   async authenticateWithGoogle(code: string): Promise<GoogleOauthToken> {
     let tr: any = {};
-    // Create a new OAuth2 client if it doesn't exist yet
-    // const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
-    // Check if the user's credentials are already stored in the database
     const credentials = await this.googleUser.findOne();
 
     if (credentials) {
@@ -89,8 +86,7 @@ class GoogleService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const refreshedCredentials = await this.oauthClient.refreshToken(this.oauthClient.credentials.refresh_token);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
       this.oauthClient.setCredentials(refreshedCredentials.tokens);
       tr = refreshedCredentials.tokens;
       await this.googleUser.updateOne({}, refreshedCredentials.tokens);
@@ -119,7 +115,6 @@ class GoogleService {
       if (data.files && data.files.length) {
         for (const file of data.files as any) {
           const month = file.name.substring(0, 3);
-
           if (!filesFromDB.some(dbFile => month === dbFile.month)) {
             file['pdf'] = await this.exportFile(file.id);
 
