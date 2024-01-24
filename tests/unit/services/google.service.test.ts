@@ -10,6 +10,8 @@ import { HttpException } from '@exceptions/HttpException';
 import { logger } from '@utils/logger';
 import Parser from '@utils/parser';
 import { ID_OF_FOLDER } from '@utils/constants';
+import GoogleClient from '@clients/gauth.client';
+
 
 jest.mock('axios', () => ({
   post: jest.fn(),
@@ -67,9 +69,9 @@ describe('Google Service', function () {
 
   describe('getAuthUrl()', () => {
     it('should return a url', function () {
-      jest.spyOn(mOauthClient, 'generateAuthUrl').mockReturnValue('');
+      jest.spyOn(GoogleClient, 'generateAuthURL').mockResolvedValue('');
       googleService.getAuthUrl();
-      expect(mOauthClient.generateAuthUrl).toHaveBeenCalledTimes(1);
+      expect(GoogleClient.generateAuthURL).toHaveBeenCalledTimes(1);
     });
   });
 

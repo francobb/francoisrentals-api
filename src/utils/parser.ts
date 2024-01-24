@@ -4,13 +4,8 @@ import DataTransformer from './dataTransformer';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 
 class Parser {
-  private dataCollector: DataCollector;
-  private dataTransformer: DataTransformer;
-
-  constructor() {
-    this.dataCollector = new DataCollector();
-    this.dataTransformer = new DataTransformer();
-  }
+  public dataCollector = new DataCollector();
+  public dataTransformer = new DataTransformer();
 
   public collectReportData(info: string, listOfPeople: PayeePayer[]) {
     this.dataCollector.setPayeesPayers(listOfPeople);

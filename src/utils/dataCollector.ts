@@ -5,17 +5,13 @@ import { PayeePayer } from '@interfaces/payeePayer.interface';
 class DataCollector {
   public payeesPayers = [];
   public locations = Object.freeze([WELLES, PARADIS, CARRINGTON]);
-  private dataTransformer: DataTransformer;
+  private dataTransformer = new DataTransformer();
 
-  constructor() {
-    this.dataTransformer = new DataTransformer();
-  }
-
-  public setPayeesPayers(listOfPeople: PayeePayer[]) {
+  public setPayeesPayers = (listOfPeople: PayeePayer[]) => {
     this.payeesPayers = listOfPeople;
-  }
+  };
 
-  public collectAllTransactionsForLoc(houseData: string | any[], loc: string) {
+  public collectAllTransactionsForLoc = (houseData: string | any[], loc: string) => {
     const totalTransactions = [];
     let ogBalance = 0;
 
@@ -27,7 +23,7 @@ class DataCollector {
     }
 
     return totalTransactions;
-  }
+  };
 }
 
 export default DataCollector;

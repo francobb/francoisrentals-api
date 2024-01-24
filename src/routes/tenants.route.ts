@@ -3,7 +3,7 @@ import { Routes } from '@interfaces/routes.interface';
 import TenantsController from '@controllers/tenants.controller';
 import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
-import {CreateTenantDto, UpdateTenantDto} from '@dtos/tenants.dto';
+import { CreateTenantDto, UpdateTenantDto } from '@dtos/tenants.dto';
 
 class TenantsRoute implements Routes {
   #path = `/tenants`;

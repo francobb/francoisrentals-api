@@ -20,7 +20,7 @@ import {
 import type { IPendingTransaction } from '@interfaces/transactions.interface';
 
 class DataTransformer {
-  public getTransactionsTextForLoc(reportData: string, location: string) {
+  public getTransactionsTextForLoc = (reportData: string, location: string) => {
     let transactionsInMonth = '';
 
     reportData = this.cleanUpPageOfText(reportData);
@@ -51,9 +51,9 @@ class DataTransformer {
       .split(TRANSACTION_DATES_REGEX_PATTERN)
       .filter(w => w)
       .filter(w => w !== '/');
-  }
+  };
 
-  public createTransactionFromData(loc: string, ogBalance: number, date: any, desc: string, payeePayers?: { name: string }[]) {
+  public createTransactionFromData = (loc: string, ogBalance: number, date: any, desc: string, payeePayers?: { name: string }[]) => {
     let payeePayer = this.findPayeePayer(desc, payeePayers);
     const balanceArray = this.getBalanceFromText(desc);
     const outcome = this.determineOutcome(payeePayer, ogBalance, balanceArray, desc);
@@ -73,9 +73,9 @@ class DataTransformer {
       outcome,
       payeePayer,
     };
-  }
+  };
 
-  public updateBalance(transaction: IPendingTransaction, ogBalance: number) {
+  public updateBalance = (transaction: IPendingTransaction, ogBalance: number) => {
     if (transaction.outcome === 'expense') {
       if (transaction.balance.at(0) != (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2)) {
         transaction.balance[0] = (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2);
@@ -83,7 +83,7 @@ class DataTransformer {
     }
 
     return Number(parseFloat(transaction.balance.at(1).replace(/,/g, '')).toFixed(2));
-  }
+  };
 
   private getBalanceFromText(desc: string) {
     const balanceArray = this.cleanDatesFromText(desc).match(MONEY_REGEX_PATTERN);
@@ -102,6 +102,7 @@ class DataTransformer {
   private cleanEmptySpacesFromText(text: string) {
     return text.replaceAll('\n\n', ' ').replaceAll('\n', ' ');
   }
+
   private cleanDatesFromText(text: string) {
     return text
       .replaceAll(DOLLAR_PARENTHESIS_REGEX_PATTERN, '')

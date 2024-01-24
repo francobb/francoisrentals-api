@@ -22,7 +22,7 @@ describe('StripeService', function () {
       move_in: new Date(),
       name: 'fakeTenant',
       phone: ['12121212'],
-      property: 'fakeProperty',
+      property: '212 Welles St',
       unit: 'fakeunit',
       customerId: 'fakeCustomerId',
     };
