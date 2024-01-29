@@ -38,6 +38,10 @@ class TenantService {
     const findTenant: Tenant = await this.tenants.findOne({ email: tenantData.email });
     if (findTenant) throw new HttpException(409, `You're already registered`);
 
+    if (tenantData.hasOwnProperty('isNew')) {
+      delete tenantData.isNew;
+    }
+
     const customer = await this.createCustomer(tenantData);
     return await this.tenants.create({ ...tenantData, customerId: customer.id });
   }

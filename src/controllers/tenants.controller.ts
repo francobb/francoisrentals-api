@@ -33,7 +33,7 @@ class TenantsController {
       const tenantData = req.body;
       const tenant = await this.tenantService.createTenant(tenantData);
 
-      res.status(201).json({ data: tenant, message: 'Tenant created successfully' });
+      res.status(201).json({ tenant, message: 'Tenant created successfully' });
     } catch (error) {
       next(error);
     }

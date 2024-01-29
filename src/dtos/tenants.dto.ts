@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateTenantDto {
   @IsEmail()
@@ -36,6 +36,10 @@ export class CreateTenantDto {
   @IsNotEmpty()
   @IsNumber()
   public rentalBalance: number;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  public isNew: boolean;
 }
 
 export class UpdateTenantDto extends CreateTenantDto {
