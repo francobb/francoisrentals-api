@@ -65,15 +65,26 @@ class DataTransformer {
 
     desc = this.cleanDescription(desc, payeePayer, balanceArray);
 
+    const parsedDate = this.parseDateString(date);
+
     return {
       balance: balanceArray,
-      date: new Date(date),
+      date: parsedDate,
       desc,
       location: loc,
       outcome,
       payeePayer,
     };
   };
+
+  public parseDateString(dateString: string) {
+    const [month, day, year] = dateString.split('/');
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 5, 0));
+  }
+
+  formatDate(date: Date) {
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+  }
 
   public updateBalance = (transaction: IPendingTransaction, ogBalance: number) => {
     if (transaction.outcome === 'expense') {
