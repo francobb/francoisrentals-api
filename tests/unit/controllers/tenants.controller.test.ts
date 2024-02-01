@@ -69,7 +69,7 @@ describe('Tenant Controller', function () {
 
       expect(mRes.status).toHaveBeenCalledWith(201);
       expect(mRes.json).toHaveBeenCalledWith({
-        data: expect.any(Object),
+        tenant: [],
         message: 'Tenant created successfully',
       });
       expect(mNext).not.toHaveBeenCalled();
