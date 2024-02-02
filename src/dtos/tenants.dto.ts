@@ -7,7 +7,7 @@ export class CreateTenantDto {
 
   @IsOptional()
   @IsString()
-  public lease_to: string;
+  public lease_to?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -39,7 +39,7 @@ export class CreateTenantDto {
 
   @IsOptional()
   @IsBoolean()
-  public isMonthly: boolean;
+  public isMonthly?: boolean;
 }
 
 export class UpdateTenantDto extends CreateTenantDto {
