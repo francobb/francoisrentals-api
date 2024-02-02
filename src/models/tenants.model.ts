@@ -45,6 +45,7 @@ const tenantsSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
+  isMonthly: { type: Boolean, required: false, default: false },
 });
 
 tenantsSchema.index({ property: 1, unit: 1, move_in: 1 }, { unique: true });

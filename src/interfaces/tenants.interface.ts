@@ -12,4 +12,5 @@ export interface Tenant {
   rentalAmount: number;
   rentalBalance: number;
   unit: string;
+  isMonthly?: boolean;
 }

@@ -36,6 +36,10 @@ export class CreateTenantDto {
   @IsNotEmpty()
   @IsNumber()
   public rentalBalance: number;
+
+  @IsOptional()
+  @IsBoolean()
+  public isMonthly: boolean;
 }
 
 export class UpdateTenantDto extends CreateTenantDto {
