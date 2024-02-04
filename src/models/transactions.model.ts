@@ -34,7 +34,7 @@ const transactionsSchema: Schema = new Schema({
   },
 });
 
-transactionsSchema.index({ desc: 1, date: 1, balance: 1 }, { unique: true });
+transactionsSchema.index({ desc: 1, date: 1, balance: 1 }, { unique: false });
 const transactionsModel = model<ITransaction & Document>('Transaction', transactionsSchema);
 
 export default transactionsModel;

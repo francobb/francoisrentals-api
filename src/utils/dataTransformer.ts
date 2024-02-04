@@ -1,5 +1,6 @@
 import { logger } from '@utils/logger';
 import {
+  ACCT_NUM_REGEX_PATTERN,
   BALANCE_DUE_REGEX_PATTERN,
   BEGINNING_CASH_BALANCE_REGEX_PATTERN,
   CURRENT_YEAR,
@@ -8,6 +9,7 @@ import {
   ENDING_CASH_BALANCE_REGEX_PATTERN,
   LLC,
   MM_DD_REGEX_PATTERN,
+  MM_DD_YY_REGEX_PATTERN,
   MM_YYYY_REGEX_PATTERN,
   MONEY_REGEX_PATTERN,
   PERSONAL,
@@ -20,17 +22,23 @@ import {
 import type { IPendingTransaction } from '@interfaces/transactions.interface';
 
 class DataTransformer {
+  public ADDRESS_REGEX = {
+    '346 Carrington Avenue Woonsocket, RI': /346\sCarrington\sAvenue\s?\n?Woonsocket,\sRI/gi,
+    '23 Paradis Avenue Woonsocket, RI': /23\sParadis\sAvenue\s?\n?Woonsocket,\sRI/gi,
+  };
   public getTransactionsTextForLoc = (reportData: string, location: string) => {
     let transactionsInMonth = '';
 
     reportData = this.cleanUpPageOfText(reportData);
     let reportSansMetaData = this.cleanEmptySpacesFromText(reportData);
 
-    if (reportSansMetaData.search(location) < 0) {
+    const locationRegex = this.ADDRESS_REGEX[location];
+
+    if (reportSansMetaData.search(locationRegex || location) < 0) {
       return [];
     }
 
-    reportSansMetaData = reportSansMetaData.substring(reportSansMetaData.search(location));
+    reportSansMetaData = reportSansMetaData.substring(reportSansMetaData.search(locationRegex || location));
     //todo: do checks before getting indexed data
     const [firstLineMatch] = new RegExp(BEGINNING_CASH_BALANCE_REGEX_PATTERN).exec(reportSansMetaData);
     const lastLineMatch = new RegExp(ENDING_CASH_BALANCE_REGEX_PATTERN).exec(reportSansMetaData);
@@ -116,9 +124,11 @@ class DataTransformer {
 
   private cleanDatesFromText(text: string) {
     return text
+      .replace(ACCT_NUM_REGEX_PATTERN, '')
       .replaceAll(DOLLAR_PARENTHESIS_REGEX_PATTERN, '')
       .replaceAll(MM_YYYY_REGEX_PATTERN, '')
       .replaceAll(MM_DD_REGEX_PATTERN, '')
+      .replaceAll(MM_DD_YY_REGEX_PATTERN, '')
       .replaceAll(D_MM_YY_REGEX_PATTERN, '')
       .replaceAll(CURRENT_YEAR, '')
       .replaceAll(PREV_YEAR, '');
