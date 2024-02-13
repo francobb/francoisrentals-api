@@ -174,6 +174,7 @@ describe('Google controller', function () {
       expect(mRes.json).toHaveBeenCalledWith({
         data: expect.any(Object),
         message: 'login',
+        token: expect.any(String),
       });
       expect(mNext).not.toHaveBeenCalled();
     });

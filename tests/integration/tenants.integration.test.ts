@@ -33,7 +33,7 @@ describe('Testing Tenants', function () {
       move_in: '01/01/01',
       name: 'Jimmy',
       phone: ['4018989090'],
-      property: '212 Welles',
+      property: '212 Welles St',
       rentalAmount: 0,
       rentalBalance: 0,
       unit: '1',

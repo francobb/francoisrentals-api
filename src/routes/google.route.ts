@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import GoogleController from '@controllers/google.controller';
 import { Routes } from '@interfaces/routes.interface';
-import { authWithGoogle, authWithGoogleCallback, checkClient, checkRole, requireJwtAuth } from '@middlewares/auth.middleware';
+import { authWithGoogle, /*authWithGoogleCallback,*/ checkClient, checkRole, requireJwtAuth } from '@middlewares/auth.middleware';
 
 class GoogleRoute implements Routes {
   public path = '/';
@@ -21,7 +21,8 @@ class GoogleRoute implements Routes {
 
     /* passport google routes */
     this.router.get(`${this.path}google`, authWithGoogle);
-    this.router.get(`${this.path}auth/google/callback`, authWithGoogleCallback, this.googleController.googleOauth20Handler);
+    this.router.get(`${this.path}auth/google/callback`, this.googleController.googleOauthHandler);
+    // this.router.get(`${this.path}auth/google/callback`, authWithGoogleCallback, this.googleController.googleOauth20Handler);
     /* passport google routes */
   }
 }
