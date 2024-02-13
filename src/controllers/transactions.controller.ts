@@ -7,7 +7,7 @@ class TransactionsController {
   public getTransactions = async (req: IRequest, res: Response, next: NextFunction) => {
     try {
       const transactions = await this.transactionService.searchTransaction(req.query);
-      res.status(200).json({ body: transactions });
+      res.status(200).json({ transactions, message: 'transactions' });
     } catch (e) {
       next(e);
     }

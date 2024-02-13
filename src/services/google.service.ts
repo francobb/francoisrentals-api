@@ -44,21 +44,7 @@ class GoogleService {
   }
 
   public getAuthUrl() {
-    return this.oauthClient.generateAuthUrl({
-      // 'online' (default) or 'offline' (gets refresh_token)
-      access_type: 'offline',
-
-      // scopes are documented here: https://developers.google.com/identity/protocols/oauth2/scopes#calendar
-      scope: [
-        'profile',
-        'email',
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.appdata',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.readonly',
-      ],
-      include_granted_scopes: true,
-    });
+    return GoogleClient.generateAuthURL();
   }
 
   async getGoogleUser({ id_token, access_token }: { id_token: string; access_token: string }): Promise<GoogleUserResult> {
@@ -77,10 +63,7 @@ class GoogleService {
 
   async authenticateWithGoogle(code: string): Promise<GoogleOauthToken> {
     let tr: any = {};
-    // Create a new OAuth2 client if it doesn't exist yet
-    // const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
-    // Check if the user's credentials are already stored in the database
     const credentials = await this.googleUser.findOne();
 
     if (credentials) {
@@ -103,8 +86,7 @@ class GoogleService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const refreshedCredentials = await this.oauthClient.refreshToken(this.oauthClient.credentials.refresh_token);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
       this.oauthClient.setCredentials(refreshedCredentials.tokens);
       tr = refreshedCredentials.tokens;
       await this.googleUser.updateOne({}, refreshedCredentials.tokens);
@@ -133,7 +115,6 @@ class GoogleService {
       if (data.files && data.files.length) {
         for (const file of data.files as any) {
           const month = file.name.substring(0, 3);
-
           if (!filesFromDB.some(dbFile => month === dbFile.month)) {
             file['pdf'] = await this.exportFile(file.id);
 
