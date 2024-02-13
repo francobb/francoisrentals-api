@@ -12,7 +12,7 @@ class GoogleController {
 
   public getAuthUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authUrl = this.googleService.getAuthUrl();
+      const authUrl = await this.googleService.getAuthUrl();
       res.status(200).redirect(authUrl);
     } catch (err: any) {
       logger.error('Failed to get Auth URI', err);
@@ -62,7 +62,7 @@ class GoogleController {
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');
       res.cookie(COOKIE_NAME, COOKIE_VALUE, { sameSite: 'none', maxAge: 900000, httpOnly: true, secure: true, path: '/' });
 
-      res.status(200).json({ data: tenantInfo, message: 'login' });
+      res.status(200).json({ data: tenantInfo, token: COOKIE_VALUE, message: 'login' });
     } catch (err: any) {
       logger.error('Failed to authorize Google User', err);
       next(err);
@@ -81,9 +81,14 @@ class GoogleController {
 
   /* passport handlers */
   public googleOauth20Handler = async (req: Request, res: Response, next: NextFunction) => {
+    console.log({ req: req.query });
     try {
       const email = (req.user as Profile).emails[0].value;
       const name = (req.user as Profile).displayName;
+
+      const { id_token, access_token } = await this.googleService.authenticateWithGoogle(req.query.code as string);
+      logger.info('WAS ABLE TO GET TOKENS', { id_token, access_token });
+      console.log('was able to get token');
       const { cookie, tenantInfo } = await this.authService.login({ email, name });
       const COOKIE_NAME = 'Authorization';
       const COOKIE_VALUE = cookie.replace('Authorization=', '').split(' ')[0].replace(';', '');

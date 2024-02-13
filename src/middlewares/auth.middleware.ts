@@ -75,7 +75,16 @@ export const checkClient = (req: Request, res: Response, next: NextFunction) => 
 /* passport handlers */
 export const localAuth = passport.authenticate('local', { session: false });
 export const requireJwtAuth = passport.authenticate('jwt', { session: false });
-export const authWithGoogle = passport.authenticate('google', { scope: ['profile', 'email'] });
-export const authWithGoogleCallback = passport.authenticate('google', { failureRedirect: '/', session: false });
+export const authWithGoogle = passport.authenticate('google', {
+  scope: [
+    'profile',
+    'email',
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.appdata',
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/drive.readonly',
+  ],
+});
+export const authWithGoogleCallback = passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/', session: false });
 
 export default authMiddleware;

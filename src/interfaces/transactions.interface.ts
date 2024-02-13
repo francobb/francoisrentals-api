@@ -7,3 +7,5 @@ export interface ITransaction {
   outcome: string;
   payeePayer: string;
 }
+
+export type IPendingTransaction = Omit<ITransaction, '_id'>;

@@ -26,10 +26,12 @@ const tenantsSchema: Schema = new Schema({
   property: {
     type: String,
     required: true,
+    enum: ['23 Paradis Ave', '212 Welles St'],
   },
   unit: {
     type: String,
     required: true,
+    enum: ['basement', '1', '2', '3'],
   },
   customerId: {
     type: String,
@@ -43,8 +45,10 @@ const tenantsSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
+  isMonthly: { type: Boolean, required: false, default: false },
 });
 
+tenantsSchema.index({ property: 1, unit: 1, move_in: 1 }, { unique: true });
 const tenantsModel = model<Tenant & Document>('Tenant', tenantsSchema);
 
 // tenantsSchema.index({ name: 1, email: 1 }, { unique: true });

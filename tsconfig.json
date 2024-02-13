@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es2017",
     "lib": [
-      "es2017",
+      "es2021",
       "esnext.asynciterable",
       "dom"
     ],
