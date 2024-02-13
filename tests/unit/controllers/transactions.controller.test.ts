@@ -32,7 +32,8 @@ describe('Transactions Controller', function () {
 
       expect(mRes.status).toHaveBeenCalledWith(200);
       expect(mRes.json).toHaveBeenCalledWith({
-        body: expect.any(Object),
+        message: 'transactions',
+        transactions: [],
       });
       expect(mNext).not.toHaveBeenCalled();
     });
