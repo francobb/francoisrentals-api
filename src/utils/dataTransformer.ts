@@ -67,8 +67,7 @@ class DataTransformer {
     const outcome = this.determineOutcome(payeePayer, ogBalance, balanceArray, desc);
 
     if (!payeePayer) {
-      if (outcome === 'income') payeePayer = 'Francois Rentals, LLC.';
-      if (outcome === 'expense') payeePayer = 'Service-Expense';
+      payeePayer = outcome === 'income' ? 'Francois Rentals, LLC.' : 'Service-Expense';
     }
 
     desc = this.cleanDescription(desc, payeePayer, balanceArray);
@@ -96,8 +95,9 @@ class DataTransformer {
 
   public updateBalance = (transaction: IPendingTransaction, ogBalance: number) => {
     if (transaction.outcome === 'expense') {
-      if (transaction.balance.at(0) != (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2)) {
-        transaction.balance[0] = (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2);
+      const newBalance = (ogBalance - parseFloat(transaction.balance.at(1).replace(/,/g, ''))).toFixed(2);
+      if (transaction.balance.at(0) != newBalance) {
+        transaction.balance[0] = newBalance;
       }
     }
 
@@ -142,8 +142,7 @@ class DataTransformer {
   }
 
   private cleanUpPageOfText(text: string) {
-    const rgx = /page \d+ of \d/gi;
-    return text.replaceAll(rgx, '');
+    return text.replaceAll(/page \d+ of \d/gi, '');
   }
 
   private cleanDescription(desc: string, payeePayer: string, balanceArray: string[]) {
@@ -158,15 +157,12 @@ class DataTransformer {
   private determineOutcome(payeePayer: string, ogBalance: number, balanceArray: string[], desc: string) {
     const isTransfer = payeePayer === 'Transfer' || desc.includes('Transfer');
     const isPayout = (payeePayer === PERSONAL || payeePayer === LLC) && +balanceArray[0].replace(',', '') === ogBalance;
-    const outcome = isPayout ? 'payout' : isTransfer ? 'Transfer' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
-    if (!outcome) {
-      return '';
-    }
-    return outcome;
+    return isPayout ? 'payout' : isTransfer ? 'Transfer' : parseFloat(balanceArray[1].replace(/,/g, '')) >= ogBalance ? 'income' : 'expense';
   }
 
   private findPayeePayer(desc: string, payeesPayers: { name: string }[]) {
-    return payeesPayers.find(v => desc.includes(v.name))?.name;
+    const payeePayer = payeesPayers.find(v => desc.includes(v.name))?.name;
+    return payeePayer === 'Real Property Management Providence' || payeePayer === 'RPM' ? 'RPM Providence' : payeePayer;
   }
 
   private logError(item: string, desc: string) {
