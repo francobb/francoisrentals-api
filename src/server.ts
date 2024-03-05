@@ -11,6 +11,8 @@ import TwilioRoute from '@routes/twilio.route';
 import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
+import TenantService from '@services/tenants.service';
+import GoogleService from '@services/google.service';
 
 validateEnv();
 
@@ -26,10 +28,12 @@ const app = new App([
   new UsersRoute(),
 ]);
 
-// cron.schedule('*/5 * * * *', async () => {
-cron.schedule('0 0 1 * *', async () => {
-  await app.updateRentalBalance();
+// cron.schedule('*/2 * * * *', async () => {
+cron.schedule('0 12 1-5 * *', async () => {
+  await new TenantService().updateRentalBalance();
   logger.info('Rental balances updated.');
+  await new GoogleService().listDriveFiles();
+  logger.info('Files Retrieved from Google Drive.');
 });
 
 app.listen();
