@@ -72,6 +72,21 @@ class TenantService {
     logger.info(`created stripe customer ${customer.id}`);
     return customer;
   };
+
+  public async updateRentalBalance() {
+    const tenants = await this.findAllActiveTenants();
+    const currentDate = new Date();
+    const isFirstDayOfMonth = currentDate.getDate() === 1;
+
+    if (isFirstDayOfMonth) {
+      for (const tnt of tenants) {
+        logger.info('Updating rental amount for tenant ' + tnt.name);
+        tnt.rentalBalance += tnt.rentalAmount;
+        await this.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance } as Tenant);
+      }
+    }
+  }
+
 }
 
 export default TenantService;

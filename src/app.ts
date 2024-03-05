@@ -12,9 +12,8 @@ import { connect, set } from 'mongoose';
 import '@clients/passport.client';
 import TenantService from '@services/tenants.service';
 import errorMiddleware from '@middlewares/error.middleware';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, ROOT_URI } from '@config';
+import { CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT, ROOT_URI } from '@config';
 import { Routes } from '@interfaces/routes.interface';
-import { Tenant } from '@interfaces/tenants.interface';
 import { dbConnection } from '@databases';
 import { frAscii } from '@utils/frAscii';
 import { logger, stream } from '@utils/logger';
@@ -68,6 +67,7 @@ class App {
       })
       .catch(err => logger.error(`🔻 Database Connection Error: ${err}`));
   }
+
   private initPayeePayerData() {
     const payeePayerMap = payeePayerJson.map(p => {
       return { name: p };
@@ -159,20 +159,6 @@ class App {
 
   private readInAsciiFile() {
     console.info(frAscii);
-  }
-
-  public async updateRentalBalance() {
-    const tenants = await this.tenantService.findAllActiveTenants();
-    const currentDate = new Date();
-    const isFirstDayOfMonth = currentDate.getDate() === 1;
-
-    if (isFirstDayOfMonth) {
-      for (const tnt of tenants) {
-        logger.info('Updating rental amount for tenant ' + tnt.name);
-        tnt.rentalBalance += tnt.rentalAmount;
-        await this.tenantService.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance } as Tenant);
-      }
-    }
   }
 }
 
