@@ -131,7 +131,7 @@ class GoogleService {
           }
         }
       } else {
-        logger.error('No files found.');
+        logger.info('No files found.');
       }
     });
   }

@@ -23,7 +23,22 @@ export const MM_YYYY_REGEX_PATTERN = /(0[1-9]|1[012])[- \/.] ?(20)2[1-4]/gi;
 export const MONEY_REGEX_PATTERN = /-?\d{1,3}(,\d{3})*(\.\d{2})/gi;
 export const TOTAL_REGEX_PATTERN = /Total/gi;
 export const TRANSACTION_DATES_REGEX_PATTERN = /(?<! - )\b(\d{1,4}(\/)\d{1,2}(\/)\d{4})/gi;
-export const TRANSACTION_TYPE_REFERENCE_REGEX_PATTERN =
-  /(Check\d+|Bill Pay\d+|Bill Pay Check \d+|eCheck receipt [A-Z]\d+-[A-Z]\d+|eCheck receipt [A-Z\d]+-[A-Z\d+]{4}|eCheck\s?\s?[A-Z\d]+-[A-Z\d+]{4}|(?=.*[A-Za-z].*)[A-Za-z0-9]{4}-(?=.*[A-Za-z].*)[A-Za-z0-9]{4}|\s?CC |Receipt\s?\d+-\d+|Receipt\s?\d+|Receipt)/gi;
 export const TRANSACTION_TYPE_REFERENCE_REGEX_PATTERN_2 =
   /(Check|Bill Pay|Bill Pay Check|eCheck receipt|eCheck)\d+|[A-Za-z0-9]{4}-[A-Za-z0-9]{4}|CC |Receipt\s?\d*(-\d+)?/gi;
+export const TRANSACTION_TYPE_REFERENCE_REGEX_PATTERN = new RegExp(
+  [
+    'Bill Pay\\d+',
+    'Bill Pay Check \\d+',
+    'Check\\d+',
+    '\\s?CC\\s?receipt\\s?[A-Z\\d]+-[A-Z\\d+]{4}',
+    '\\s?CC ',
+    'eCheck receipt [A-Z]\\d+-[A-Z]\\d+',
+    'eCheck receipt [A-Z\\d]+-[A-Z\\d+]{4}',
+    'eCheck\\s?\\s?[A-Z\\d]+-[A-Z\\d+]{4}',
+    '(?=.*[A-Za-z].*)[A-Za-z0-9]{4}-(?=.*[A-Za-z].*)[A-Za-z0-9]{4}',
+    'Receipt\\s?\\d+-\\d+',
+    'Receipt\\s?\\d+',
+    'Receipt',
+  ].join('|'),
+  'gi',
+);

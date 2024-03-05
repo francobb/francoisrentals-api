@@ -22,16 +22,14 @@ class TransactionService {
   }
   public async addManyTransactions(transactions: ITransaction[]) {
     this.transactions.insertMany(transactions, (error, result) => {
-      error ? logger.error(error) : logger.info('Reports inserted');
+      error ? logger.error(error) : logger.info(':::::transactions inserted:::::', result);
     });
   }
 
   public async addReport(report: IFile) {
     const [month, year] = report.name.split('_');
     this.reports.insertMany({ month, year: year.replace(/.pdf/gi, ''), data: report.pdf }, error => {
-      if (error) {
-        logger.error(error);
-      }
+      error ? logger.error(error) : logger.info(':::::reports inserted::::: ', report.name);
     });
   }
   public async getAllReports(): Promise<IReport[]> {
