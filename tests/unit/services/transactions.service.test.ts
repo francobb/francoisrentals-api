@@ -83,7 +83,7 @@ describe('Transactions Service', () => {
       logger.info = jest.fn();
       await transactionsService.addManyTransactions(transactionData);
       expect(insertManyMock).toHaveBeenCalledWith(transactionData, expect.any(Function));
-      expect(logger.info).toHaveBeenCalledWith('Reports inserted');
+      expect(logger.info).toHaveBeenCalledWith(':::::transactions inserted:::::', 'success');
     });
 
     it('should log error', async () => {

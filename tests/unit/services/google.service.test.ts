@@ -162,7 +162,7 @@ describe('Google Service', function () {
     });
   });
 
-  xdescribe('exportFile', () => {
+  describe('exportFile', () => {
     const fileId = 'fileId';
 
     it('should export a file and return the buffer for real', async () => {
