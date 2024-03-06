@@ -86,7 +86,6 @@ class TenantService {
       }
     }
   }
-
 }
 
 export default TenantService;
