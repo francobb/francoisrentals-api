@@ -11,6 +11,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { ID_OF_FOLDER } from '@utils/constants';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 import { logger } from '@utils/logger';
+import ReportService from '@services/report.service';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -38,6 +39,7 @@ class GoogleService {
   public parser: Parser = new Parser();
   public payeesPayers = payeePayerModel;
   public transactionService: TransactionService = new TransactionService();
+  public reportService = new ReportService();
 
   public async getAllPayeesAndPayers(): Promise<PayeePayer[]> {
     return this.payeesPayers.find();
@@ -96,7 +98,7 @@ class GoogleService {
   }
 
   async listDriveFiles() {
-    const filesFromDB = await this.transactionService.getAllReports();
+    const filesFromDB = await this.reportService.getAllReports();
     const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
 
     this.jwtClient.authorize(async (err, tokens) => {
@@ -122,7 +124,7 @@ class GoogleService {
               const pdf = await PdfParse(file.pdf);
               file.data = this.parser.collectReportData(pdf.text, pp);
               await this.transactionService.addManyTransactions(file.data);
-              await this.transactionService.addReport(file);
+              await this.reportService.addReport(file);
             } catch (err) {
               logger.error(err);
             }
