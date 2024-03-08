@@ -98,42 +98,4 @@ describe('Transactions Service', () => {
       expect(logger.error).toHaveBeenCalledWith(error);
     });
   });
-
-  describe('addReport()', () => {
-    it('should not return an error', async () => {
-      logger.error = jest.fn();
-      const insertManyMock = jest.spyOn(mReportsRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
-        callback(null, 'success');
-      });
-      await transactionsService.addReport(fileData);
-      expect(logger.error).not.toHaveBeenCalled();
-      expect(insertManyMock).toHaveBeenCalledWith(
-        {
-          data: 'fakePDF',
-          month: 'Mar',
-          year: '2023',
-        },
-        expect.any(Function),
-      );
-    });
-
-    it('should return an error', async () => {
-      logger.error = jest.fn();
-      const error = new Error('Insertion failed');
-      const insertManyMock = jest.spyOn(mReportsRepository, 'insertMany').mockImplementationOnce((data, callback: Function) => {
-        callback(error);
-      });
-      await transactionsService.addReport(fileData);
-      expect(insertManyMock).toHaveBeenCalledWith({ data: 'fakePDF', month: 'Mar', year: '2023' }, expect.any(Function));
-      expect(logger.error).toHaveBeenCalled();
-    });
-  });
-
-  describe('getAllReports()', function () {
-    it('should return all reports', async () => {
-      jest.spyOn(mReportsRepository, 'find').mockReturnValueOnce([]);
-      await transactionsService.getAllReports();
-      expect(mReportsRepository.find).toBeCalled();
-    });
-  });
 });

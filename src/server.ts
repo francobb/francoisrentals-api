@@ -13,6 +13,7 @@ import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
 import TenantService from '@services/tenants.service';
 import GoogleService from '@services/google.service';
+import ReportsRoute from '@routes/reports.route';
 
 validateEnv();
 
@@ -21,6 +22,7 @@ const app = new App([
   new GoogleRoute(),
   new IndexRoute(),
   new MaintenanceRoute(),
+  new ReportsRoute(),
   new StripeRoute(),
   new TenantsRoute(),
   new TransactionsRoute(),
