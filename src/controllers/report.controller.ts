@@ -16,7 +16,7 @@ class ReportController {
   public getReportByMonthYear = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const reports = [];
-      reports.push(await this.reportService.findReportByMonthYear(req.query as { month: string; year: string }))
+      reports.push(await this.reportService.findReportByMonthYear(req.query as { month: string; year: string }));
       let message = 'findByMonthYear';
       if (!reports) {
         message = 'report not found';
