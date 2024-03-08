@@ -13,7 +13,7 @@ class ReportRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, authMiddleware, checkRole(['ADMIN']), this.reportController.getReportByMonthYear);
+    this.router.get(`${this.path}`, authMiddleware, checkRole(['ADMIN']), this.reportController.getReports);
   }
 }
 
