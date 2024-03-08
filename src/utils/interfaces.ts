@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { ITransaction } from '@interfaces/transactions.interface';
 
 export interface IRequest extends Request {
   query: IQuery;
@@ -11,7 +12,8 @@ export interface IQuery {
 export interface IFile {
   id: string;
   name: string;
-  pdf: string;
+  pdf: Buffer;
+  data?: ITransaction[];
 }
 
 export interface GoogleUserResult {

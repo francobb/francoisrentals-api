@@ -10,8 +10,8 @@ const reportSchema = new Schema({
     type: String,
     required: true,
   },
-  data: {
-    type: Buffer,
+  location: {
+    type: String,
     required: true,
   },
 });
