@@ -8,7 +8,6 @@ import { IFile, IQuery } from '@utils/interfaces';
 
 class TransactionService {
   public transactions = transactionsModel;
-  public reports = reportModel;
 
   public async searchTransaction(query: IQuery) {
     const month = Number(query.month ?? undefined);
