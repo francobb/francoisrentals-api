@@ -12,6 +12,7 @@ import { ID_OF_FOLDER } from '@utils/constants';
 import { PayeePayer } from '@interfaces/payeePayer.interface';
 import { logger } from '@utils/logger';
 import ReportService from '@services/report.service';
+import { IFile } from '@utils/interfaces';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -115,7 +116,7 @@ class GoogleService {
       });
 
       if (data.files && data.files.length) {
-        for (const file of data.files as any) {
+        for (const file of data.files as IFile[]) {
           const month = file.name.substring(0, 3);
           if (!filesFromDB.some(dbFile => month === dbFile.month)) {
             file['pdf'] = await this.exportFile(file.id);
@@ -138,7 +139,7 @@ class GoogleService {
     });
   }
 
-  async exportFile(documentId: any) {
+  async exportFile(documentId: string) {
     return new Promise<Buffer>(async (resolve, reject) => {
       const bufferChunks: Buffer[] = [];
 
