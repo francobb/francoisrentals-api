@@ -14,8 +14,6 @@ jest.mock('../../../src/search/transactions.search', () => {
   });
 });
 describe('Transactions Service', () => {
-  let fileData: IFile;
-  let mReportsRepository;
   let mTransactionRepository;
   let query: IQuery;
   let transactionData;
@@ -23,7 +21,6 @@ describe('Transactions Service', () => {
 
   beforeAll(() => {
     transactionsService = new TransactionsService();
-    mReportsRepository = transactionsService.reports;
     mTransactionRepository = transactionsService.transactions;
     transactionData = {
       _id: 'fakeId',
@@ -40,11 +37,6 @@ describe('Transactions Service', () => {
       location: 'fakeLocation',
       outcome: 'income',
       payeePayer: 'fakePayeePayer',
-    };
-    fileData = {
-      id: 'fakeId',
-      name: 'Mar_2023',
-      pdf: 'fakePDF',
     };
   });
 
