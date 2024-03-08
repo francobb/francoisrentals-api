@@ -11,7 +11,7 @@ import { logger } from '@utils/logger';
 import Parser from '@utils/parser';
 import { ID_OF_FOLDER } from '@utils/constants';
 import GoogleClient from '@clients/gauth.client';
-
+import ReportService from '../../../src/services/report.service';
 
 jest.mock('axios', () => ({
   post: jest.fn(),
@@ -39,6 +39,7 @@ describe('Google Service', function () {
   let mPayeePayers;
   let mJWTClient;
   let mTransactionService: TransactionService;
+  let mReportService: ReportService;
   let tokenData;
   let mParser: Parser;
 
@@ -48,6 +49,7 @@ describe('Google Service', function () {
     mOauthClient = googleService.oauthClient;
     mPayeePayers = googleService.payeesPayers;
     mTransactionService = googleService.transactionService;
+    mReportService = googleService.reportService;
     mJWTClient = googleService.jwtClient;
     tokenData = { id_token: 'string', access_token: 'string' };
     mParser = googleService.parser;
@@ -248,7 +250,7 @@ describe('Google Service', function () {
         files: driveFilesMock,
       } as unknown as drive_v3.Drive;
 
-      mTransactionService.getAllReports = jest.fn().mockResolvedValueOnce([]);
+      mReportService.getAllReports = jest.fn().mockResolvedValueOnce([]);
       googleService.getAllPayeesAndPayers = jest.fn().mockResolvedValueOnce([]);
       (googleService.jwtClient as jest.Mocked<any>).authorize.mockImplementationOnce(callback => {
         callback(null, {});
@@ -258,7 +260,7 @@ describe('Google Service', function () {
       googleService.exportFile = jest.fn().mockResolvedValue(Buffer.from('fake pdf'));
       mParser.collectReportData = jest.fn().mockReturnValue('fakeData');
       mTransactionService.addManyTransactions = jest.fn().mockResolvedValue(undefined);
-      mTransactionService.addReport = jest.fn().mockResolvedValue(undefined);
+      mReportService.addReport = jest.fn().mockResolvedValue(undefined);
 
       await googleService.listDriveFiles();
 
@@ -271,12 +273,12 @@ describe('Google Service', function () {
         fields: 'nextPageToken, files(id, name)',
       });
 
-      expect(mTransactionService.getAllReports).toHaveBeenCalled();
+      expect(mReportService.getAllReports).toHaveBeenCalled();
       expect(googleService.getAllPayeesAndPayers).toHaveBeenCalled();
       expect(loggerErrorMock).not.toHaveBeenCalled();
       // expect(mParser.collectReportData).toHaveBeenCalledTimes(3);
       // expect(mTransactionService.addManyTransactions).toHaveBeenCalledTimes(3);
-      // expect(mTransactionService.addReport).toHaveBeenCalledTimes(3);
+      // expect(mReportService.addReport).toHaveBeenCalledTimes(3);
       // expect(googleService.exportFile).toHaveBeenCalledTimes(3);
     });
 
@@ -299,7 +301,7 @@ describe('Google Service', function () {
         files: driveFilesMock,
       } as unknown as drive_v3.Drive;
 
-      mTransactionService.getAllReports = jest.fn().mockResolvedValueOnce([]);
+      mReportService.getAllReports = jest.fn().mockResolvedValueOnce([]);
       googleService.getAllPayeesAndPayers = jest.fn().mockResolvedValueOnce([]);
       (googleService.jwtClient as jest.Mocked<any>).authorize.mockImplementationOnce(callback => {
         callback(null, {});
@@ -309,7 +311,7 @@ describe('Google Service', function () {
       googleService.exportFile = jest.fn().mockResolvedValue(Buffer.from('fake pdf'));
       mParser.collectReportData = jest.fn().mockReturnValue('fakeData');
       mTransactionService.addManyTransactions = jest.fn().mockResolvedValue(undefined);
-      mTransactionService.addReport = jest.fn().mockResolvedValue(undefined);
+      mReportService.addReport = jest.fn().mockResolvedValue(undefined);
 
       await googleService.listDriveFiles();
 
@@ -322,17 +324,17 @@ describe('Google Service', function () {
         fields: 'nextPageToken, files(id, name)',
       });
 
-      expect(mTransactionService.getAllReports).toHaveBeenCalled();
+      expect(mReportService.getAllReports).toHaveBeenCalled();
       expect(googleService.getAllPayeesAndPayers).toHaveBeenCalled();
       expect(loggerErrorMock).not.toHaveBeenCalled();
       // expect(mParser.collectReportData).toHaveBeenCalledTimes(3);
       // expect(mTransactionService.addManyTransactions).toHaveBeenCalledTimes(3);
-      // expect(mTransactionService.addReport).toHaveBeenCalledTimes(3);
+      // expect(mReportService.addReport).toHaveBeenCalledTimes(3);
       // expect(googleService.exportFile).toHaveBeenCalledTimes(3);
     });
 
     it('should not list and process drive files', async () => {
-      mTransactionService.getAllReports = jest.fn().mockResolvedValueOnce([]);
+      mReportService.getAllReports = jest.fn().mockResolvedValueOnce([]);
       googleService.getAllPayeesAndPayers = jest.fn().mockResolvedValueOnce([]);
       (googleService.jwtClient as jest.Mocked<any>).authorize.mockImplementationOnce(callback => {
         callback(new Error('Insertion failed'));
@@ -340,12 +342,12 @@ describe('Google Service', function () {
       await googleService.listDriveFiles();
 
       const loggerErrorMock = jest.spyOn(logger, 'error');
-      expect(mTransactionService.getAllReports).toHaveBeenCalled();
+      expect(mReportService.getAllReports).toHaveBeenCalled();
       expect(googleService.getAllPayeesAndPayers).toHaveBeenCalled();
       expect(loggerErrorMock).toHaveBeenCalled();
       // expect(mParser.collectReportData).toHaveBeenCalledTimes(3);
       // expect(mTransactionService.addManyTransactions).toHaveBeenCalledTimes(3);
-      // expect(mTransactionService.addReport).toHaveBeenCalledTimes(3);
+      // expect(mReportService.addReport).toHaveBeenCalledTimes(3);
       // expect(googleService.exportFile).toHaveBeenCalledTimes(3);
     });
   });
