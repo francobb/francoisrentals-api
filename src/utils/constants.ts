@@ -21,6 +21,7 @@ export const ENDING_CASH_BALANCE_REGEX_PATTERN = /Ending Cash Balance+-?(\d{1,3}
 export const MM_DD_REGEX_PATTERN = /(1[0-2]|[1-9])\/(3[01]|[12][0-9]|[1-9])/gi;
 export const MM_YYYY_REGEX_PATTERN = /(0[1-9]|1[012])[- \/.] ?(20)2[1-4]/gi;
 export const MONEY_REGEX_PATTERN = /-?\d{1,3}(,\d{3})*(\.\d{2})/gi;
+export const RPM_REGEX_PATTERN = /(Real\sProperty|Management\sProvidence)/gi;
 export const TOTAL_REGEX_PATTERN = /Total/gi;
 export const TRANSACTION_DATES_REGEX_PATTERN = /(?<! - )\b(\d{1,4}(\/)\d{1,2}(\/)\d{4})/gi;
 export const TRANSACTION_TYPE_REFERENCE_REGEX_PATTERN_2 =

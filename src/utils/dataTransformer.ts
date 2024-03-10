@@ -14,6 +14,7 @@ import {
   MONEY_REGEX_PATTERN,
   PERSONAL,
   PREV_YEAR,
+  RPM_REGEX_PATTERN,
   TABLE_HEADERS,
   TOTAL_REGEX_PATTERN,
   TRANSACTION_DATES_REGEX_PATTERN,
@@ -67,7 +68,8 @@ class DataTransformer {
     const outcome = this.determineOutcome(payeePayer, ogBalance, balanceArray, desc);
 
     if (!payeePayer) {
-      payeePayer = outcome === 'income' ? 'Francois Rentals, LLC.' : 'Service-Expense';
+      desc.includes('Real Property');
+      payeePayer = outcome === 'income' ? 'Francois Rentals, LLC.' : desc.includes('Real Property' || 'RPM') ? 'RPM Providence' : 'Service-Expense';
     }
 
     desc = this.cleanDescription(desc, payeePayer, balanceArray);
@@ -146,12 +148,14 @@ class DataTransformer {
   }
 
   private cleanDescription(desc: string, payeePayer: string, balanceArray: string[]) {
-    return desc
+    desc = desc
       .replace(payeePayer, '')
       .replace(balanceArray.at(0) + balanceArray.at(1), '')
       .replaceAll(TRANSACTION_TYPE_REFERENCE_REGEX_PATTERN, '')
       .trim()
       .replace(/^-/, '');
+
+    return desc.replaceAll(RPM_REGEX_PATTERN, '').trim();
   }
 
   private determineOutcome(payeePayer: string, ogBalance: number, balanceArray: string[], desc: string) {
