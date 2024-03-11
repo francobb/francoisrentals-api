@@ -11,9 +11,9 @@ class DataCollector {
     this.payeesPayers = listOfPeople;
   };
 
-  public collectAllTransactionsForLoc = (houseData: string | any[], loc: string) => {
+  public collectAllTransactionsForLoc = (houseData: string | any[], loc: string, balance: number) => {
     const totalTransactions = [];
-    let ogBalance = 0;
+    let ogBalance = balance;
 
     for (let i = 0; i < houseData.length; i += 2) {
       const transaction = this.dataTransformer.createTransactionFromData(loc, ogBalance, houseData[i], houseData[i + 1].trim(), this.payeesPayers);
