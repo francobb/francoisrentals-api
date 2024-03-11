@@ -13,7 +13,8 @@ export const WELLES = '212 Welles Street';
 // Regex Patterns
 export const ACCT_NUM_REGEX_PATTERN = /Acct#\d{5}-\d{5}/gi;
 export const BALANCE_DUE_REGEX_PATTERN = /Please Remit Balance Due(\d{1,3}(,\d{3})*\.\d{2})/gi;
-export const BEGINNING_CASH_BALANCE_REGEX_PATTERN = /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}\s?-?\d{1,3}(,\d{3})*\.\d{2}/gi;
+// export const BEGINNING_CASH_BALANCE_REGEX_PATTERN = /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}\s?-?\d{1,3}(,\d{3})*\.\d{2}/gi;
+export const BEGINNING_CASH_BALANCE_REGEX_PATTERN = /Beginning Cash Balance as of \d{2}\/\d{2}\/\d{4}\s?(-?\d{1,3}(,\d{3})*\.\d{2})/gi;
 export const DOLLAR_PARENTHESIS_REGEX_PATTERN = /\(\$\d+\.\)/g;
 export const D_MM_YY_REGEX_PATTERN = /([1-9]|1[012])[- \/.](0?[1-9]|[12][0-9]|3[01])[- \/.](21|22|23)/gi;
 export const MM_DD_YY_REGEX_PATTERN = /(0[1-9]|1[012])[- \/.](0?[1-9]|[12][0-9]|3[01])[- \/.](21|22|23)/gi;
