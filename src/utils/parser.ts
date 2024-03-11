@@ -14,8 +14,8 @@ class Parser {
 
     this.dataCollector.locations.forEach(location => {
       const fullLocation = `${location} ${CITY_STATE}`;
-      const houseData = this.dataTransformer.getTransactionsTextForLoc(info, fullLocation);
-      allTransactions.push(...this.dataCollector.collectAllTransactionsForLoc(houseData, location));
+      const { transactions, beginningBalance } = this.dataTransformer.getTransactionsTextForLoc(info, fullLocation);
+      allTransactions.push(...this.dataCollector.collectAllTransactionsForLoc(transactions, location, beginningBalance));
     });
 
     return allTransactions;

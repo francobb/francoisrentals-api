@@ -27,7 +27,7 @@ class DataTransformer {
     '346 Carrington Avenue Woonsocket, RI': /346\sCarrington\sAvenue\s?\n?Woonsocket,\sRI/gi,
     '23 Paradis Avenue Woonsocket, RI': /23\sParadis\sAvenue\s?\n?Woonsocket,\sRI/gi,
   };
-  public getTransactionsTextForLoc = (reportData: string, location: string) => {
+  public getTransactionsTextForLoc = (reportData: string, location: string): { transactions: any[]; beginningBalance: number } => {
     let transactionsInMonth = '';
 
     reportData = this.cleanUpPageOfText(reportData);
@@ -36,12 +36,12 @@ class DataTransformer {
     const locationRegex = this.ADDRESS_REGEX[location];
 
     if (reportSansMetaData.search(locationRegex || location) < 0) {
-      return [];
+      return { transactions: [], beginningBalance: 0 };
     }
 
     reportSansMetaData = reportSansMetaData.substring(reportSansMetaData.search(locationRegex || location));
     //todo: do checks before getting indexed data
-    const [firstLineMatch] = new RegExp(BEGINNING_CASH_BALANCE_REGEX_PATTERN).exec(reportSansMetaData);
+    const [firstLineMatch, beginningBalance] = new RegExp(BEGINNING_CASH_BALANCE_REGEX_PATTERN).exec(reportSansMetaData);
     const lastLineMatch = new RegExp(ENDING_CASH_BALANCE_REGEX_PATTERN).exec(reportSansMetaData);
     const otherLastLineMatch = new RegExp(TOTAL_REGEX_PATTERN).exec(reportSansMetaData);
 
@@ -56,10 +56,13 @@ class DataTransformer {
     transactionsInMonth = this.findTransactionsInMonth(reportSansMetaData, firstLineMatch, trueLastLineMatch);
     transactionsInMonth = this.cleanUpTableHeadersFromText(transactionsInMonth);
 
-    return transactionsInMonth
-      .split(TRANSACTION_DATES_REGEX_PATTERN)
-      .filter(w => w)
-      .filter(w => w !== '/');
+    return {
+      transactions: transactionsInMonth
+        .split(TRANSACTION_DATES_REGEX_PATTERN)
+        .filter(w => w)
+        .filter(w => w !== '/'),
+      beginningBalance: Number(parseFloat(beginningBalance.replace(/,/g, '')).toFixed(2)),
+    };
   };
 
   public createTransactionFromData = (loc: string, ogBalance: number, date: any, desc: string, payeePayers?: { name: string }[]) => {
