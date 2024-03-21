@@ -3,7 +3,7 @@
   "private": true,
   "description": "TypeScript + Mongoose + MongoDB + Express API Server",
   "engines": {
-    "node": "18.x || 19.x"
+    "node": "18.x || 19.x || 20.x"
   },
   "license": "ISC",
   "name": "francoisrentals-api",
