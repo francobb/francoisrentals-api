@@ -75,7 +75,7 @@ class App {
 
     payeePayerModel
       .insertMany(payeePayerMap)
-      .then(() => logger.info(`��� Saved payees to database`))
+      .then(() => logger.info(` Saved payees to database`))
       .catch(err => logger.error(`Error from saving payees & payers ${err}`));
   }
 
