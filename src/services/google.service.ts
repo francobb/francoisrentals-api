@@ -118,7 +118,8 @@ class GoogleService {
       if (data.files && data.files.length) {
         for (const file of data.files as IFile[]) {
           const month = file.name.substring(0, 3);
-          if (!filesFromDB.some(dbFile => month === dbFile.month)) {
+          const year = file.name.split('.')[0].split('_')[1];
+          if (!filesFromDB.some(dbFile => month === dbFile.month && year === dbFile.year)) {
             file['pdf'] = await this.exportFile(file.id);
 
             try {
