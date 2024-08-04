@@ -3,7 +3,7 @@ import { Router } from 'express';
 import TransactionsController from '@controllers/transactions.controller';
 import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
 import PayeePayerController from '@controllers/payeePayer.controller';
-import {authenticate} from "@middlewares/firebase.auth.middleware";
+import { authenticate } from '@middlewares/firebase.auth.middleware';
 
 class TransactionsRoute implements Routes {
   public path = '/transactions';

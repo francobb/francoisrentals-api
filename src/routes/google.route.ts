@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import GoogleController from '@controllers/google.controller';
 import { Routes } from '@interfaces/routes.interface';
-import { authWithGoogle, checkClient /*authWithGoogleCallback, checkRole, requireJwtAuth */} from '@middlewares/auth.middleware';
-import {authenticate} from "@middlewares/firebase.auth.middleware";
+import { authWithGoogle, checkClient /*authWithGoogleCallback, checkRole, requireJwtAuth */ } from '@middlewares/auth.middleware';
+import { authenticate } from '@middlewares/firebase.auth.middleware';
 
 class GoogleRoute implements Routes {
   public path = '/';
@@ -19,7 +19,7 @@ class GoogleRoute implements Routes {
     /* FR-RN-Client */
     this.router.post(`${this.path}auth/google/client`, checkClient, this.googleController.handleClientAuthRequest);
     // this.router.get(`${this.path}listFiles`, requireJwtAuth, checkRole(['ADMIN']), this.googleController.getFilesFromDrive);
-    this.router.get(`${this.path}listFiles`,  authenticate, this.googleController.getFilesFromDrive);
+    this.router.get(`${this.path}listFiles`, authenticate, this.googleController.getFilesFromDrive);
 
     /* passport google routes */
     this.router.get(`${this.path}google`, authWithGoogle);
