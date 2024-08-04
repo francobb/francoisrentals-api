@@ -2,7 +2,7 @@ import transactionsModel from '@models/transactions.model';
 import { ITransaction } from '@interfaces/transactions.interface';
 import { logger } from '@utils/logger';
 import SearchQueryBuilder from '@search/transactions.search';
-import {  IQuery } from '@utils/interfaces';
+import { IQuery } from '@utils/interfaces';
 
 type IDate = string | number | Date;
 
