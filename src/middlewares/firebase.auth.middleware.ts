@@ -1,12 +1,11 @@
-import {NextFunction, Request, Response} from "express";
-import {firebaseApp} from "@clients/firebase.client";
-
+import { NextFunction, Request, Response } from 'express';
+import { firebaseApp } from '@clients/firebase.client';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-  const idToken = req.headers.authorization?.split("Bearer ")[1];
+  const idToken = req.headers.authorization?.split('Bearer ')[1];
 
   if (!idToken) {
-    return res.status(401).send("Unauthorized");
+    return res.status(401).send('Unauthorized');
   }
 
   try {
@@ -14,6 +13,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     next();
   } catch (error) {
     console.error('Error verifying token:', error);
-    return res.status(401).send("Unauthorized");
+    return res.status(401).send('Unauthorized');
   }
 };
