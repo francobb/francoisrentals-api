@@ -1,14 +1,13 @@
 import { FilterQuery } from 'mongoose';
 import { ITransaction } from '@interfaces/transactions.interface';
-import { getLastDayOfMonth } from '@utils/util';
 
 class SearchQueryBuilder {
-  private date?: { month: number; year: number };
+  private date?: { from: Date; to: Date };
   private location?: string;
   private outcome?: string;
   private payeePayer?: string;
 
-  withDate(date?: { month: number; year: number }): SearchQueryBuilder {
+  withDate(date?: { from: Date; to: Date }): SearchQueryBuilder {
     this.date = date;
     return this;
   }
@@ -32,14 +31,9 @@ class SearchQueryBuilder {
     const filter: FilterQuery<ITransaction> = {};
 
     if (this.date) {
-      const startOfMonth = new Date(`${this.date.year}-${this.date.month.toString().padStart(2, '0')}-01T00:00:00`);
-      const endOfMonth = new Date(
-        `${this.date.year}-${this.date.month.toString().padStart(2, '0')}-${getLastDayOfMonth(this.date.year, this.date.month)}T23:59:59`,
-      );
-
       filter.date = {
-        $gte: startOfMonth,
-        $lte: endOfMonth,
+        $gte: this.date.from,
+        $lte: this.date.to,
       };
     }
 
