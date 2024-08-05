@@ -10,7 +10,7 @@ export const firebaseApp = admin.initializeApp({
     type: 'service_account',
     project_id: FR_FIREBASE_PROJECT_ID || 'fakeApp',
     private_key_id: FR_FIREBASE_PRIVATE_NEW_KEY_ID || 'fakeApp',
-    private_key: FR_FIREBASE_PRIVATE_NEW_KEY || 'fakeApp',
+    private_key: FR_FIREBASE_PRIVATE_NEW_KEY || '---BEGIN PRIVATE KEY---\nfakeApp\n---END PRIVATE KEY---',
     client_email: CLIENT_EMAIL || 'fakeApp@email.com',
     client_id: FR_FIREBASE_CLIENT_ID || 'fakeApp',
     auth_uri: 'https://accounts.google.com/o/oauth2/auth',
