@@ -7,8 +7,6 @@ import { TenantsRoute } from '../../src/routes';
 import { CreateTenantDto } from '../../src/dtos/tenants.dto';
 import TenantService from '../../src/services/tenants.service';
 
-console.log({prc: process.env})
-
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
