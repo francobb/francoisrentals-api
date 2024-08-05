@@ -5,8 +5,20 @@ import UserService from '../../src/services/users.service';
 import { clearDatabase } from './setup/db-handler';
 import { Routes } from '@interfaces/routes.interface';
 
-jest.mock('../../src/clients/firebase.client', () => ({
-  firebaseApp: {
+// jest.mock('../../src/clients/firebase.client', () => ({
+//   firebaseApp: {
+//     auth: () => ({
+//       verifyIdToken: jest.fn().mockResolvedValue({
+//         uid: 'mockedUserId', // Replace with your desired mocked user ID
+//         email: 'mockedUserEmail@example.com', // Replace with your desired mocked user email
+//         // Add other properties as needed
+//       }),
+//     }),
+//   },
+// }));
+
+jest.mock('firebase-admin', () => ({
+  initializeApp: jest.fn().mockReturnValue({
     auth: () => ({
       verifyIdToken: jest.fn().mockResolvedValue({
         uid: 'mockedUserId', // Replace with your desired mocked user ID
@@ -14,7 +26,7 @@ jest.mock('../../src/clients/firebase.client', () => ({
         // Add other properties as needed
       }),
     }),
-  },
+  }),
 }));
 
 afterAll(async () => {
