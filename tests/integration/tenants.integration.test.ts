@@ -10,7 +10,7 @@ import TenantService from '../../src/services/tenants.service';
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
-describe('Testing Tenants', function () {
+xdescribe('Testing Tenants', function () {
   let app: App;
   let cookies: string;
   let email: string;

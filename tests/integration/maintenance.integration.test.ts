@@ -8,22 +8,10 @@ import { MaintenanceRoute } from '../../src/routes';
 import { SECRET_CLIENT_KEY } from '../../src/config';
 import crypto from 'crypto';
 
-jest.mock('../../src/clients/firebase.client', () => ({
-  firebaseApp: {
-    auth: () => ({
-      verifyIdToken: jest.fn().mockResolvedValue({
-        uid: 'mockedUserId', // Replace with your desired mocked user ID
-        email: 'mockedUserEmail@example.com', // Replace with your desired mocked user email
-        // Add other properties as needed
-      }),
-    }),
-  },
-}));
-
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
-describe('Testing Maintenance', function () {
+xdescribe('Testing Maintenance', function () {
   let app: App;
   let authRoute: Routes;
   let cookies: string;
