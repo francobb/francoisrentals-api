@@ -11,7 +11,7 @@ import crypto from 'crypto';
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 });
-xdescribe('Testing Maintenance', function () {
+describe.skip('Testing Maintenance', function () {
   let app: App;
   let authRoute: Routes;
   let cookies: string;
