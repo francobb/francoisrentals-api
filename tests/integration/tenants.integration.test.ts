@@ -7,16 +7,7 @@ import { TenantsRoute } from '../../src/routes';
 import { CreateTenantDto } from '../../src/dtos/tenants.dto';
 import TenantService from '../../src/services/tenants.service';
 
-jest.mock('../../src/routes/google.route', () => ({
-  GoogleRoute: jest.fn().mockImplementation(() => ({
-    path: '/google', // Replace with the actual path of your GoogleRoute
-    router: {
-      get: jest.fn(), // Mock the GET method for your GoogleRoute
-      post: jest.fn(), // Mock the POST method for your GoogleRoute
-      // ... other methods as needed
-    },
-  })),
-}));
+console.log({prc: process.env})
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
