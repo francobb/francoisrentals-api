@@ -1,8 +1,10 @@
 import * as admin from 'firebase-admin';
 
 import { CLIENT_EMAIL, FR_FIREBASE_PROJECT_ID, FR_FIREBASE_PRIVATE_NEW_KEY, FR_FIREBASE_CLIENT_ID, FR_FIREBASE_PRIVATE_NEW_KEY_ID } from '@config';
+import {logger} from "@utils/logger";
 
-console.log({ CLIENT_EMAIL, FR_FIREBASE_PROJECT_ID, FR_FIREBASE_PRIVATE_NEW_KEY, FR_FIREBASE_CLIENT_ID, FR_FIREBASE_PRIVATE_NEW_KEY_ID })
+logger.info({ CLIENT_EMAIL, FR_FIREBASE_PROJECT_ID, FR_FIREBASE_PRIVATE_NEW_KEY, FR_FIREBASE_CLIENT_ID, FR_FIREBASE_PRIVATE_NEW_KEY_ID });
+
 export const firebaseApp = admin.initializeApp({
   // credential: admin.credential.cert(serviceAccount as ServiceAccount),
   credential: admin.credential.cert({
