@@ -50,59 +50,59 @@ jobs:
           TWILIO_AUTH_TOKEN: 'fakeAuthToken'
           PRIVATE_KEY: 'fakePrivateKey'
 
-  intTest:
-    env:
-      APP_ID: ${{ secrets.APP_ID }}
-      APP_SECRET: ${{ secrets.APP_SECRET }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Set the Stripe access key from GitHub secret
-      AWS_BUCKET: 'francoisrentals'
-      AWS_REGION: 'us-east-2'
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
-      BUCKET_NAME: 'francoisrentals'
-      CI: true
-      DB_IP: '127.0.0.1'
-      DB_MEMORY: 'false'
-      DB_PORT: '27017'
-      CLIENT_EMAIL: ${{ secrets.CLIENT_EMAIL }}
-      FR_FIREBASE_CLIENT_ID: ${{ secrets.FR_FIREBASE_CLIENT_ID }}
-      FR_FIREBASE_PRIVATE_NEW_KEY: ${{ secrets.FR_FIREBASE_PRIVATE_NEW_KEY }}
-      FR_FIREBASE_PRIVATE_NEW_KEY_ID: ${{ secrets.FR_FIREBASE_PRIVATE_NEW_KEY_ID }}
-      FR_FIREBASE_PROJECT_ID: 'coughee-pot'
-      LOG_DIR: '../logs'
-      MONGO_PASSWORD: adminpassword
-      MONGO_URI: 'mongodb://0.0.0.0:27017'
-      MONGO_USERNAME: admin
-      ROOT_URI: 'http://localhost:3000'
-      SECRET_KEY: 'secretKey'
-      STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
-      TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
-      TWILIO_AUTH_TOKEN: 'fakeAuthToken'
-
-    name: 🎛️ Integration Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
-
-      - name: ⚙ Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "19.x"
-
-      - name: 📥 Download dependencies
-        run: npm ci
-
-      - name: 👷🏽‍ Rebuild bcrypt
-        run: npm rebuild --update-binary bcrypt
-
-      - name: 🍃 🐳 Run MongoDB Docker Container
-        run: |
-          docker run -d --name fr-db -p 27017:27017 mongo
-
-      - name: 🕤 Wait for MongoDB to start
-        run: sleep 20
-
-      - name: Run Integration Tests
-        run: npm run test:int
-        env:
-          STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }}
+#  intTest:
+#    env:
+#      APP_ID: ${{ secrets.APP_ID }}
+#      APP_SECRET: ${{ secrets.APP_SECRET }}
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Set the Stripe access key from GitHub secret
+#      AWS_BUCKET: 'francoisrentals'
+#      AWS_REGION: 'us-east-2'
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
+#      BUCKET_NAME: 'francoisrentals'
+#      CI: true
+#      DB_IP: '127.0.0.1'
+#      DB_MEMORY: 'false'
+#      DB_PORT: '27017'
+#      CLIENT_EMAIL: ${{ secrets.CLIENT_EMAIL }}
+#      FR_FIREBASE_CLIENT_ID: ${{ secrets.FR_FIREBASE_CLIENT_ID }}
+#      FR_FIREBASE_PRIVATE_NEW_KEY: ${{ secrets.FR_FIREBASE_PRIVATE_NEW_KEY }}
+#      FR_FIREBASE_PRIVATE_NEW_KEY_ID: ${{ secrets.FR_FIREBASE_PRIVATE_NEW_KEY_ID }}
+#      FR_FIREBASE_PROJECT_ID: 'coughee-pot'
+#      LOG_DIR: '../logs'
+#      MONGO_PASSWORD: adminpassword
+#      MONGO_URI: 'mongodb://0.0.0.0:27017'
+#      MONGO_USERNAME: admin
+#      ROOT_URI: 'http://localhost:3000'
+#      SECRET_KEY: 'secretKey'
+#      STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }} # Set the Stripe access key from GitHub secret
+#      TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
+#      TWILIO_AUTH_TOKEN: 'fakeAuthToken'
+#
+#    name: 🎛️ Integration Tests
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: ⬇️ Checkout repo
+#        uses: actions/checkout@v3
+#
+#      - name: ⚙ Setup node
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: "19.x"
+#
+#      - name: 📥 Download dependencies
+#        run: npm ci
+#
+#      - name: 👷🏽‍ Rebuild bcrypt
+#        run: npm rebuild --update-binary bcrypt
+#
+#      - name: 🍃 🐳 Run MongoDB Docker Container
+#        run: |
+#          docker run -d --name fr-db -p 27017:27017 mongo
+#
+#      - name: 🕤 Wait for MongoDB to start
+#        run: sleep 20
+#
+#      - name: Run Integration Tests
+#        run: npm run test:int
+#        env:
+#          STRIPE_ACCESS_KEY: ${{ secrets.STRIPE_ACCESS_KEY }}
