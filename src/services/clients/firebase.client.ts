@@ -9,10 +9,10 @@ export const firebaseApp = admin.initializeApp({
     // @ts-ignore
     type: 'service_account',
     project_id: FR_FIREBASE_PROJECT_ID,
-    private_key_id: FR_FIREBASE_PRIVATE_NEW_KEY_ID ,
+    private_key_id: FR_FIREBASE_PRIVATE_NEW_KEY_ID,
     private_key: FR_FIREBASE_PRIVATE_NEW_KEY,
     client_email: CLIENT_EMAIL,
-    client_id: FR_FIREBASE_CLIENT_ID ,
+    client_id: FR_FIREBASE_CLIENT_ID,
     auth_uri: 'https://accounts.google.com/o/oauth2/auth',
     token_uri: 'https://oauth2.googleapis.com/token',
     auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
