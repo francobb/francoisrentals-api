@@ -3,15 +3,28 @@ import App from '@/app';
 import AuthRoute from '@routes/auth.route';
 import UserService from '../../src/services/users.service';
 import { clearDatabase } from './setup/db-handler';
+import { Routes } from '@interfaces/routes.interface';
+
+jest.mock('../../src/clients/firebase.client', () => ({
+  firebaseApp: {
+    auth: () => ({
+      verifyIdToken: jest.fn().mockResolvedValue({
+        uid: 'mockedUserId', // Replace with your desired mocked user ID
+        email: 'mockedUserEmail@example.com', // Replace with your desired mocked user email
+        // Add other properties as needed
+      }),
+    }),
+  },
+}));
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 2000));
 });
 
 describe('Testing Auth', () => {
-  let authRoute;
+  let authRoute: Routes;
   let app: App;
-  let userData;
+  let userData: string | object;
 
   beforeAll(function () {
     authRoute = new AuthRoute();
