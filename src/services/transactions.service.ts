@@ -1,53 +1,72 @@
-import transactionsModel from '@models/transactions.model';
-import { ITransaction } from '@interfaces/transactions.interface';
-import { logger } from '@utils/logger';
-import SearchQueryBuilder from '@search/transactions.search';
-import { IQuery } from '@utils/interfaces';
+import { FindAllTransactionsDto } from '@dtos/findAllTransactions';
+import { Transaction } from '@models/transactions.pg_model';
+import { AppDataSource } from '@databases';
+import { TenantCharge } from '@models/tenant-charge.pg_model';
 
-type IDate = string | number | Date;
-
-class TransactionService {
-  public transactions = transactionsModel;
-
-  public async searchTransaction(query: IQuery) {
-    const { from, to } = query;
-    let { location, outcome, payeePayer } = query;
-
-    location = location ?? undefined;
-    outcome = outcome ?? 'income';
-    payeePayer = payeePayer ?? undefined;
-
-    const queryDates = getDateRange(from, to);
-    const sq = new SearchQueryBuilder().withDate(queryDates).withLocation(location).withOutcome(outcome).withPayeePayer(payeePayer).build();
-    const [transactions] = await Promise.all([this.transactions.find(sq).lean()]);
-
-    return transactions;
-  }
-
-  public async addManyTransactions(transactions: ITransaction[]) {
-    this.transactions.insertMany(transactions, (error, result) => {
-      error ? logger.error(error) : logger.info(':::::transactions inserted:::::', result);
-    });
-  }
+export interface RentSnapshot {
+  tenantName: string;
+  propertyName: string;
+  unitName: string;
+  chargeAmount: number;
+  outstandingBalance: number;
+  chargeDate: Date;
 }
 
-const getDateRange = (from: IDate, to: IDate) => {
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30);
+class TransactionService {
+  private transactionRepository = AppDataSource.getRepository(Transaction);
+  private tenantChargeRepository = AppDataSource.getRepository(TenantCharge);
 
-  let fromDate = from ? new Date(from) : thirtyDaysAgo;
-  let toDate = to ? new Date(to) : today;
+  /**
+   * Finds all transactions with optional filtering and pagination.
+   * @param query Query parameters (limit, offset, startDate, endDate)
+   * @returns A promise that resolves to an array of transactions.
+   */
+  public async findAllTransactions(query: FindAllTransactionsDto): Promise<Transaction[]> {
+    const { limit = 100, offset = 0, startDate, endDate } = query;
 
-  if (from && !to) {
-    toDate = new Date(fromDate);
-    toDate.setDate(fromDate.getDate() + 30);
-  } else if (to && !from) {
-    fromDate = new Date(toDate);
-    fromDate.setDate(toDate.getDate() - 30);
+    const queryBuilder = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.property', 'property') // Also fetch the related property
+      .orderBy('transaction.postedOn', 'DESC') // Order by most recent
+      .skip(offset)
+      .take(limit);
+
+    if (startDate) {
+      queryBuilder.andWhere('transaction.postedOn >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('transaction.postedOn <= :endDate', { endDate });
+    }
+
+    return await queryBuilder.getMany();
   }
 
-  return { from: fromDate, to: toDate };
-};
+  public async getMonthlyRentSnapshot(): Promise<RentSnapshot[]> {
+    // This query finds all tenant charges with an outstanding balance
+    // and joins across tables to get tenant, unit, and property details.
+    const outstandingCharges = await this.tenantChargeRepository
+      .createQueryBuilder('charge')
+      .innerJoin('charge.property', 'property')
+      .innerJoin('property.units', 'unit')
+      .innerJoin('unit.currentOccupancy', 'occupancy')
+      .innerJoin('occupancy.tenant', 'tenant')
+      .select([
+        'tenant.name AS "tenantName"',
+        'property.name AS "propertyName"',
+        'unit.name AS "unitName"',
+        'charge.amount AS "chargeAmount"',
+        'charge.balance AS "outstandingBalance"',
+        'charge.occurredOn AS "chargeDate"',
+      ])
+      .where('charge.balance > 0')
+      .andWhere("charge.occurredOn >= date_trunc('month', CURRENT_DATE)") // Filter for current month
+      .orderBy('property.name', 'ASC')
+      .addOrderBy('unit.name', 'ASC')
+      .getRawMany();
+
+    return outstandingCharges;
+  }
+}
 
 export default TransactionService;

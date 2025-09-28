@@ -6,6 +6,8 @@ import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
 import userModel from '@models/users.model';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { HttpException } from '@exceptions/HttpException';
+import { IRequest } from '@utils/interfaces';
+import { logger } from '@utils/logger';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
@@ -42,7 +44,7 @@ export const checkRole = (roles: string | string[]) => async (req, res: Response
   }
 };
 
-export const checkClient = (req: Request, res: Response, next: NextFunction) => {
+export const checkClient = (req, res, next) => {
   try {
     const allowedTimeDifference = 300000;
     const FR_TOKEN = req.header('FR-TOKEN');
@@ -86,5 +88,29 @@ export const authWithGoogle = passport.authenticate('google', {
   ],
 });
 export const authWithGoogleCallback = passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/', session: false });
+
+export const apiKeyMiddleware = (req, res, next) => {
+  // If no API key is configured on the server, we can assume the check is not needed.
+  // This allows you to run your server locally without ngrok and without needing the key.
+  if (!SECRET_CLIENT_KEY) {
+    return next();
+  }
+
+  // Get the API key from the request header. 'x-api-key' is a common standard.
+  const providedApiKey = req.header('fr-token');
+
+  if (!providedApiKey) {
+    logger.warn(`[API Key Auth] Denied: API Key missing from request to ${req.path}`);
+    return res.status(401).json({ message: 'Unauthorized: An API Key is required.' });
+  }
+
+  if (providedApiKey !== SECRET_CLIENT_KEY) {
+    logger.warn(`[API Key Auth] Denied: Invalid API Key provided for request to ${req.path}`);
+    return res.status(403).json({ message: 'Forbidden: The provided API Key is invalid.' });
+  }
+
+  // If the keys match, allow the request to proceed.
+  next();
+};
 
 export default authMiddleware;
