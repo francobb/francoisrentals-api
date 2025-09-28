@@ -6,19 +6,16 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
 import passport from 'passport';
-import swaggerJSDoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import { connect, set } from 'mongoose';
 import '@clients/passport.client';
 import TenantService from '@services/tenants.service';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import errorMiddleware from '@middlewares/error.middleware';
 import { CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT, ROOT_URI } from '@config';
 import { Routes } from '@interfaces/routes.interface';
-import { dbConnection } from '@databases';
+import { AppDataSource, dbConnection } from '@databases';
 import { frAscii } from '@utils/frAscii';
 import { logger, stream } from '@utils/logger';
-import payeePayerModel from '@models/payeePayer.model';
-import payeePayerJson from './assets/payeePayer.json';
 
 class App {
   public app: express.Application;
@@ -33,8 +30,6 @@ class App {
     this.tenantService = new TenantService();
 
     this.readInAsciiFile();
-    this.connectToDatabase();
-    this.initPayeePayerData();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -42,11 +37,14 @@ class App {
   }
 
   public listen() {
-    this.app.listen(this.port, () => {
-      logger.info(`=================================`);
-      logger.info(`======= ENV: ${this.env} =======`);
-      logger.info(`🚀 App listening on port ${this.port}`);
-      logger.info(`=================================`);
+    // First, connect to the database, then start listening.
+    this.connectToPostgres().then(() => {
+      this.app.listen(this.port, () => {
+        logger.info(`=================================`);
+        logger.info(`======= ENV: ${this.env} =======`);
+        logger.info(`🚀 App listening on port ${this.port}`);
+        logger.info(`=================================`);
+      });
     });
   }
 
@@ -54,29 +52,13 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
-    if (this.env !== 'production') {
-      set('debug', true);
+  private async connectToPostgres() {
+    try {
+      await AppDataSource.initialize();
+      logger.info('🗄 PostgreSQL Database Connected');
+    } catch (err) {
+      logger.error(`🔻 Database Connection Error: ${err}`);
     }
-
-    set('strictQuery', false);
-    connect(dbConnection.url, dbConnection.options)
-      .then(() => {
-        logger.info(`🗄 Database Connected`);
-        logger.info(`=================================`);
-      })
-      .catch(err => logger.error(`🔻 Database Connection Error: ${err}`));
-  }
-
-  private initPayeePayerData() {
-    const payeePayerMap = payeePayerJson.map(p => {
-      return { name: p };
-    });
-
-    payeePayerModel
-      .insertMany(payeePayerMap)
-      .then(() => logger.info(` Saved payees to database`))
-      .catch(err => logger.error(`Error from saving payees & payers ${err}`));
   }
 
   private initializeMiddlewares() {

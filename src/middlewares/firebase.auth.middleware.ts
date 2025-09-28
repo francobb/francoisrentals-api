@@ -1,7 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
 import { firebaseApp } from '@clients/firebase.client';
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = async (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
 
   if (!idToken) {

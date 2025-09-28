@@ -1,6 +1,5 @@
 import axios from 'axios';
 import PdfParse from 'pdf-parse';
-import { Credentials } from 'google-auth-library';
 import { google } from 'googleapis';
 import GoogleClient from '@clients/gauth.client';
 import Parser from '@utils/parser';
@@ -68,11 +67,11 @@ class GoogleService {
     let tr: any = {};
 
     const credentials = await this.googleUser.findOne();
-
     if (credentials) {
       // If credentials exist, set them in the OAuth2 client
       tr = credentials;
-      this.oauthClient.setCredentials(credentials.toObject() as Credentials);
+      this.oauthClient.setCredentials(credentials.toObject() as any);
+
     } else {
       // If credentials don't exist, obtain them from Google and store them in the database
       const tokenResponse = await this.oauthClient.getToken(code);
@@ -102,7 +101,7 @@ class GoogleService {
     const filesFromDB = await this.reportService.getAllReports();
     const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
 
-    this.jwtClient.authorize(async (err, tokens) => {
+    this.jwtClient.authorize(async (err) => {
       if (err) {
         logger.error(`Failed to authorize: ${err}`);
         return;

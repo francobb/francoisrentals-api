@@ -4,11 +4,13 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'same-origin';
 const {
+  AUTHENTICITY_TOKEN,
   APP_ID,
   APP_SECRET,
   AWS_BUCKET,
   AWS_REGION,
   CLIENT_EMAIL,
+  COOKIES,
   DB_DATABASE,
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
@@ -22,6 +24,11 @@ const {
   NODE_ENV,
   ORIGIN,
   PORT,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_DB,
+  POSTGRES_HOST,
+  POSTGRES_PORT,
   PRIVATE_KEY,
   REDIRECT_URI,
   ROOT_URI,
@@ -34,10 +41,12 @@ const {
 } = process.env;
 
 export {
+  AUTHENTICITY_TOKEN,
   APP_ID,
   APP_SECRET,
   AWS_BUCKET,
   AWS_REGION,
+  COOKIES,
   CLIENT_EMAIL,
   DB_DATABASE,
   EMAIL_ADDRESS,
@@ -52,6 +61,11 @@ export {
   NODE_ENV,
   ORIGIN,
   PORT,
+  POSTGRES_DB,
+  POSTGRES_HOST,
+  POSTGRES_PASSWORD,
+  POSTGRES_PORT,
+  POSTGRES_USER,
   PRIVATE_KEY,
   REDIRECT_URI,
   ROOT_URI,

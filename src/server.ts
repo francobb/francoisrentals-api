@@ -4,16 +4,16 @@ import AuthRoute from '@routes/auth.route';
 import GoogleRoute from '@routes/google.route';
 import IndexRoute from '@routes/index.route';
 import MaintenanceRoute from '@routes/maintenance.route';
+import PropertiesRoute from '@routes/properties.route';
 import StripeRoute from '@routes/stripe.route';
 import TenantsRoute from '@routes/tenants.route';
+import TenantChargesRoute from '@routes/tenant-charges.route';
 import TransactionsRoute from '@routes/transactions.route';
 import TwilioRoute from '@routes/twilio.route';
 import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
-import TenantService from '@services/tenants.service';
-import GoogleService from '@services/google.service';
-import ReportsRoute from '@routes/reports.route';
+import { runScraperTask } from '@/tasks/scraper.task';
 
 validateEnv();
 
@@ -22,20 +22,36 @@ const app = new App([
   new GoogleRoute(),
   new IndexRoute(),
   new MaintenanceRoute(),
-  new ReportsRoute(),
+  new PropertiesRoute(),
   new StripeRoute(),
   new TenantsRoute(),
+  new TenantChargesRoute(),
   new TransactionsRoute(),
   new TwilioRoute(),
   new UsersRoute(),
 ]);
 
-// cron.schedule('*/2 * * * *', async () => {
-cron.schedule('0 12 1-5 * *', async () => {
-  await new TenantService().updateRentalBalance();
-  logger.info('Rental balances updated.');
-  await new GoogleService().listDriveFiles();
-  logger.info('Files Retrieved from Google Drive.');
-});
+export const initializeScheduler = () => {
+  logger.info('🟢 Scheduler initialized');
+
+  cron.schedule(
+    '30 23 * * *',
+    async () => {
+      logger.info('--- Running scheduled job: Scrape Transactions ---');
+      try {
+        await runScraperTask();
+        logger.info('--- Scheduled job: Scrape Transactions completed ---');
+      } catch (error) {
+        // This catch is a safeguard to ensure a failed job doesn't crash the server.
+        logger.error('--- Scheduled job: Scrape Transactions failed ---', error);
+      }
+    },
+    {
+      scheduled: true,
+      timezone: 'America/New_York', // Important: Set to your local timezone
+    },
+  );
+};
 
 app.listen();
+initializeScheduler();
