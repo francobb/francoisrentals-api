@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
-import { Unit } from '@models/unit.pg_model';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, OneToOne, JoinColumn } from 'typeorm';
+import { Unit } from './unit.pg_model';
 import { Tenant } from '@models/tenant.pg_model';
 
 @Entity('occupancies')
@@ -19,10 +19,14 @@ export class Occupancy {
   @Column({ type: 'date', nullable: true })
   leaseEnd: Date;
 
-  @OneToOne(() => Unit, unit => unit.currentOccupancy)
+  @OneToOne(() => Unit, unit => unit.currentOccupancy, { onDelete: 'CASCADE' })
   @JoinColumn()
   unit: Unit;
 
-  @ManyToOne(() => Tenant, tenant => tenant.occupancies)
+  @ManyToOne(() => Tenant, tenant => tenant.occupancies, { nullable: true, onDelete: 'SET NULL' })
   tenant: Tenant;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  tenantId: string;
 }

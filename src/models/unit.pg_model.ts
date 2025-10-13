@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne } from 'typeorm';
-import { Property } from '@models/property.pg_model';
+import { Property } from './property.pg_model';
 import { Occupancy } from '@models/occupancy.pg_model';
 
 @Entity('units')
@@ -10,7 +10,7 @@ export class Unit {
   @Column({ type: 'varchar', length: 255, unique: true })
   externalId: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 255 })
   name: string;
 
   @Column({ type: 'boolean', default: false })
@@ -19,6 +19,6 @@ export class Unit {
   @ManyToOne(() => Property, property => property.units)
   property: Property;
 
-  @OneToOne(() => Occupancy, occupancy => occupancy.unit)
+  @OneToOne(() => Occupancy, occupancy => occupancy.unit, { nullable: true })
   currentOccupancy: Occupancy;
 }

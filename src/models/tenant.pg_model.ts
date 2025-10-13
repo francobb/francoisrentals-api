@@ -1,4 +1,3 @@
-// src/models/tenants.pg_model.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Transaction } from './transactions.pg_model';
 import { Property } from './property.pg_model';
@@ -15,14 +14,11 @@ export class Tenant {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  email: string;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  phone: string;
-
-  @ManyToOne(() => Property, property => property.externalId)
+  @ManyToOne(() => Property, property => property.tenants)
   property: Property;
+
+  @Column({ nullable: true })
+  propertyId: string;
 
   @OneToMany(() => Transaction, transaction => transaction.partyName)
   transactions: Transaction[];

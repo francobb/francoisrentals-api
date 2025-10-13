@@ -5,11 +5,18 @@ import { TenantCharge } from '@models/tenant-charge.pg_model';
 
 const transformTenantCharges = (charges: TenantCharge[]) => {
   return charges.map(charge => ({
-    id: charge.externalId,
     amount: Number(charge.amount),
     balance: Number(charge.balance),
     occurredOn: charge.occurredOn.toISOString().split('T')[0], // Format to YYYY-MM-DD
     propertyId: charge.property.externalId,
+    // Find the tenant name by looking through the property's units and their occupancies.
+    // This logic assumes a charge is associated with a property that has a currently occupied unit.
+
+    tenantName: charge.property.units?.find(u => u.currentOccupancy?.tenant)?.currentOccupancy.tenant.name,
+    // tenantName:
+    //   charge.property.units
+    //     ?.map(unit => unit.occupancies?.find(occ => occ.tenant)?.tenant.name)
+    //     .find(name => name) || null,
   }));
 };
 

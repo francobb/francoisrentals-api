@@ -13,7 +13,7 @@ import swaggerUi from 'swagger-ui-express';
 import errorMiddleware from '@middlewares/error.middleware';
 import { CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT, ROOT_URI } from '@config';
 import { Routes } from '@interfaces/routes.interface';
-import { AppDataSource, dbConnection } from '@databases';
+import { AppDataSource, } from '@databases';
 import { frAscii } from '@utils/frAscii';
 import { logger, stream } from '@utils/logger';
 

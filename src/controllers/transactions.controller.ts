@@ -2,7 +2,9 @@ import { NextFunction, Response } from 'express';
 import TransactionService from '@services/transactions.service';
 import { IRequest } from '@utils/interfaces';
 import { FindAllTransactionsDto } from '@dtos/findAllTransactions';
+import { FindAllTenantChargesDto } from '@/dtos/findAllTenantCharges.dto';
 import { Transaction } from '@models/transactions.pg_model';
+import { TenantCharge } from '@/models/tenant-charge.pg_model';
 import { logger } from '@utils/logger';
 import {
   runScraperTask,
@@ -11,9 +13,11 @@ import {
   authenticateAndGetCookie,
   fetchTransactionPage,
 } from '@/tasks/scraper.task';
+import DataEnrichmentService from '@/services/data-enrichment.service';
 
 class TransactionsController {
   public transactionService = new TransactionService();
+  public dataEnrichmentService = new DataEnrichmentService();
 
   public getTransactions = async (req: IRequest, res: Response, next: NextFunction) => {
     try {
@@ -29,6 +33,44 @@ class TransactionsController {
         };
       });
       res.status(200).json({ data: transactionsForClient, message: 'findAll' });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  public getTenantCharges = async (req: IRequest, res: Response, next: NextFunction) => {
+    try {
+      const query: FindAllTenantChargesDto = req.query;
+      const findAllTenantChargesData: TenantCharge[] = await this.transactionService.findAllTenantCharges(query);
+
+      const chargesForClient = findAllTenantChargesData.map(charge => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { property, tenant, ...restOfCharge } = charge;
+
+        const sanitizedTenant = tenant
+          ? {
+              id: tenant.id,
+              externalId: tenant.externalId,
+              name: tenant.name,
+            }
+          : null;
+
+        return {
+          ...restOfCharge,
+          tenant: sanitizedTenant,
+        };
+      });
+
+      res.status(200).json({ data: chargesForClient, message: 'findAllTenantCharges' });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  public getMonthlyRentSnapshot = async (req: IRequest, res: Response, next: NextFunction) => {
+    try {
+      const snapshotData = await this.transactionService.getMonthlyRentSnapshot();
+      res.status(200).json({ data: snapshotData, message: 'getMonthlyRentSnapshot' });
     } catch (e) {
       next(e);
     }
@@ -81,26 +123,34 @@ class TransactionsController {
     }
   };
 
-  public testPaginatedFetch = async (req: IRequest, res: Response, next: NextFunction): Promise<void> => {
+  public populateTenants = async (req: IRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      logger.info('--- Running Scraper Paginated Fetch Test (10 records) --- ');
-      const sessionCookie = await authenticateAndGetCookie();
+      logger.info('--- Manually triggering job: Populate Tenants from Transactions ---');
 
-      const today = new Date();
-      const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-      const formattedStartDate = `${(startDate.getMonth() + 1).toString().padStart(2, '0')}/${startDate.getDate().toString().padStart(2, '0')}/${startDate.getFullYear()}`;
-      const formattedEndDate = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
+      const result = await this.transactionService.populateTenantsFromTransactions();
 
-      logger.info(`Testing with date range: ${formattedStartDate} to ${formattedEndDate}`);
-
-      const transactions = await fetchTransactionPage(sessionCookie, formattedStartDate, formattedEndDate, 10, 0);
-
-      logger.info('--- Raw data from Appfolio API: ---');
-      console.log(JSON.stringify(transactions, null, 2));
-
-      res.status(200).json({ message: 'Test fetch successful', data: transactions });
+      logger.info(`--- Manual job: Populate Tenants finished successfully. Created: ${result.created}, Existing: ${result.existing} ---`);
+      res.status(200).json({
+        message: `Populate Tenants task completed successfully.`,
+        data: result,
+      });
     } catch (error) {
-      logger.error('--- Scraper Paginated Fetch Test failed ---', error);
+      next(error);
+    }
+  };
+
+  public linkOccupanciesToTenants = async (req: IRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      logger.info('--- Manually triggering job: Link Occupancies to Tenants ---');
+
+      const result = await this.dataEnrichmentService.linkOccupanciesToTenants();
+
+      logger.info(`--- Manual job: Link Occupancies to Tenants finished successfully. ---`);
+      res.status(200).json({
+        message: `Link Occupancies to Tenants task completed successfully.`,
+        data: result,
+      });
+    } catch (error) {
       next(error);
     }
   };

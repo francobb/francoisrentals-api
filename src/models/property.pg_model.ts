@@ -1,7 +1,7 @@
-// src/models/property.pg_model.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Transaction } from '@models/transactions.pg_model';
 import { Unit } from './unit.pg_model';
+import { Tenant } from './tenant.pg_model';
 
 @Entity('properties')
 export class Property {
@@ -40,4 +40,7 @@ export class Property {
 
   @OneToMany(() => Unit, unit => unit.property)
   units: Unit[];
+
+  @OneToMany(() => Tenant, tenant => tenant.property)
+  tenants: Tenant[];
 }
