@@ -9,6 +9,9 @@ class TenantChargeService {
     const queryBuilder = this.pg_tenant_charges
       .createQueryBuilder('tenant_charge')
       .leftJoinAndSelect('tenant_charge.property', 'property')
+      .leftJoinAndSelect('property.units', 'unit')
+      .leftJoinAndSelect('unit.currentOccupancy', 'occupancy')
+      .leftJoinAndSelect('occupancy.tenant', 'tenant')
       .where('tenant_charge.occurredOn >= :startDate', { startDate })
       .andWhere('tenant_charge.occurredOn <= :endDate', { endDate })
       .orderBy('tenant_charge.occurredOn', 'DESC');

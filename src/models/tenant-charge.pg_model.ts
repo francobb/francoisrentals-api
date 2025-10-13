@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Property } from '@models/property.pg_model';
+import { Tenant } from '@models/tenant.pg_model';
 
 @Entity('tenant_charges')
 export class TenantCharge {
@@ -21,8 +22,14 @@ export class TenantCharge {
   @ManyToOne(() => Property)
   property: Property;
 
-  @Column({ nullable: true }) // Add this column to expose the foreign key
+  @Column({ nullable: true })
   propertyId: string;
+
+  @ManyToOne(() => Tenant)
+  tenant: Tenant;
+
+  @Column({ nullable: true })
+  tenantId: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
