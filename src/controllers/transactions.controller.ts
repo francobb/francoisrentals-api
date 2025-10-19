@@ -6,13 +6,7 @@ import { FindAllTenantChargesDto } from '@/dtos/findAllTenantCharges.dto';
 import { Transaction } from '@models/transactions.pg_model';
 import { TenantCharge } from '@/models/tenant-charge.pg_model';
 import { logger } from '@utils/logger';
-import {
-  runScraperTask,
-  runPropertyScraperTask,
-  runTenantChargeScraperTask,
-  authenticateAndGetCookie,
-  fetchTransactionPage,
-} from '@/tasks/scraper.task';
+import { runScraperTask, runPropertyScraperTask, runTenantChargeScraperTask } from '@/tasks/scraper.task';
 import DataEnrichmentService from '@/services/data-enrichment.service';
 
 class TransactionsController {
@@ -129,7 +123,7 @@ class TransactionsController {
 
       const result = await this.transactionService.populateTenantsFromTransactions();
 
-      logger.info(`--- Manual job: Populate Tenants finished successfully. Created: ${result.created}, Existing: ${result.existing} ---`);
+      logger.info(`--- Manual job: Populate Tenants finished successfully. Created: ${result.created}, Existing: ${result.updated} ---`);
       res.status(200).json({
         message: `Populate Tenants task completed successfully.`,
         data: result,
