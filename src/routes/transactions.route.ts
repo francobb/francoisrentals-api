@@ -16,7 +16,7 @@ class TransactionsRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(this.path, apiKeyMiddleware, this.transactionsController.getTransactions);
-    this.router.get(`${this.path}/tenant-charges`, this.transactionsController.getTenantCharges);
+    this.router.get(`${this.path}/tenant-charges`, apiKeyMiddleware, this.transactionsController.getTenantCharges);
     this.router.get(`${this.path}/rent-snapshot`, apiKeyMiddleware, this.transactionsController.getMonthlyRentSnapshot);
     this.router.get(`${this.path}/run-scraper`, this.transactionsController.runScraper);
     this.router.get(`${this.path}/scraper/properties`, this.transactionsController.runPropertyScraper);

@@ -1,4 +1,4 @@
-import { MONGO_URI, DB_DATABASE, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } from '@config';
+import { POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } from '@config';
 import { DataSource } from 'typeorm';
 import { Property } from '@models/property.pg_model';
 import { Tenant } from '@models/tenant.pg_model';

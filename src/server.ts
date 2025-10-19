@@ -13,7 +13,7 @@ import TwilioRoute from '@routes/twilio.route';
 import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
-import { runScraperTask } from '@/tasks/scraper.task';
+import { runScraperTask, runTenantChargeScraperTask } from '@/tasks/scraper.task';
 
 validateEnv();
 
@@ -41,6 +41,9 @@ export const initializeScheduler = () => {
       try {
         await runScraperTask();
         logger.info('--- Scheduled job: Scrape Transactions completed ---');
+
+        await runTenantChargeScraperTask({});
+        logger.info('--- Scheduled job: Scrape Tenant Charges completed ---');
       } catch (error) {
         // This catch is a safeguard to ensure a failed job doesn't crash the server.
         logger.error('--- Scheduled job: Scrape Transactions failed ---', error);
