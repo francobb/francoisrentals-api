@@ -1,6 +1,5 @@
 import { NextFunction, Response } from 'express';
 import { IRequest } from '@utils/interfaces';
-import { logger } from '@utils/logger';
 import PropertyService from '@services/properties.service';
 import { Property } from '@models/property.pg_model';
 

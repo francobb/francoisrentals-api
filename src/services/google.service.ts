@@ -1,17 +1,8 @@
 import axios from 'axios';
-import PdfParse from 'pdf-parse';
-import { google } from 'googleapis';
 import GoogleClient from '@clients/gauth.client';
-import Parser from '@utils/parser';
-import TransactionService from '@services/transactions.service';
 import googleModel from '@models/google.model';
-import payeePayerModel from '@models/payeePayer.model';
 import { HttpException } from '@exceptions/HttpException';
-import { ID_OF_FOLDER } from '@utils/constants';
-import { PayeePayer } from '@interfaces/payeePayer.interface';
 import { logger } from '@utils/logger';
-import ReportService from '@services/report.service';
-import { IFile } from '@utils/interfaces';
 
 interface GoogleOauthToken {
   access_token: string;
@@ -32,18 +23,11 @@ interface GoogleUserResult {
   picture: string;
   locale: string;
 }
+
 class GoogleService {
   public googleUser = googleModel;
   public jwtClient = GoogleClient.getJWTClient();
   public oauthClient = GoogleClient.getOAuthClient();
-  public parser: Parser = new Parser();
-  public payeesPayers = payeePayerModel;
-  public transactionService: TransactionService = new TransactionService();
-  public reportService = new ReportService();
-
-  public async getAllPayeesAndPayers(): Promise<PayeePayer[]> {
-    return this.payeesPayers.find();
-  }
 
   public getAuthUrl() {
     return GoogleClient.generateAuthURL();
@@ -71,7 +55,6 @@ class GoogleService {
       // If credentials exist, set them in the OAuth2 client
       tr = credentials;
       this.oauthClient.setCredentials(credentials.toObject() as any);
-
     } else {
       // If credentials don't exist, obtain them from Google and store them in the database
       const tokenResponse = await this.oauthClient.getToken(code);
@@ -95,73 +78,6 @@ class GoogleService {
     }
 
     return tr;
-  }
-
-  async listDriveFiles() {
-    const filesFromDB = await this.reportService.getAllReports();
-    const pp: PayeePayer[] = await this.getAllPayeesAndPayers();
-
-    this.jwtClient.authorize(async (err) => {
-      if (err) {
-        logger.error(`Failed to authorize: ${err}`);
-        return;
-      }
-
-      const drive = google.drive({ version: 'v3', auth: this.jwtClient });
-      const { data } = await drive.files.list({
-        pageSize: 10,
-        q: `'${ID_OF_FOLDER}' in parents and trashed=false`,
-        fields: 'nextPageToken, files(id, name)',
-      });
-
-      if (data.files && data.files.length) {
-        for (const file of data.files as IFile[]) {
-          const month = file.name.substring(0, 3);
-          const year = file.name.split('.')[0].split('_')[1];
-          if (!filesFromDB.some(dbFile => month === dbFile.month && year === dbFile.year)) {
-            file['pdf'] = await this.exportFile(file.id);
-
-            try {
-              const pdf = await PdfParse(file.pdf);
-              file.data = this.parser.collectReportData(pdf.text, pp);
-              await this.transactionService.addManyTransactions(file.data);
-              await this.reportService.addReport(file);
-            } catch (err) {
-              logger.error(err);
-            }
-          } else {
-            logger.info('No New Files to upload');
-          }
-        }
-      } else {
-        logger.info('No files found.');
-      }
-    });
-  }
-
-  async exportFile(documentId: string) {
-    return new Promise<Buffer>(async (resolve, reject) => {
-      const bufferChunks: Buffer[] = [];
-
-      const request = await google.drive('v3').files.get({ auth: this.jwtClient, fileId: documentId, alt: 'media' }, { responseType: 'stream' });
-
-      request.data
-        .on('error', err => {
-          logger.error('Error downloading file.');
-          reject(err);
-        })
-        .on('end', () => {
-          const buffer = Buffer.concat(bufferChunks);
-          resolve(buffer);
-        })
-        .on('data', chunk => {
-          bufferChunks.push(chunk);
-          if (process.stdout.isTTY) {
-            process.stdout.clearLine(0);
-            process.stdout.cursorTo(0);
-          }
-        });
-    });
   }
 }
 

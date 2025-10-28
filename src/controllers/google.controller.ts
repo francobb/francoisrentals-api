@@ -69,15 +69,6 @@ class GoogleController {
     }
   };
 
-  public getFilesFromDrive = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await this.googleService.listDriveFiles();
-      res.status(200).json({ message: 'Fetched files from drive' });
-    } catch (err: any) {
-      logger.error('Failed to get files', err);
-      next(err);
-    }
-  };
 
   /* passport handlers */
   public googleOauth20Handler = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,14 +1,12 @@
 import { Routes } from '@interfaces/routes.interface';
 import { Router } from 'express';
 import TransactionsController from '@controllers/transactions.controller';
-import PayeePayerController from '@controllers/payeePayer.controller';
 import { apiKeyMiddleware } from '@middlewares/auth.middleware';
 
 class TransactionsRoute implements Routes {
   public path = '/transactions';
   public router = Router();
   public transactionsController = new TransactionsController();
-  public payeePayerController = new PayeePayerController();
 
   constructor() {
     this.initializeRoutes();
