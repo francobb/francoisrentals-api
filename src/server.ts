@@ -10,7 +10,6 @@ import TenantsRoute from '@routes/tenants.route';
 import TenantChargesRoute from '@routes/tenant-charges.route';
 import TransactionsRoute from '@routes/transactions.route';
 import TwilioRoute from '@routes/twilio.route';
-import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
 import { runScraperTask, runTenantChargeScraperTask } from '@/tasks/scraper.task';
@@ -27,8 +26,7 @@ const app = new App([
   new TenantsRoute(),
   new TenantChargesRoute(),
   new TransactionsRoute(),
-  new TwilioRoute(),
-  new UsersRoute(),
+  new TwilioRoute()
 ]);
 
 export const initializeScheduler = () => {

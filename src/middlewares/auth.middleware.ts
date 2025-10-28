@@ -1,36 +1,34 @@
 import crypto from 'crypto';
 import passport from 'passport';
-import { NextFunction, Response, Request } from 'express';
+import { NextFunction, Response,} from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
-import userModel from '@models/users.model';
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
+import { DataStoredInToken } from '@interfaces/auth.interface';
 import { HttpException } from '@exceptions/HttpException';
-import { IRequest } from '@utils/interfaces';
 import { logger } from '@utils/logger';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-  try {
-    const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-
-    if (Authorization) {
-      const secretKey: string = SECRET_KEY;
-      const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
-      const userId = verificationResponse._id;
-      const findUser = await userModel.findById(userId);
-      if (findUser) {
-        req.user = findUser;
-        next();
-      } else {
-        next(new HttpException(401, 'Wrong authentication token'));
-      }
-    } else {
-      next(new HttpException(404, 'Authentication token missing'));
-    }
-  } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
-  }
-};
+// const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+//   try {
+//     const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+//
+//     if (Authorization) {
+//       const secretKey: string = SECRET_KEY;
+//       const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
+//       const userId = verificationResponse._id;
+//       const findUser = await userModel.findById(userId);
+//       if (findUser) {
+//         req.user = findUser;
+//         next();
+//       } else {
+//         next(new HttpException(401, 'Wrong authentication token'));
+//       }
+//     } else {
+//       next(new HttpException(404, 'Authentication token missing'));
+//     }
+//   } catch (error) {
+//     next(new HttpException(401, 'Wrong authentication token ' + error));
+//   }
+// };
 
 export const checkRole = (roles: string | string[]) => async (req, res: Response, next: NextFunction) => {
   const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
@@ -38,7 +36,11 @@ export const checkRole = (roles: string | string[]) => async (req, res: Response
     const secretKey: string = SECRET_KEY;
     const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
     const role = verificationResponse.role;
-    !roles.includes(role) ? res.status(401).json('Sorry you do not have access to this route') : next();
+    if (!roles.includes(role)) {
+      res.status(401).json('Sorry you do not have access to this route');
+    } else {
+      next();
+    }
   } else {
     next(new HttpException(401, 'Authentication token missing'));
   }
@@ -70,14 +72,14 @@ export const checkClient = (req, res, next) => {
       next(new HttpException(401, 'Expected client token missing'));
     }
   } catch (e) {
-    next(new HttpException(401, 'Request did not come from the expected client'));
+    next(new HttpException(401, 'Request did not come from the expected client ' + e));
   }
 };
 
 /* passport handlers */
 export const localAuth = passport.authenticate('local', { session: false });
 export const requireJwtAuth = passport.authenticate('jwt', { session: false });
-export const authWithGoogle = passport.authenticate('google', {
+export const authWithGoogle = passport.authenticate('google',    {
   scope: [
     'profile',
     'email',
@@ -112,5 +114,3 @@ export const apiKeyMiddleware = (req, res, next) => {
   // If the keys match, allow the request to proceed.
   next();
 };
-
-export default authMiddleware;
