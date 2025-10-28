@@ -2,7 +2,6 @@ import { Router } from 'express';
 import GoogleController from '@controllers/google.controller';
 import { Routes } from '@interfaces/routes.interface';
 import { authWithGoogle, checkClient /*authWithGoogleCallback, checkRole, requireJwtAuth */ } from '@middlewares/auth.middleware';
-import { authenticate } from '@middlewares/firebase.auth.middleware';
 
 class GoogleRoute implements Routes {
   public path = '/';

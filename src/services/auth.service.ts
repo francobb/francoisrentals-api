@@ -118,7 +118,7 @@ class AuthService {
 
       logger.info(`Password reset email sent to ${email}`);
     } catch (error) {
-      throw new Error('Error sending password reset email');
+      throw new Error('Error sending password reset email ' + error);
     }
   }
 }
