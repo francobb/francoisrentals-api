@@ -27,7 +27,8 @@ class TenantChargesController {
     try {
       const { startDate, endDate } = req.query;
       if (!startDate || !endDate) {
-        return res.status(400).json({ message: 'startDate and endDate query parameters are required' });
+        res.status(400).json({ message: 'startDate and endDate query parameters are required' });
+        return;
       }
       const tenantCharges = await this.tenantChargeService.findAll(startDate as string, endDate as string);
       const transformedCharges = transformTenantCharges(tenantCharges);

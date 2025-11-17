@@ -30,7 +30,7 @@ export class Transaction {
   @ManyToOne(() => Property, property => property.transactions)
   property: Property;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   propertyId: string;
 
   @CreateDateColumn({ type: 'timestamp' })
