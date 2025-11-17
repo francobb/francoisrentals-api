@@ -22,13 +22,13 @@ export class TenantCharge {
   @ManyToOne(() => Property)
   property: Property;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   propertyId: string;
 
   @ManyToOne(() => Tenant)
   tenant: Tenant;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   tenantId: string;
 
   @CreateDateColumn({ type: 'timestamp' })

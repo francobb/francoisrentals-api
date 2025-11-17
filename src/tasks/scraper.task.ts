@@ -1,12 +1,13 @@
 import axios from 'axios';
 import 'reflect-metadata';
 import { AppDataSource } from '@databases';
-import { In, Like, Between } from 'typeorm';
+import { In, LessThanOrEqual, Between, Not, IsNull } from 'typeorm';
 import { Transaction } from '@models/transactions.pg_model';
 import { Property } from '@models/property.pg_model';
 import { Tenant } from '@models/tenant.pg_model';
 import { Unit } from '@models/unit.pg_model';
 import { Occupancy } from '@models/occupancy.pg_model';
+import { OccupancySnapshot } from '@models/occupancy-snapshot.pg_model';
 import { TenantCharge } from '@models/tenant-charge.pg_model';
 import { logger } from '@utils/logger';
 import { EMAIL_ADDRESS, EMAIL_PASSWORD, AUTHENTICITY_TOKEN, COOKIES } from '@config';
@@ -93,9 +94,10 @@ interface TenantChargeScraperTaskOptions {
   endDate?: string;
 }
 
-export async function authenticateAndGetCookie(): Promise<string> {
+export async function authenticateAndGetCookie(): Promise<string | null> {
   if (!authenticityToken || !cookies) {
-    throw new Error('Missing AUTHENTICITY_TOKEN or COOKIES in .env file');
+    logger.error('Missing AUTHENTICITY_TOKEN or COOKIES in .env file');
+    return null;
   }
   try {
     const loginPayload = `authenticity_token=${encodeURIComponent(
@@ -116,18 +118,20 @@ export async function authenticateAndGetCookie(): Promise<string> {
         'Upgrade-Insecure-Requests': '1',
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
       },
       maxRedirects: 0,
       validateStatus: status => status === 302,
     });
     const cookie = response.headers['set-cookie']?.join('; ');
-    if (!cookie) throw new Error('Authentication failed, no cookie received');
+    if (!cookie) {
+      logger.error('Authentication failed, no cookie received');
+      return null;
+    }
     return cookie;
   } catch (error) {
     console.error('Error during authentication:', error);
-    throw error;
+    return null;
   }
 }
 
@@ -219,9 +223,10 @@ async function insertTransactions(transactions: ApiTransaction[]): Promise<void>
   }
 }
 
-async function insertTenantCharges(charges: ApiTenantCharge[], startDate: string, endDate: string): Promise<void> {
+async function insertTenantCharges(charges: ApiTenantCharge[]): Promise<void> {
   const tenantChargeRepository = AppDataSource.getRepository(TenantCharge);
   const occupancyRepository = AppDataSource.getRepository(Occupancy);
+  const occupancySnapshotRepository = AppDataSource.getRepository(OccupancySnapshot);
   const transactionRepository = AppDataSource.getRepository(Transaction);
   const propertyRepository = AppDataSource.getRepository(Property);
 
@@ -251,48 +256,70 @@ async function insertTenantCharges(charges: ApiTenantCharge[], startDate: string
         matchedOccupancy = occupanciesMatchingRent[0];
         logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via unique rent amount.`);
       } else if (occupanciesMatchingRent.length > 1) {
-        logger.warn(
-          `[Scraper Task] [AMBIGUOUS] Found ${occupanciesMatchingRent.length} units with matching rent for charge ${chargeData.id}. Proceeding to transaction heuristic.`,
-        );
+        // --- NEW: Historical Charge Match ---
+        const recentMatchingCharge = await tenantChargeRepository.findOne({
+          where: {
+            propertyId: property.id,
+            amount: chargeData.amount,
+            tenantId: Not(IsNull()),
+          },
+          order: {
+            occurredOn: 'DESC',
+          },
+        });
 
-        const chargeDate = safeCreateDate(chargeData.occurredOn);
-        if (chargeDate) {
-          const searchStartDate = new Date(startDate);
-          const searchEndDate = new Date(endDate);
+        if (recentMatchingCharge && recentMatchingCharge.tenantId) {
+          const historicMatch = occupanciesMatchingRent.find(occ => occ.tenant?.id === recentMatchingCharge.tenantId);
+          if (historicMatch) {
+            matchedOccupancy = historicMatch;
+            logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via historical charge analysis.`);
+          }
+        } else {
+          // --- Fallback to Transaction Heuristic ---
+          logger.warn(
+            `[Scraper Task] [AMBIGUOUS] Found ${occupanciesMatchingRent.length} units with matching rent for charge ${chargeData.id}. Proceeding to transaction heuristic.`,
+          );
 
-          const tenantsToSearch = occupanciesMatchingRent.map(o => o.tenant).filter(Boolean);
-          const tenantNamesToSearch = tenantsToSearch.map(t => t.name);
+          const chargeDate = safeCreateDate(chargeData.occurredOn);
+          if (chargeDate) {
+            const searchEndDate = new Date(chargeDate);
+            const searchStartDate = new Date(chargeDate);
+            searchStartDate.setDate(searchStartDate.getDate() - 45); // 45-day lookback window
 
-          if (tenantNamesToSearch.length > 0) {
-            const relevantTransactions = await transactionRepository.find({
-              where: {
-                property: { id: property.id },
-                type: 'cashIn',
-                partyName: In(tenantNamesToSearch),
-                postedOn: Between(searchStartDate, searchEndDate),
-              },
-            });
+            const tenantsToSearch = occupanciesMatchingRent.map(o => o.tenant).filter(Boolean);
+            const tenantNamesToSearch = tenantsToSearch.map(t => t.name);
 
-            const paymentsByTenant: { [tenantName: string]: number } = {};
-            for (const name of tenantNamesToSearch) {
-              paymentsByTenant[name] = 0;
-            }
-            for (const trans of relevantTransactions) {
-              paymentsByTenant[trans.partyName] = (paymentsByTenant[trans.partyName] || 0) + Number(trans.amount);
-            }
+            if (tenantNamesToSearch.length > 0) {
+              const relevantTransactions = await transactionRepository.find({
+                where: {
+                  property: { id: property.id },
+                  type: 'cashIn',
+                  partyName: In(tenantNamesToSearch),
+                  postedOn: Between(searchStartDate, searchEndDate),
+                },
+              });
 
-            const amountPaid = chargeData.amount - chargeData.balance;
-            const potentialPayers = Object.entries(paymentsByTenant).filter(([, totalAmount]) => Math.abs(totalAmount - amountPaid) < 0.01);
-
-            if (potentialPayers.length === 1) {
-              const [payerName] = potentialPayers[0];
-              const finalOccupancy = occupanciesMatchingRent.find(occ => occ.tenant?.name === payerName);
-              if (finalOccupancy) {
-                matchedOccupancy = finalOccupancy;
-                logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${payerName}' via transaction analysis.`);
+              const paymentsByTenant: { [tenantName: string]: number } = {};
+              for (const name of tenantNamesToSearch) {
+                paymentsByTenant[name] = 0;
               }
-            } else if (potentialPayers.length > 1) {
-              logger.warn(`[Scraper Task] [AMBIGUOUS] Found multiple tenants whose payments match the paid amount for charge ${chargeData.id}.`);
+              for (const trans of relevantTransactions) {
+                paymentsByTenant[trans.partyName] = (paymentsByTenant[trans.partyName] || 0) + Number(trans.amount);
+              }
+
+              const amountPaid = chargeData.amount - chargeData.balance;
+              const potentialPayers = Object.entries(paymentsByTenant).filter(([, totalAmount]) => Math.abs(totalAmount - amountPaid) < 0.01);
+
+              if (potentialPayers.length === 1) {
+                const [payerName] = potentialPayers[0];
+                const finalOccupancy = occupanciesMatchingRent.find(occ => occ.tenant?.name === payerName);
+                if (finalOccupancy) {
+                  matchedOccupancy = finalOccupancy;
+                  logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${payerName}' via transaction analysis.`);
+                }
+              } else if (potentialPayers.length > 1) {
+                logger.warn(`[Scraper Task] [AMBIGUOUS] Found multiple tenants whose payments match the paid amount for charge ${chargeData.id}.`);
+              }
             }
           }
         }
@@ -303,7 +330,26 @@ async function insertTenantCharges(charges: ApiTenantCharge[], startDate: string
         logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via single-unit property fallback.`);
       }
 
-      const tenantId = matchedOccupancy?.tenant?.id || null;
+      let tenantId = matchedOccupancy?.tenant?.id || null;
+
+      if (!tenantId) {
+        const chargeDate = safeCreateDate(chargeData.occurredOn);
+        if (chargeDate) {
+          const snapshot = await occupancySnapshotRepository.findOne({
+            where: {
+              snapshotDate: LessThanOrEqual(chargeDate),
+            },
+            order: {
+              snapshotDate: 'DESC',
+            },
+          });
+
+          if (snapshot) {
+            tenantId = snapshot.tenantId;
+            logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant via snapshot fallback.`);
+          }
+        }
+      }
 
       if (!tenantId) {
         logger.warn(
@@ -333,6 +379,7 @@ async function insertOrUpdateProperties(properties: ApiProperty[]): Promise<void
   const unitRepository = AppDataSource.getRepository(Unit);
   const occupancyRepository = AppDataSource.getRepository(Occupancy);
   const tenantRepository = AppDataSource.getRepository(Tenant);
+  const occupancySnapshotRepository = AppDataSource.getRepository(OccupancySnapshot);
 
   for (const propData of properties) {
     try {
@@ -367,7 +414,7 @@ async function insertOrUpdateProperties(properties: ApiProperty[]): Promise<void
 
         let unit = await unitRepository.findOne({
           where: { externalId: unitData.id },
-          relations: ['currentOccupancy'],
+          relations: ['currentOccupancy', 'currentOccupancy.tenant'],
         });
 
         if (!unit) {
@@ -431,6 +478,23 @@ async function insertOrUpdateProperties(properties: ApiProperty[]): Promise<void
               tenant: tenant,
             });
           } else {
+            const rentChanged = Number(occupancy.rent) !== occupancyData.attributes.total_rent_and_subsidy;
+            const existingLeaseEndDate = occupancy.leaseEnd ? new Date(occupancy.leaseEnd) : null;
+            const leaseEndChanged = existingLeaseEndDate?.getTime() !== leaseEndDate?.getTime();
+
+            if (rentChanged || leaseEndChanged) {
+              const snapshot = occupancySnapshotRepository.create({
+                occupancyId: occupancy.externalId,
+                snapshotDate: new Date(),
+                unitId: unit.id,
+                tenantId: occupancy.tenant?.id,
+                moveIn: occupancy.moveIn,
+                rent: occupancy.rent,
+                leaseEnd: occupancy.leaseEnd,
+              });
+              await occupancySnapshotRepository.save(snapshot);
+            }
+
             occupancy.moveIn = safeCreateDate(occupancyData.attributes.move_in);
             occupancy.rent = occupancyData.attributes.total_rent_and_subsidy;
             occupancy.leaseEnd = leaseEndDate;
@@ -496,7 +560,8 @@ export const runScraperTask = async (options: ScraperTaskOptions = {}): Promise<
   const jobType = historic || year ? 'Historic' : 'Standard';
   const today = new Date();
   let startDate: Date;
-  let endDate: Date = today;
+  let endDate: Date;
+
   let logMessage: string;
 
   if (year) {
@@ -527,6 +592,10 @@ export const runScraperTask = async (options: ScraperTaskOptions = {}): Promise<
   try {
     logger.info('[Scraper Task] Authenticating with Appfolio...');
     const sessionCookie = await authenticateAndGetCookie();
+    if (!sessionCookie) {
+      logger.error(`[Scraper Task] Authentication failed. Aborting ${jobType} scraping process.`);
+      return;
+    }
     logger.info('[Scraper Task] Authentication successful.');
     await fetchAndProcessDateRange(sessionCookie, formattedStartDate, formattedEndDate);
     logger.info(`[Scraper Task] ${jobType} scraping process completed successfully!`);
@@ -541,6 +610,10 @@ export const runPropertyScraperTask = async (): Promise<void> => {
   try {
     logger.info('[Property Scraper Task] Authenticating with Appfolio...');
     const sessionCookie = await authenticateAndGetCookie();
+    if (!sessionCookie) {
+      logger.error('[Property Scraper Task] Authentication failed. Aborting property scraping process.');
+      return;
+    }
     logger.info('[Property Scraper Task] Authentication successful.');
     logger.info('[Property Scraper Task] Fetching owner properties...');
     const properties = await fetchOwnerProperties(sessionCookie);
@@ -563,18 +636,27 @@ export const runTenantChargeScraperTask = async (options: TenantChargeScraperTas
   try {
     logger.info('[Tenant Charge Scraper Task] Authenticating with Appfolio...');
     const sessionCookie = await authenticateAndGetCookie();
+    if (!sessionCookie) {
+      logger.error('[Tenant Charge Scraper Task] Authentication failed. Aborting tenant charge scraping process.');
+      return;
+    }
     logger.info('[Scraper Task] Authentication successful.');
     const recordsPerPage = 25;
     let offset = 0;
     let hasMorePages = true;
     while (hasMorePages) {
-      const tenantChargesPage = await fetchTenantChargesPage(sessionCookie, startDate, endDate, recordsPerPage, offset);
-      if (tenantChargesPage.length > 0) {
-        logger.info(`[Tenant Charge Scraper Task] Fetched ${tenantChargesPage.length} records (offset: ${offset}). Inserting into DB...`);
-        await insertTenantCharges(tenantChargesPage, startDate, endDate);
-        offset += tenantChargesPage.length;
-      }
-      if (tenantChargesPage.length < recordsPerPage) {
+      try {
+        const tenantChargesPage = await fetchTenantChargesPage(sessionCookie, startDate, endDate, recordsPerPage, offset);
+        if (tenantChargesPage.length > 0) {
+          logger.info(`[Tenant Charge Scraper Task] Fetched ${tenantChargesPage.length} records (offset: ${offset}). Inserting into DB...`);
+          await insertTenantCharges(tenantChargesPage);
+          offset += tenantChargesPage.length;
+        }
+        if (tenantChargesPage.length < recordsPerPage) {
+          hasMorePages = false;
+        }
+      } catch (error: any) {
+        logger.error(`[Tenant Charge Scraper Task] Error fetching page at offset ${offset}. Stopping pagination:`, error.message);
         hasMorePages = false;
       }
       await new Promise(resolve => setTimeout(resolve, 2000));

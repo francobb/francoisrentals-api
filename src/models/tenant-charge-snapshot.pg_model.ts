@@ -22,12 +22,12 @@ export class TenantChargeSnapshot {
   @ManyToOne(() => Property)
   property: Property;
 
-  @Column()
+  @Column({ type: 'uuid' })
   propertyId: string;
 
   @ManyToOne(() => Tenant)
   tenant: Tenant;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   tenantId: string;
 }

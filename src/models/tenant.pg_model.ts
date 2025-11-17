@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Transaction } from './transactions.pg_model';
 import { Property } from './property.pg_model';
-import { Occupancy } from './occupancy.pg_model';
+import { Occupancy } from '@models/occupancy.pg_model';
 
 @Entity('tenants')
 export class Tenant {
@@ -17,7 +17,7 @@ export class Tenant {
   @ManyToOne(() => Property, property => property.tenants)
   property: Property;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   propertyId: string;
 
   @OneToMany(() => Transaction, transaction => transaction.partyName)
