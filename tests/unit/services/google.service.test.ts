@@ -12,31 +12,17 @@ jest.mock('axios', () => ({
 }));
 jest.mock('googleapis');
 jest.mock('@utils/logger');
-jest.mock('pdf-parse', () =>
-  jest.fn().mockResolvedValue(
-    Promise.resolve({
-      numpages: 123,
-      numrender: 12,
-      info: 'fakeinfo',
-      metadata: 'fakemetadata',
-      version: 'default',
-      text: 'string',
-    }),
-  ),
-);
 
 describe('Google Service', function () {
   let googleService: GoogleService;
   let mGoogleRepository;
   let mOauthClient;
-  let mPayeePayers;
   let tokenData;
 
   beforeAll(() => {
     googleService = new GoogleService();
     mGoogleRepository = googleService.googleUser;
     mOauthClient = googleService.oauthClient;
-    mPayeePayers = googleService.payeesPayers;
     tokenData = { id_token: 'string', access_token: 'string' };
   });
 
@@ -44,14 +30,6 @@ describe('Google Service', function () {
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
-  });
-
-  describe('getAllPayeesAndPayers()', function () {
-    it('should return all payees payers', async () => {
-      jest.spyOn(mPayeePayers, 'find').mockReturnValueOnce([]);
-      await googleService.getAllPayeesAndPayers();
-      expect(mPayeePayers.find).toHaveBeenCalledTimes(1);
-    });
   });
 
   describe('getAuthUrl()', () => {

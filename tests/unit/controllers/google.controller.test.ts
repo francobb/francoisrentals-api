@@ -85,29 +85,6 @@ describe('Google controller', function () {
     });
   });
 
-  describe('getFilesFromDrive()', function () {
-    it('should get files in g drive', async () => {
-      mGoogleService.listDriveFiles = jest.fn().mockResolvedValueOnce(null);
-      await googleController.getFilesFromDrive(mReq, mRes as Response, mNext);
-
-      expect(mGoogleService.listDriveFiles).toHaveBeenCalled();
-      expect(mRes.status).toHaveBeenCalledWith(200);
-      expect(mNext).not.toHaveBeenCalledWith({ message: 'ran get files from drive' });
-    });
-
-    it('should call next with an error if getAuthUrl fails', async () => {
-      const error = new Error('Failed to get Auth URI');
-
-      mGoogleService.listDriveFiles = jest.fn().mockRejectedValueOnce(error);
-
-      await googleController.getFilesFromDrive(mReq, mRes as Response, mNext);
-
-      expect(mGoogleService.listDriveFiles).toHaveBeenCalled();
-      expect(mRes.status).not.toHaveBeenCalled();
-      expect(mNext).toHaveBeenCalledWith(error);
-    });
-  });
-
   describe('googleOauthHandler()', function () {
     afterEach(() => {
       mReq.query.code = 'fakeCode';

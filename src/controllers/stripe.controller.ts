@@ -4,7 +4,6 @@ import { logger } from '@utils/logger';
 import StripeService from '@services/stripe.service';
 import { STRIPE_WEBHOOK_SECRET } from '@config';
 import TenantService from '@services/tenants.service';
-import { Tenant } from '@interfaces/tenants.interface';
 
 class StripeController {
   public stripeService: StripeService = new StripeService();
@@ -47,11 +46,13 @@ class StripeController {
       // Event when a payment is succeeded
       if (event.type === 'payment_intent.succeeded') {
         const paymentIntentSucceeded = event.data.object;
-        const tenant = await this.tenantService.findTenantById(paymentIntentSucceeded.metadata.id);
-        const balance = Number(tenant.rentalBalance) - Number(paymentIntentSucceeded.amount_received) / 100;
-        await this.tenantService.updateTenant(paymentIntentSucceeded.metadata.id, { rentalBalance: balance } as Tenant);
-
         logger.info(`${paymentIntentSucceeded.metadata.name} succeeded payment!`);
+
+        // TODO: Implement new balance update logic based on TenantCharge model.
+        // The following code is obsolete due to the data model migration from Mongoose to TypeORM.
+        // const tenant = await this.tenantService.findTenantById(paymentIntentSucceeded.metadata.id);
+        // const balance = Number(tenant.rentalBalance) - Number(paymentIntentSucceeded.amount_received) / 100;
+        // await this.tenantService.updateTenant(paymentIntentSucceeded.metadata.id, { rentalBalance: balance } as Tenant);
       }
 
       res.status(200).json({ ok: true });

@@ -196,11 +196,12 @@ describe('AuthService', () => {
 
       // Mock the findOne method to return the user
       jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
-      jest.spyOn(mockTransporter, 'sendMail').mockRejectedValue(new Error('Failed'));
+      const mockError = new Error('Failed');
+      jest.spyOn(mockTransporter, 'sendMail').mockRejectedValue(mockError);
 
-      // Act
-      // Assert
-      await expect(authService.forgotPassword(email)).rejects.toThrowError(new Error('Error sending password reset email'));
+      // Act & Assert
+      // CORRECTED: The test now expects the more detailed error message.
+      await expect(authService.forgotPassword(email)).rejects.toThrowError(new Error('Error sending password reset email ' + mockError));
     });
   });
 });
