@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto, loginUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
+// CORRECTED: Import the TypeORM User model
+import { User } from '@models/user.pg_model';
 import AuthService from '@services/auth.service';
 
 class AuthController {
@@ -20,6 +21,7 @@ class AuthController {
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
+      // The type here now correctly refers to the TypeORM model
       const signUpUserData: User = await this.authService.signup(userData);
 
       res.status(201).json({ data: signUpUserData, message: 'signup' });
