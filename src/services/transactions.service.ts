@@ -2,7 +2,7 @@ import { FindAllTransactionsDto } from '@dtos/findAllTransactions';
 import { Transaction } from '@models/transactions.pg_model';
 import { AppDataSource } from '@databases';
 import { TenantCharge } from '@models/tenant-charge.pg_model';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Tenant } from '@/models/tenant.pg_model';
 import { FindAllTenantChargesDto } from '@/dtos/findAllTenantCharges.dto';
 import { Property } from '@/models/property.pg_model';

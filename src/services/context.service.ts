@@ -1,5 +1,5 @@
 import { AppDataSource } from '@databases';
-import { In, Between } from 'typeorm';
+import { Between } from 'typeorm';
 import { Property } from '@models/property.pg_model';
 import { Tenant } from '@models/tenant.pg_model';
 import { Transaction } from '@models/transactions.pg_model';
@@ -84,8 +84,18 @@ class ContextBuilderService {
 
   private analyzeTransactionLateness(transactions: Transaction[]): EnrichedTransaction[] {
     const monthMap: { [key: string]: number } = {
-      january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-      july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+      january: 1,
+      february: 2,
+      march: 3,
+      april: 4,
+      may: 5,
+      june: 6,
+      july: 7,
+      august: 8,
+      september: 9,
+      october: 10,
+      november: 11,
+      december: 12,
     };
 
     return transactions.map(t => {

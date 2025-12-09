@@ -15,12 +15,7 @@ class StripeRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}/transactions`, checkRole(['ADMIN', 'TENANT']), this.stripeController.getTransactions);
     this.router.post(`${this.path}`, checkClient, checkRole(['ADMIN', 'TENANT']), this.stripeController.receiveRentPayment);
-    this.router.post(
-      `${this.path}/request`,
-      checkClient,
-      checkRole(['ADMIN', 'TENANT']),
-      this.stripeController.receivePaymentRequest,
-    );
+    this.router.post(`${this.path}/request`, checkClient, checkRole(['ADMIN', 'TENANT']), this.stripeController.receivePaymentRequest);
     this.router.post(`${this.path}/webhook`, this.stripeController.processStripeWebhook);
   }
 }

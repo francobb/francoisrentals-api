@@ -69,7 +69,6 @@ class GoogleController {
     }
   };
 
-
   /* passport handlers */
   public googleOauth20Handler = async (req: Request, res: Response, next: NextFunction) => {
     console.log({ req: req.query });
