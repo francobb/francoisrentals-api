@@ -1,4 +1,3 @@
-// src/utils/loadProperties.ts
 import 'reflect-metadata';
 import fs from 'fs/promises';
 import path from 'path';
@@ -49,8 +48,8 @@ async function seedProperties() {
       }
 
       // Map data from JSON to the entity
-      property.displayName = propData.attributes.raw_display_name;
-      property.fullAddress = propData.relationships.address.attributes.full;
+      property.name = propData.attributes.raw_display_name;
+      property.address = propData.relationships.address.attributes.full;
       property.managementFee = propData.relationships.monthly_costs.management_fee ?? null;
       property.mortgage = propData.relationships.monthly_costs.mortgage ?? null;
       property.sewer = propData.relationships.monthly_costs.sewer ?? null;

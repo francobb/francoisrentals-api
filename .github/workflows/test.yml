@@ -49,6 +49,7 @@ jobs:
           TWILIO_ACCOUNT_SID: 'ACfakeAccountSID'
           TWILIO_AUTH_TOKEN: 'fakeAuthToken'
           PRIVATE_KEY: 'fakePrivateKey'
+          STRIPE_ACCESS_KEY: 'fakeStripeKey'
 
 #  intTest:
 #    env:

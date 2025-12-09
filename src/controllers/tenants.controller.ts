@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import TenantService from '@services/tenants.service';
-import type { PropertyType, Tenant } from '@interfaces/tenants.interface';
+// CORRECTED: Import the TypeORM model instead of the obsolete interface
+import { Tenant } from '@models/tenant.pg_model';
+import { PropertyType } from '@interfaces/tenants.interface';
 
 class TenantsController {
   constructor() {
@@ -12,6 +14,7 @@ class TenantsController {
   // todo: rename to getAllTenants
   public getTenants = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      // The type here now correctly refers to the TypeORM model
       const tenants: Tenant[] = await this.tenantService.findAllActiveTenants();
       res.status(200).json({ tenants, message: 'get All Tenants' });
     } catch (error) {

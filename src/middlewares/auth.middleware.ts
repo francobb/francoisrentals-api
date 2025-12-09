@@ -1,116 +1,75 @@
-import crypto from 'crypto';
-import passport from 'passport';
-import { NextFunction, Response,} from 'express';
-import { verify } from 'jsonwebtoken';
-import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
-import { DataStoredInToken } from '@interfaces/auth.interface';
+import { NextFunction, Request, Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
 import { HttpException } from '@exceptions/HttpException';
+import { APP_ID, ADMIN_EMAIL } from '@config';
 import { logger } from '@utils/logger';
 
-// const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-//   try {
-//     const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-//
-//     if (Authorization) {
-//       const secretKey: string = SECRET_KEY;
-//       const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
-//       const userId = verificationResponse._id;
-//       const findUser = await userModel.findById(userId);
-//       if (findUser) {
-//         req.user = findUser;
-//         next();
-//       } else {
-//         next(new HttpException(401, 'Wrong authentication token'));
-//       }
-//     } else {
-//       next(new HttpException(404, 'Authentication token missing'));
-//     }
-//   } catch (error) {
-//     next(new HttpException(401, 'Wrong authentication token ' + error));
-//   }
-// };
+const googleClient = new OAuth2Client(APP_ID);
 
-export const checkRole = (roles: string | string[]) => async (req, res: Response, next: NextFunction) => {
-  const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-  if (Authorization) {
-    const secretKey: string = SECRET_KEY;
-    const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
-    const role = verificationResponse.role;
-    if (!roles.includes(role)) {
-      res.status(401).json('Sorry you do not have access to this route');
-    } else {
-      next();
-    }
-  } else {
-    next(new HttpException(401, 'Authentication token missing'));
-  }
-};
-
-export const checkClient = (req, res, next) => {
+/**
+ * A stateless authentication middleware that verifies a Google ID token and
+ * ensures the user is the designated admin.
+ */
+export const statelessAuth = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
   try {
-    const allowedTimeDifference = 300000;
-    const FR_TOKEN = req.header('FR-TOKEN');
-    const clientTimestamp = req.header('FR-Timestamp');
-
-    if (FR_TOKEN) {
-      const timestamp = new Date().getTime();
-      const clientTimestampUTC = new Date(clientTimestamp).getTime();
-      const dataToHash = `${SECRET_CLIENT_KEY}-${clientTimestamp}`;
-
-      if (Math.abs(timestamp - clientTimestampUTC) > allowedTimeDifference) {
-        return res.status(401).json({ message: 'Invalid timestamp' });
-      }
-
-      const serverToken = crypto.createHash('sha256').update(dataToHash).digest('hex');
-
-      if (serverToken === FR_TOKEN) {
-        next();
-      } else {
-        next(new HttpException(401, 'Supplied token is not valid'));
-      }
-    } else {
-      next(new HttpException(401, 'Expected client token missing'));
+    const authHeader = req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new HttpException(401, 'Authentication token missing or malformed');
     }
-  } catch (e) {
-    next(new HttpException(401, 'Request did not come from the expected client ' + e));
+
+    const idToken = authHeader.split('Bearer ')[1];
+    if (!idToken) {
+      throw new HttpException(401, 'Authentication token missing');
+    }
+
+    // Verify the token with Google's servers
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: APP_ID,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.email_verified) {
+      throw new HttpException(401, 'Invalid token or email not verified');
+    }
+
+    // DEFINITIVE FIX: Check if the verified email matches the designated admin email.
+    if (payload.email !== ADMIN_EMAIL) {
+      logger.warn(`[AuthMiddleware] Forbidden: Request from non-admin user ${payload.email}`);
+      throw new HttpException(403, 'Forbidden: You do not have access to this resource.');
+    }
+
+    // The user is the admin. Create a user object on the fly for logging and potential future use.
+    req.user = {
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      role: 'ADMIN', // The role is now guaranteed to be ADMIN.
+    };
+
+    // No database call is needed. The user is authenticated.
+    next();
+  } catch (error) {
+    if (error instanceof HttpException) {
+      next(error);
+    } else {
+      logger.error('[AuthMiddleware] Error verifying token:', error);
+      next(new HttpException(401, 'Wrong or expired authentication token'));
+    }
   }
 };
 
-/* passport handlers */
-export const localAuth = passport.authenticate('local', { session: false });
-export const requireJwtAuth = passport.authenticate('jwt', { session: false });
-export const authWithGoogle = passport.authenticate('google',    {
-  scope: [
-    'profile',
-    'email',
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.appdata',
-    'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.readonly',
-  ],
-});
-export const authWithGoogleCallback = passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/', session: false });
-
-export const apiKeyMiddleware = (req, res, next) => {
-  // If no API key is configured on the server, we can assume the check is not needed.
-  // This allows you to run your server locally without ngrok and without needing the key.
-  if (!SECRET_CLIENT_KEY) {
-    return next();
+/**
+ * A placeholder for role-checking. With the new model, this is less critical
+ * as the `statelessAuth` middleware already confirms the user is an ADMIN.
+ */
+export const checkRole = (roles: string[]) => (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  if (!req.user || !roles.includes(req.user.role)) {
+    return next(new HttpException(403, 'Forbidden: You do not have access to this resource.'));
   }
-
-  // Get the API key from the request header. 'x-api-key' is a common standard.
-  const providedApiKey = req.header('fr-token');
-
-  if (!providedApiKey) {
-    logger.warn(`[API Key Auth] Denied: API Key missing from request to ${req.path}`);
-    return res.status(401).json({ message: 'Unauthorized: An API Key is required.' });
-  }
-
-  if (providedApiKey !== SECRET_CLIENT_KEY) {
-    logger.warn(`[API Key Auth] Denied: Invalid API Key provided for request to ${req.path}`);
-    return res.status(403).json({ message: 'Forbidden: The provided API Key is invalid.' });
-  }
-
-  // If the keys match, allow the request to proceed.
   next();
 };
+
+// The apiKeyMiddleware and other passport-related exports can remain for now
+// as they might be used for other purposes (e.g., server-to-server communication).
+export { localAuth, requireJwtAuth, apiKeyMiddleware } from './passport-stubs';

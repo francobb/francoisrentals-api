@@ -1,5 +1,5 @@
 import { AppDataSource } from '@databases';
-import { In, Between } from 'typeorm';
+import { Between, MoreThan } from 'typeorm';
 import { Property } from '@models/property.pg_model';
 import { Tenant } from '@models/tenant.pg_model';
 import { Transaction } from '@models/transactions.pg_model';
@@ -41,15 +41,24 @@ class ContextBuilderService {
     const mentionedTenantNames = this.findTenantsInQuestion(lowerCaseQuestion, allTenants);
     const mentionedYear = this.findYearInQuestion(lowerCaseQuestion);
 
-    if (mentionedTenantNames.length > 0) {
-      const tenantName = mentionedTenantNames[0];
-      logger.info(`[ContextBuilder] Found mentioned tenant: ${tenantName}`);
-      if (mentionedYear) {
-        logger.info(`[ContextBuilder] Found mentioned year: ${mentionedYear}`);
+    // DEFINITIVE FIX: Handle open-ended lateness questions.
+    if (mentionedTenantNames.length > 0 || isLatenessQuestion) {
+      const whereConditions: any = {};
+
+      if (mentionedTenantNames.length > 0) {
+        const tenantName = mentionedTenantNames[0];
+        logger.info(`[ContextBuilder] Found mentioned tenant: ${tenantName}`);
+        whereConditions.partyName = tenantName;
+      } else {
+        // If no specific tenant, fetch recent transactions for a portfolio-wide view.
+        logger.info('[ContextBuilder] No specific tenant found, but lateness question detected. Fetching recent transactions.');
+        const fortyFiveDaysAgo = new Date();
+        fortyFiveDaysAgo.setDate(fortyFiveDaysAgo.getDate() - 45);
+        whereConditions.postedOn = MoreThan(fortyFiveDaysAgo);
       }
 
-      const whereConditions: any = { partyName: tenantName };
       if (mentionedYear) {
+        logger.info(`[ContextBuilder] Found mentioned year: ${mentionedYear}`);
         whereConditions.postedOn = Between(new Date(mentionedYear, 0, 1), new Date(mentionedYear, 11, 31, 23, 59, 59));
       }
 
@@ -60,18 +69,18 @@ class ContextBuilderService {
 
       let hint = '';
       if (isLatenessQuestion && transactions.length > 0) {
-        logger.info('[ContextBuilder] Lateness question detected. Analyzing transactions...');
+        logger.info('[ContextBuilder] Analyzing transactions for lateness...');
         transactions = this.analyzeTransactionLateness(transactions);
-        hint = `**Hint for your current question: I have pre-analyzed the tenant's transactions and added an 'isLate' flag. To answer the question, count the number of transactions where 'isLate' is true.**`;
+        hint = `**Hint for your current question: I have pre-analyzed all relevant transactions and added an 'isLate' flag. To answer, find transactions where 'isLate' is true and list the 'partyName'.**`;
       }
 
       const dataDump = `
-        **Relevant Transactions for ${tenantName}${mentionedYear ? ` in ${mentionedYear}` : ''}:**
+        **Relevant Transactions:**
         ${JSON.stringify(transactions, null, 2)}
       `;
       return { dataDump, hint };
     } else {
-      logger.warn('[ContextBuilder] No specific entities found in question. Falling back to general data.');
+      logger.warn('[ContextBuilder] No specific entities or keywords found. Falling back to general data.');
       const properties = await this.propertyRepository.find({ take: 5 });
       const dataDump = `
         **General Data (No specific entities found in question):**
@@ -84,8 +93,18 @@ class ContextBuilderService {
 
   private analyzeTransactionLateness(transactions: Transaction[]): EnrichedTransaction[] {
     const monthMap: { [key: string]: number } = {
-      january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-      july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+      january: 1,
+      february: 2,
+      march: 3,
+      april: 4,
+      may: 5,
+      june: 6,
+      july: 7,
+      august: 8,
+      september: 9,
+      october: 10,
+      november: 11,
+      december: 12,
     };
 
     return transactions.map(t => {
@@ -100,7 +119,8 @@ class ContextBuilderService {
       for (const monthName in monthMap) {
         if (description.includes(monthName)) {
           const rentMonth = monthMap[monthName];
-          if (postedMonth > rentMonth || (postedMonth === rentMonth && postedDay > 1)) {
+          if (postedMonth > rentMonth || (postedMonth === rentMonth && postedDay > 5)) {
+            // Updated to 5 days late
             enrichedTransaction.isLate = true;
             break;
           }
