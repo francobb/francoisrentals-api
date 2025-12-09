@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'reflect-metadata';
 import { AppDataSource } from '@databases';
-import { In, LessThanOrEqual, Between, Not, IsNull } from 'typeorm';
+import { In, Between, Not, IsNull } from 'typeorm';
 import { Transaction } from '@models/transactions.pg_model';
 import { Property } from '@models/property.pg_model';
 import { Tenant } from '@models/tenant.pg_model';
@@ -223,12 +223,54 @@ async function insertTransactions(transactions: ApiTransaction[]): Promise<void>
   }
 }
 
+const getMonthName = (date: Date): string => {
+  return date.toLocaleString('default', { month: 'long' });
+};
+
+const scoreTransaction = (transaction: Transaction, chargeMonth: string): number => {
+  const description = transaction.description.toLowerCase();
+  const monthNames = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december',
+  ];
+  const chargeMonthLower = chargeMonth.toLowerCase();
+
+  let monthInDescription: string | null = null;
+  for (const month of monthNames) {
+    if (description.includes(month)) {
+      monthInDescription = month;
+      break;
+    }
+  }
+
+  if (monthInDescription) {
+    if (monthInDescription === chargeMonthLower) {
+      return 3; // Perfect match
+    } else {
+      return 1; // Mismatch
+    }
+  } else {
+    return 2; // Generic match
+  }
+};
+
 async function insertTenantCharges(charges: ApiTenantCharge[]): Promise<void> {
   const tenantChargeRepository = AppDataSource.getRepository(TenantCharge);
   const occupancyRepository = AppDataSource.getRepository(Occupancy);
-  const occupancySnapshotRepository = AppDataSource.getRepository(OccupancySnapshot);
   const transactionRepository = AppDataSource.getRepository(Transaction);
   const propertyRepository = AppDataSource.getRepository(Property);
+
+  const assignedTenantIdsInBatch = new Set<string>();
 
   for (const chargeData of charges) {
     try {
@@ -246,108 +288,105 @@ async function insertTenantCharges(charges: ApiTenantCharge[]): Promise<void> {
       let matchedOccupancy: Occupancy | null = null;
 
       const candidateOccupancies = await occupancyRepository.find({
-        where: { unit: { property: { id: property.id } } },
+        where: { unit: { property: { id: property.id } }, tenant: { id: Not(IsNull()) } },
         relations: ['tenant', 'unit'],
       });
 
-      const occupanciesMatchingRent = candidateOccupancies.filter(occ => occ.rent && Math.abs(Number(occ.rent) - Number(chargeData.amount)) < 0.01);
+      const occupanciesMatchingRent = candidateOccupancies.filter(
+        occ => occ.rent && Math.abs(Number(occ.rent) - Number(chargeData.amount)) < 0.01,
+      );
 
       if (occupanciesMatchingRent.length === 1) {
-        matchedOccupancy = occupanciesMatchingRent[0];
-        logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via unique rent amount.`);
+        const potentialMatch = occupanciesMatchingRent[0];
+        if (potentialMatch.tenant && !assignedTenantIdsInBatch.has(potentialMatch.tenant.id)) {
+          matchedOccupancy = potentialMatch;
+          logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via unique rent amount.`);
+        }
       } else if (occupanciesMatchingRent.length > 1) {
-        // --- NEW: Historical Charge Match ---
-        const recentMatchingCharge = await tenantChargeRepository.findOne({
-          where: {
-            propertyId: property.id,
-            amount: chargeData.amount,
-            tenantId: Not(IsNull()),
-          },
-          order: {
-            occurredOn: 'DESC',
-          },
-        });
+        logger.warn(
+          `[Scraper Task] [AMBIGUOUS] Found ${occupanciesMatchingRent.length} units with matching rent for charge ${chargeData.id}. Attempting to resolve.`,
+        );
 
-        if (recentMatchingCharge && recentMatchingCharge.tenantId) {
-          const historicMatch = occupanciesMatchingRent.find(occ => occ.tenant?.id === recentMatchingCharge.tenantId);
-          if (historicMatch) {
-            matchedOccupancy = historicMatch;
-            logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via historical charge analysis.`);
-          }
-        } else {
-          // --- Fallback to Transaction Heuristic ---
-          logger.warn(
-            `[Scraper Task] [AMBIGUOUS] Found ${occupanciesMatchingRent.length} units with matching rent for charge ${chargeData.id}. Proceeding to transaction heuristic.`,
+        let transactionMatchedOccupancy: Occupancy | null = null;
+        const chargeDate = safeCreateDate(chargeData.occurredOn);
+        if (chargeDate) {
+          const chargeMonth = getMonthName(chargeDate);
+          const searchEndDate = new Date(chargeDate);
+          const searchStartDate = new Date(chargeDate);
+          searchStartDate.setDate(searchStartDate.getDate() - 45);
+          const candidateOccupancyExternalIds = occupanciesMatchingRent.map(o => o.externalId);
+
+          const relevantTransactions = await transactionRepository.find({
+            where: {
+              property: { id: property.id },
+              type: 'cashIn',
+              partyId: In(candidateOccupancyExternalIds),
+              postedOn: Between(searchStartDate, searchEndDate),
+            },
+          });
+
+          const amountMatchingTransactions = relevantTransactions.filter(
+            trans => Math.abs(Number(trans.amount) - Number(chargeData.amount)) < 0.01,
           );
 
-          const chargeDate = safeCreateDate(chargeData.occurredOn);
-          if (chargeDate) {
-            const searchEndDate = new Date(chargeDate);
-            const searchStartDate = new Date(chargeDate);
-            searchStartDate.setDate(searchStartDate.getDate() - 45); // 45-day lookback window
+          if (amountMatchingTransactions.length > 0) {
+            const scoredTransactions = amountMatchingTransactions.map(trans => ({
+              transaction: trans,
+              score: scoreTransaction(trans, chargeMonth),
+            }));
 
-            const tenantsToSearch = occupanciesMatchingRent.map(o => o.tenant).filter(Boolean);
-            const tenantNamesToSearch = tenantsToSearch.map(t => t.name);
+            scoredTransactions.sort((a, b) => b.score - a.score);
 
-            if (tenantNamesToSearch.length > 0) {
-              const relevantTransactions = await transactionRepository.find({
-                where: {
-                  property: { id: property.id },
-                  type: 'cashIn',
-                  partyName: In(tenantNamesToSearch),
-                  postedOn: Between(searchStartDate, searchEndDate),
-                },
-              });
+            const bestScore = scoredTransactions[0].score;
+            const topScorers = scoredTransactions.filter(s => s.score === bestScore);
 
-              const paymentsByTenant: { [tenantName: string]: number } = {};
-              for (const name of tenantNamesToSearch) {
-                paymentsByTenant[name] = 0;
-              }
-              for (const trans of relevantTransactions) {
-                paymentsByTenant[trans.partyName] = (paymentsByTenant[trans.partyName] || 0) + Number(trans.amount);
-              }
-
-              const amountPaid = chargeData.amount - chargeData.balance;
-              const potentialPayers = Object.entries(paymentsByTenant).filter(([, totalAmount]) => Math.abs(totalAmount - amountPaid) < 0.01);
-
-              if (potentialPayers.length === 1) {
-                const [payerName] = potentialPayers[0];
-                const finalOccupancy = occupanciesMatchingRent.find(occ => occ.tenant?.name === payerName);
-                if (finalOccupancy) {
-                  matchedOccupancy = finalOccupancy;
-                  logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${payerName}' via transaction analysis.`);
-                }
-              } else if (potentialPayers.length > 1) {
-                logger.warn(`[Scraper Task] [AMBIGUOUS] Found multiple tenants whose payments match the paid amount for charge ${chargeData.id}.`);
+            if (topScorers.length === 1) {
+              const bestMatch = topScorers[0].transaction;
+              const finalOccupancy = occupanciesMatchingRent.find(occ => occ.externalId === bestMatch.partyId);
+              if (finalOccupancy && finalOccupancy.tenant && !assignedTenantIdsInBatch.has(finalOccupancy.tenant.id)) {
+                transactionMatchedOccupancy = finalOccupancy;
               }
             }
+          }
+        }
+
+        if (transactionMatchedOccupancy) {
+          matchedOccupancy = transactionMatchedOccupancy;
+          logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via scored transaction analysis.`);
+        } else {
+          const unassignedCandidates = occupanciesMatchingRent.filter(occ => occ.tenant && !assignedTenantIdsInBatch.has(occ.tenant.id));
+          if (unassignedCandidates.length > 0) {
+            matchedOccupancy = unassignedCandidates[0];
+            logger.info(
+              `[Scraper Task] Tentatively matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' to resolve ambiguity.`,
+            );
+          } else {
+            logger.warn(
+              `[Scraper Task] [AMBIGUOUS] All potential tenants for charge ${chargeData.id} have already been assigned a charge in this batch.`,
+            );
           }
         }
       }
 
       if (!matchedOccupancy && candidateOccupancies.length === 1) {
-        matchedOccupancy = candidateOccupancies[0];
-        logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via single-unit property fallback.`);
+        const potentialMatch = candidateOccupancies[0];
+        if (potentialMatch.tenant && !assignedTenantIdsInBatch.has(potentialMatch.tenant.id)) {
+          matchedOccupancy = potentialMatch;
+          logger.info(
+            `[Scraper Task] Matched charge ${chargeData.id} to tenant '${matchedOccupancy.tenant.name}' via single-unit property fallback.`,
+          );
+        }
       }
 
-      let tenantId = matchedOccupancy?.tenant?.id || null;
-
-      if (!tenantId) {
-        const chargeDate = safeCreateDate(chargeData.occurredOn);
-        if (chargeDate) {
-          const snapshot = await occupancySnapshotRepository.findOne({
-            where: {
-              snapshotDate: LessThanOrEqual(chargeDate),
-            },
-            order: {
-              snapshotDate: 'DESC',
-            },
-          });
-
-          if (snapshot) {
-            tenantId = snapshot.tenantId;
-            logger.info(`[Scraper Task] Matched charge ${chargeData.id} to tenant via snapshot fallback.`);
-          }
+      let tenantId: string | null = null;
+      if (matchedOccupancy && matchedOccupancy.tenant) {
+        if (!assignedTenantIdsInBatch.has(matchedOccupancy.tenant.id)) {
+          tenantId = matchedOccupancy.tenant.id;
+          assignedTenantIdsInBatch.add(tenantId);
+        } else {
+          logger.warn(
+            `[Scraper Task] [LOGIC ERROR] Attempted to assign an already-used tenant '${matchedOccupancy.tenant.name}'. Skipping assignment for charge ${chargeData.id}.`,
+          );
         }
       }
 

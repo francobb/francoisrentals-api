@@ -1,9 +1,9 @@
 {
   "author": "bfrancoisjr",
   "private": true,
-  "description": "TypeScript + Mongoose + MongoDB + Express API Server",
+  "description": "TypeScript + Express API Server",
   "engines": {
-    "node": "18.x || 19.x || 20.x"
+    "node": "20.x || 21.x || 22.x || 23.x || 24.x"
   },
   "license": "ISC",
   "name": "francoisrentals-api",
@@ -17,7 +17,6 @@
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only fr-prod",
     "dev": "cross-env NODE_ENV=development node dist/server.js",
     "dev:local": "cross-env NODE_ENV=development nodemon",
-    "heroku:local": "heroku local -e .env.development.local ",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
     "frdb:docker:down": "docker stop fr-db",
@@ -34,7 +33,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.797.0",
     "@aws-sdk/s3-request-presigner": "3.797.0",
-    "axios": "1.9.0",
+    "axios": "1.13.1",
     "bcrypt": "5.1.1",
     "cheerio": "1.1.2",
     "class-transformer": "0.5.1",
@@ -55,14 +54,14 @@
     "jsonwebtoken": "9.0.2",
     "mongoose": "8.14.0",
     "morgan": "1.10.0",
-    "multer": "1.4.5-lts.2",
+    "multer": "2.0.2",
     "node-cron": "3.0.3",
     "nodemailer": "6.10.1",
+    "openai": "6.7.0",
     "passport": "0.7.0",
     "passport-google-oauth20": "2.0.0",
     "passport-jwt": "4.0.1",
     "passport-local": "1.0.0",
-    "pdf-parse": "1.1.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "stripe": "18.0.0",
@@ -93,7 +92,6 @@
     "@types/passport-google-oauth20": "2.0.16",
     "@types/passport-jwt": "4.0.1",
     "@types/passport-local": "1.0.38",
-    "@types/pdf-parse": "1.1.5",
     "@types/supertest": "6.0.3",
     "@types/swagger-jsdoc": "6.0.4",
     "@types/swagger-ui-express": "4.1.8",

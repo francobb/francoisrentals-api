@@ -1,6 +1,8 @@
 import { config } from 'dotenv';
+import { join } from 'path';
 
-config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
+const envPath = join(__dirname, '..', '..', `.env.${process.env.NODE_ENV || 'development'}.local`);
+config({ path: envPath });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'same-origin';
 const {
@@ -8,21 +10,19 @@ const {
   APP_ID,
   APP_SECRET,
   AWS_BUCKET,
-  AWS_REGION,
   CLIENT_EMAIL,
   COOKIES,
-  DB_DATABASE,
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
   FR_FIREBASE_PROJECT_ID,
   FR_FIREBASE_PRIVATE_NEW_KEY_ID,
   FR_FIREBASE_PRIVATE_NEW_KEY,
   FR_FIREBASE_CLIENT_ID,
-  LOG_DIR,
   LOG_FORMAT,
   MONGO_URI,
   NODE_ENV,
   ORIGIN,
+  OPENAI_API_KEY,
   PORT,
   POSTGRES_USER,
   POSTGRES_PASSWORD,
@@ -40,26 +40,26 @@ const {
   STRIPE_WEBHOOK_SECRET,
 } = process.env;
 
+export const LOG_DIR = process.env.LOG_DIR || '../logs';
+
 export {
   AUTHENTICITY_TOKEN,
   APP_ID,
   APP_SECRET,
   AWS_BUCKET,
-  AWS_REGION,
   COOKIES,
   CLIENT_EMAIL,
-  DB_DATABASE,
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
   FR_FIREBASE_PROJECT_ID,
   FR_FIREBASE_PRIVATE_NEW_KEY_ID,
   FR_FIREBASE_PRIVATE_NEW_KEY,
   FR_FIREBASE_CLIENT_ID,
-  LOG_DIR,
   LOG_FORMAT,
   MONGO_URI,
   NODE_ENV,
   ORIGIN,
+  OPENAI_API_KEY,
   PORT,
   POSTGRES_DB,
   POSTGRES_HOST,
