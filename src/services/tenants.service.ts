@@ -51,7 +51,7 @@ class TenantService {
     // const findTenant: Tenant = await this.pg_tenants.findOne({ where: { email: tenantData.email } });
     // if (findTenant) throw new HttpException(409, `You're already registered`);
 
-    const customer = await this.createCustomer(tenantData);
+    // const customer = await this.createCustomer(tenantData);
     const newTenant = new Tenant();
     newTenant.name = tenantData.name;
     // newTenant.email = tenantData.email;

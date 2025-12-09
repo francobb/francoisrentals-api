@@ -1,4 +1,3 @@
-import { JWT } from 'google-auth-library/build/src/auth/jwtclient';
 import TwilioSDK, { Twilio } from 'twilio';
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '@config';
 class TwilioClient {

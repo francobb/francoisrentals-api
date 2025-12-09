@@ -17,7 +17,7 @@
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only fr-prod",
     "dev": "cross-env NODE_ENV=development node dist/server.js",
     "dev:local": "cross-env NODE_ENV=development nodemon",
-    "lint": "eslint --ignore-path .gitignore --ext .ts src/",
+    "lint": "eslint --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
     "frdb:docker:down": "docker stop fr-db",
     "frdb:docker:up": "docker run --name fr-db -d --rm --network fr-net -v data:/data/db -p 27017:27017 mongo",
@@ -73,6 +73,8 @@
     "winston-daily-rotate-file": "5.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.1",
     "@swc/cli": "0.7.3",
     "@swc/core": "1.11.22",
     "@types/bcrypt": "5.0.2",

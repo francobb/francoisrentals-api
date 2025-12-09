@@ -1,7 +1,6 @@
- import { Routes } from '@interfaces/routes.interface';
+import { Routes } from '@interfaces/routes.interface';
 import { Router } from 'express';
 import AssistantController from '@controllers/assistant.controller';
-import { apiKeyMiddleware } from '@middlewares/auth.middleware';
 
 class AssistantRoute implements Routes {
   public path = '/assistant';

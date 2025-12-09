@@ -229,20 +229,7 @@ const getMonthName = (date: Date): string => {
 
 const scoreTransaction = (transaction: Transaction, chargeMonth: string): number => {
   const description = transaction.description.toLowerCase();
-  const monthNames = [
-    'january',
-    'february',
-    'march',
-    'april',
-    'may',
-    'june',
-    'july',
-    'august',
-    'september',
-    'october',
-    'november',
-    'december',
-  ];
+  const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
   const chargeMonthLower = chargeMonth.toLowerCase();
 
   let monthInDescription: string | null = null;
@@ -292,9 +279,7 @@ async function insertTenantCharges(charges: ApiTenantCharge[]): Promise<void> {
         relations: ['tenant', 'unit'],
       });
 
-      const occupanciesMatchingRent = candidateOccupancies.filter(
-        occ => occ.rent && Math.abs(Number(occ.rent) - Number(chargeData.amount)) < 0.01,
-      );
+      const occupanciesMatchingRent = candidateOccupancies.filter(occ => occ.rent && Math.abs(Number(occ.rent) - Number(chargeData.amount)) < 0.01);
 
       if (occupanciesMatchingRent.length === 1) {
         const potentialMatch = occupanciesMatchingRent[0];
@@ -325,9 +310,7 @@ async function insertTenantCharges(charges: ApiTenantCharge[]): Promise<void> {
             },
           });
 
-          const amountMatchingTransactions = relevantTransactions.filter(
-            trans => Math.abs(Number(trans.amount) - Number(chargeData.amount)) < 0.01,
-          );
+          const amountMatchingTransactions = relevantTransactions.filter(trans => Math.abs(Number(trans.amount) - Number(chargeData.amount)) < 0.01);
 
           if (amountMatchingTransactions.length > 0) {
             const scoredTransactions = amountMatchingTransactions.map(trans => ({

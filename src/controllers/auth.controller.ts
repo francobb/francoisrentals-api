@@ -59,7 +59,7 @@ class AuthController {
     }
   };
 
-  public logOut = async (req: Request, res: Response, next: NextFunction) => {
+  public logOut = async (_req: Request, res: Response) => {
     res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
     res.status(200).json({ message: 'logged out' });
   };

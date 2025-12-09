@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import passport from 'passport';
-import { NextFunction, Response,} from 'express';
+import { NextFunction, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_CLIENT_KEY, SECRET_KEY } from '@config';
 import { DataStoredInToken } from '@interfaces/auth.interface';
@@ -79,7 +79,7 @@ export const checkClient = (req, res, next) => {
 /* passport handlers */
 export const localAuth = passport.authenticate('local', { session: false });
 export const requireJwtAuth = passport.authenticate('jwt', { session: false });
-export const authWithGoogle = passport.authenticate('google',    {
+export const authWithGoogle = passport.authenticate('google', {
   scope: [
     'profile',
     'email',
