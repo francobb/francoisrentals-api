@@ -1,23 +1,34 @@
-import { Collection } from 'mongodb';
+import { AppDataSource } from '@databases';
 
-const mongoose = require('mongoose');
 /**
- * Drop database, close the connection and stop mongod.
+ * Connect to the test database.
  */
-export const closeDatabase = async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-  // await mongod.stop();
+export const connectDatabase = async () => {
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+  }
 };
 
 /**
- * Remove all the data for all db collections.
+ * Close the database connection.
+ */
+export const closeDatabase = async () => {
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+};
+
+/**
+ * Clear all data from all tables in the test database.
  */
 export const clearDatabase = async () => {
-  const collections: Collection[] = await mongoose.connection.collections;
+  if (!AppDataSource.isInitialized) {
+    await connectDatabase();
+  }
 
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
+  const entities = AppDataSource.entityMetadatas;
+  for (const entity of entities) {
+    const repository = AppDataSource.getRepository(entity.name);
+    await repository.query(`TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE;`);
   }
 };

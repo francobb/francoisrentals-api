@@ -1,11 +1,7 @@
 import cron from 'node-cron';
 import App from '@/app';
-import AuthRoute from '@routes/auth.route';
-import GoogleRoute from '@routes/google.route';
 import IndexRoute from '@routes/index.route';
-import MaintenanceRoute from '@routes/maintenance.route';
 import PropertiesRoute from '@routes/properties.route';
-import StripeRoute from '@routes/stripe.route';
 import TenantsRoute from '@routes/tenants.route';
 import TenantChargesRoute from '@routes/tenant-charges.route';
 import TransactionsRoute from '@routes/transactions.route';
@@ -14,16 +10,13 @@ import AssistantRoute from '@routes/assistant.route';
 import validateEnv from '@utils/validateEnv';
 import { logger } from '@utils/logger';
 import { runScraperTask, runTenantChargeScraperTask } from '@/tasks/scraper.task';
+import { runAiAnalystTask } from '@/tasks/ai_analyst.task';
 
 validateEnv();
 
 const app = new App([
-  new AuthRoute(),
-  new GoogleRoute(),
   new IndexRoute(),
-  new MaintenanceRoute(),
   new PropertiesRoute(),
-  new StripeRoute(),
   new TenantsRoute(),
   new TenantChargesRoute(),
   new TransactionsRoute(),
@@ -34,10 +27,11 @@ const app = new App([
 export const initializeScheduler = () => {
   logger.info('🟢 Scheduler initialized');
 
+  // Schedule the data scrapers to run nightly at 11:30 PM.
   cron.schedule(
     '30 23 * * *',
     async () => {
-      logger.info('--- Running scheduled job: Scrape Transactions ---');
+      logger.info('--- Running scheduled job: Scrape Transactions & Charges ---');
       try {
         await runScraperTask();
         logger.info('--- Scheduled job: Scrape Transactions completed ---');
@@ -45,13 +39,29 @@ export const initializeScheduler = () => {
         await runTenantChargeScraperTask({});
         logger.info('--- Scheduled job: Scrape Tenant Charges completed ---');
       } catch (error) {
-        // This catch is a safeguard to ensure a failed job doesn't crash the server.
-        logger.error('--- Scheduled job: Scrape Transactions failed ---', error);
+        logger.error('--- Scheduled job: Nightly Scrape failed ---', error);
       }
     },
     {
       scheduled: true,
-      timezone: 'America/New_York', // Important: Set to your local timezone
+      timezone: 'America/New_York',
+    },
+  );
+
+  // Schedule the AI Analyst to run every morning at 9:00 AM.
+  cron.schedule(
+    '0 9 * * *',
+    async () => {
+      logger.info('--- Running scheduled job: AI Proactive Analyst ---');
+      try {
+        await runAiAnalystTask();
+      } catch (error) {
+        logger.error('--- Scheduled job: AI Proactive Analyst failed ---', error);
+      }
+    },
+    {
+      scheduled: true,
+      timezone: 'America/New_York',
     },
   );
 };
