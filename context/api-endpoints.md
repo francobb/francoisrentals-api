@@ -2,107 +2,48 @@
 
 This document describes the API endpoints for the Francois Rentals API.
 
-## AI
+## Authentication
 
--   `POST /ai/question`: Ask a question to the AI.
+Authentication is handled via a stateless model. The client is responsible for authenticating with an external provider (e.g., Google) and acquiring an ID Token. This token must be sent with every request to a protected endpoint in the `Authorization` header.
 
-**File:** `src/routes/ai.route.ts`
+**Header Format:**
+`Authorization: Bearer <GOOGLE_ID_TOKEN>`
 
-## Assistant
+The `statelessAuth` middleware on the server validates this token with Google and checks if the user's email matches the `ADMIN_EMAIL` specified in the environment variables.
 
--   `POST /assistant/question`: Ask a question to the assistant.
-    -   Requires API key.
+---
+
+## Core Endpoints
+
+### Assistant
+
+-   `POST /assistant/question`: Ask a question to the AI analyst.
+    -   **Authentication:** Requires a valid Google ID Token from the admin user.
+    -   **Body:** `{ "question": "Your question here" }`
 
 **File:** `src/routes/assistant.route.ts`
 
-## Authentication
-
--   `POST /signup`: Sign up a new user.
--   `POST /login`: Log in a user.
--   `POST /logout`: Log out a user.
--   `POST /forgot`: Send a password reset email.
--   `POST /signin`: Sign in a user using Passport.js.
-
-**File:** `src/routes/auth.route.ts`
-
-## Google
-
--   `GET /getAuthUrl`: Get the Google authentication URL.
--   `POST /auth/google/client`: Handle Google authentication for a client.
--   `GET /google`: Authenticate with Google using Passport.js.
--   `GET /auth/google/callback`: Handle the Google OAuth callback.
-
-**File:** `src/routes/google.route.ts`
-
-## Maintenance
-
--   `POST /maintenance`: Submit a maintenance request.
-    -   Requires `ADMIN`, `OWNER`, or `TENANT` role.
-
-**File:** `src/routes/maintenance.route.ts`
-
-## Properties
+### Properties
 
 -   `GET /properties`: Get all properties.
-    -   Requires API key.
--   `GET /properties/expenses/average`: Get the average expenses for all properties.
-    -   Requires API key.
+    -   **Authentication:** Requires a valid Google ID Token from the admin user.
 
 **File:** `src/routes/properties.route.ts`
 
-## Stripe
-
--   `GET /payment/transactions`: Get all Stripe transactions.
-    -   Requires `ADMIN` or `TENANT` role.
--   `POST /payment`: Receive a rent payment.
-    -   Requires `ADMIN` or `TENANT` role.
--   `POST /payment/request`: Receive a payment request.
-    -   Requires `ADMIN` or `TENANT` role.
--   `POST /payment/webhook`: Process a Stripe webhook.
-
-**File:** `src/routes/stripe.route.ts`
-
-## Tenants
+### Tenants
 
 -   `GET /tenants`: Get all tenants.
-    -   Requires `ADMIN` role.
+    -   **Authentication:** Requires a valid Google ID Token from the admin user.
 -   `GET /tenants/getById`: Get a tenant by ID.
-    -   Requires `ADMIN` or `TENANT` role.
--   `GET /tenants/:property`: Get tenants by property.
-    -   Requires `ADMIN` or `TENANT` role.
--   `POST /tenants`: Create a new tenant.
-    -   Requires `ADMIN` role.
--   `PUT /tenants`: Update a tenant.
-    -   Requires `ADMIN` role.
+    -   **Authentication:** Requires a valid Google ID Token from the admin user.
+-   ... (other tenant routes)
 
 **File:** `src/routes/tenants.route.ts`
 
-## Tenant Charges
-
--   `GET /tenant-charges`: Get all tenant charges.
-    -   Requires API key.
-
-**File:** `src/routes/tenant-charges.route.ts`
-
-## Transactions
+### Transactions
 
 -   `GET /transactions`: Get all transactions.
-    -   Requires API key.
--   `GET /transactions/tenant-charges`: Get all tenant charges.
-    -   Requires API key.
--   `GET /transactions/rent-snapshot`: Get a monthly rent snapshot.
-    -   Requires API key.
--   `GET /transactions/run-scraper`: Run the transaction scraper.
--   `GET /transactions/scraper/properties`: Run the property scraper.
--   `GET /transactions/scraper/tenant-charges`: Run the tenant charge scraper.
--   `GET /transactions/populate-tenants`: Populate the tenants table.
--   `GET /transactions/link-occupancies`: Link occupancies to tenants.
-    -   Requires API key.
+    -   **Authentication:** Requires a valid Google ID Token from the admin user.
+-   ... (other transaction and scraper routes)
 
 **File:** `src/routes/transactions.route.ts`
-
-## Twilio
-
--   `GET /twilio/rent`: Send a rent reminder.
-
-**File:** `src/routes/twilio.route.ts`

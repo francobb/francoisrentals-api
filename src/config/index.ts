@@ -6,6 +6,7 @@ config({ path: envPath });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'same-origin';
 const {
+  ADMIN_EMAIL,
   AUTHENTICITY_TOKEN,
   APP_ID,
   APP_SECRET,
@@ -40,9 +41,10 @@ const {
   STRIPE_WEBHOOK_SECRET,
 } = process.env;
 
-export const LOG_DIR = process.env.LOG_DIR || '../logs';
+export const LOG_DIR = process.env.LOG_DIR || '../../logs';
 
 export {
+  ADMIN_EMAIL,
   AUTHENTICITY_TOKEN,
   APP_ID,
   APP_SECRET,

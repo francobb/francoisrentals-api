@@ -1,26 +1,28 @@
-import { Application } from 'express';
 import http from 'http';
-import App from '../../../src/app';
-import { closeDatabase } from './db-handler'; // Adjust the path as needed
+import App from '@/app';
+import { connectDatabase, clearDatabase, closeDatabase } from './db-handler';
 
-let server;
-let app: Application;
+let server: http.Server;
 
-beforeAll(done => {
-  app = new App([]).getServer();
-
+beforeAll(async () => {
+  await connectDatabase();
+  const app = new App([]).getServer();
   server = http.createServer(app);
-  server.listen(0, () => {
-    const { port } = server.address();
-    process.env.TEST_SERVER_PORT = port.toString(); // Set a test environment variable with the port
-    done();
+
+  await new Promise<void>(resolve => {
+    server.listen(0, () => {
+      const { port } = server.address() as any;
+      process.env.TEST_SERVER_PORT = port.toString();
+      resolve();
+    });
   });
 });
 
-afterAll(async () => {
-  await closeDatabase(); // Clear the database after the server is closed
+beforeEach(async () => {
+  await clearDatabase();
+});
 
-  server.close(() => {
-    // done();
-  });
+afterAll(async () => {
+  await new Promise<void>(resolve => server.close(() => resolve()));
+  await closeDatabase();
 });
