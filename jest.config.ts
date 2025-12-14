@@ -18,7 +18,6 @@ module.exports = {
     '!<rootDir>/src/interfaces/**.ts',
     '!<rootDir>/src/models/**.ts',
     '!<rootDir>/src/search/transactions.search.ts',
-    '!<rootDir>/src/services/clients/gauth.client.ts',
     '!<rootDir>/src/services/clients/twilio.client.ts',
     '!<rootDir>/src/utils/frAscii.ts',
     '!<rootDir>/src/utils/logger.ts',

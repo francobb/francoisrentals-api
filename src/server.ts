@@ -43,7 +43,6 @@ export const initializeScheduler = () => {
       }
     },
     {
-      scheduled: true,
       timezone: 'America/New_York',
     },
   );
@@ -60,7 +59,6 @@ export const initializeScheduler = () => {
       }
     },
     {
-      scheduled: true,
       timezone: 'America/New_York',
     },
   );
