@@ -1,54 +1,73 @@
 import Stripe from 'stripe';
 import stripe from '@clients/stripe.client';
-import tenantsModel from '@models/tenants.model';
+import { AppDataSource } from '@databases';
+import { Tenant } from '@models/tenant.pg_model';
 import { CreateTenantDto } from '@dtos/tenants.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { PropertyType, Tenant } from '@interfaces/tenants.interface';
 import { isEmpty } from '@utils/util';
 import { logger } from '@utils/logger';
+import { LessThanOrEqual, MoreThan, Repository } from 'typeorm';
+import { PropertyType } from '@interfaces/tenants.interface';
+import { Occupancy } from '@models/occupancy.pg_model';
 
 class TenantService {
-  public tenants = tenantsModel;
+  public pg_tenants: Repository<Tenant> = AppDataSource.getRepository(Tenant);
+  public pg_occupancies: Repository<Occupancy> = AppDataSource.getRepository(Occupancy);
 
   public async findAllTenants(): Promise<Tenant[]> {
-    return this.tenants.find();
+    return this.pg_tenants.find({ relations: ['property', 'occupancies'] });
   }
 
   public async findTenantById(id: string): Promise<Tenant> {
-    return this.tenants.findById(id);
+    return this.pg_tenants.findOne({ where: { id }, relations: ['property', 'occupancies'] });
   }
 
-  public findTenantsByProperty = async (property: PropertyType): Promise<Tenant[]> => {
-    return this.tenants.find({ property: property });
-  };
+  public async findTenantsByProperty(property: PropertyType): Promise<Tenant[]> {
+    return this.pg_tenants
+      .createQueryBuilder('tenant')
+      .leftJoinAndSelect('tenant.property', 'property')
+      .where('property.name = :property', { property })
+      .getMany();
+  }
 
   public async findAllActiveTenants(): Promise<Tenant[]> {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set the time to 00:00:00 for accurate comparison
+    today.setHours(0, 0, 0, 0);
 
-    return this.tenants.find({
-      move_in: { $lte: today }, // move_in date is less than or equal to today
-      lease_to: { $gt: today }, // lease_to date is strictly greater than today
+    const activeOccupancies = await this.pg_occupancies.find({
+      where: {
+        moveIn: LessThanOrEqual(today),
+        leaseEnd: MoreThan(today),
+      },
+      relations: ['tenant'],
     });
+
+    return activeOccupancies.map(occupancy => occupancy.tenant);
   }
 
   public async createTenant(tenantData: CreateTenantDto): Promise<Tenant> {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
 
-    const findTenant: Tenant = await this.tenants.findOne({ email: tenantData.email });
-    if (findTenant) throw new HttpException(409, `You're already registered`);
+    // const findTenant: Tenant = await this.pg_tenants.findOne({ where: { email: tenantData.email } });
+    // if (findTenant) throw new HttpException(409, `You're already registered`);
 
-    const customer = await this.createCustomer(tenantData);
-    return await this.tenants.create({ ...tenantData, customerId: customer.id });
+    // const customer = await this.createCustomer(tenantData);
+    const newTenant = new Tenant();
+    newTenant.name = tenantData.name;
+    // newTenant.email = tenantData.email;
+    // newTenant.property = tenantData.property;
+
+    return this.pg_tenants.save(newTenant);
   }
 
-  public async updateTenant(tenantId: string, tenantData: Tenant) {
+  public async updateTenant(tenantId: string, tenantData: Partial<Tenant>): Promise<Tenant> {
     if (isEmpty(tenantData)) throw new HttpException(400, "You're not tenantData");
-    const { _id } = tenantData;
-    const findTenant: Tenant = await this.tenants.findByIdAndUpdate(tenantId, { ...tenantData }, { new: true, useFindAndModify: false });
-    if (!findTenant) throw new HttpException(409, `Tenant not found`);
 
-    return findTenant;
+    const tenant = await this.findTenantById(tenantId);
+    if (!tenant) throw new HttpException(404, 'Tenant not found');
+
+    Object.assign(tenant, tenantData);
+    return this.pg_tenants.save(tenant);
   }
 
   public createCustomer = async (tenantData: CreateTenantDto) => {
@@ -74,15 +93,16 @@ class TenantService {
   };
 
   public async updateRentalBalance() {
-    const tenants = await this.findAllActiveTenants();
+    const activeOccupancies = await this.pg_occupancies.find({ relations: ['tenant'] });
     const currentDate = new Date();
     const isFirstDayOfMonth = currentDate.getDate() === 1;
 
     if (isFirstDayOfMonth) {
-      for (const tnt of tenants) {
-        logger.info('Updating rental amount for tenant ' + tnt.name);
-        tnt.rentalBalance += tnt.rentalAmount;
-        await this.updateTenant(tnt._id, { rentalBalance: tnt.rentalBalance } as Tenant);
+      for (const occupancy of activeOccupancies) {
+        if (occupancy.tenant) {
+          logger.info(`Monthly rent of $${occupancy.rent} charged for tenant ${occupancy.tenant.name} at unit ${occupancy.unit.name}`);
+          // If a rental balance needs to be tracked, it would require a new field in the schema (e.g., in Occupancy or a new Transaction type).
+        }
       }
     }
   }

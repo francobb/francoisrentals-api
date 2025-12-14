@@ -1,23 +1,26 @@
 import { Routes } from '@interfaces/routes.interface';
 import { Router } from 'express';
 import TransactionsController from '@controllers/transactions.controller';
-import authMiddleware, { checkRole } from '@middlewares/auth.middleware';
-import PayeePayerController from '@controllers/payeePayer.controller';
-import { authenticate } from '@middlewares/firebase.auth.middleware';
+import { apiKeyMiddleware } from '@middlewares/auth.middleware';
 
 class TransactionsRoute implements Routes {
   public path = '/transactions';
   public router = Router();
   public transactionsController = new TransactionsController();
-  public payeePayerController = new PayeePayerController();
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, authenticate, this.transactionsController.getTransactions);
-    this.router.post(`/payee-payer`, authMiddleware, checkRole(['ADMIN']), this.payeePayerController.createPayeePayer);
+    this.router.get(this.path, apiKeyMiddleware, this.transactionsController.getTransactions);
+    this.router.get(`${this.path}/tenant-charges`, apiKeyMiddleware, this.transactionsController.getTenantCharges);
+    this.router.get(`${this.path}/rent-snapshot`, apiKeyMiddleware, this.transactionsController.getMonthlyRentSnapshot);
+    this.router.get(`${this.path}/run-scraper`, this.transactionsController.runScraper);
+    this.router.get(`${this.path}/scraper/properties`, this.transactionsController.runPropertyScraper);
+    this.router.get(`${this.path}/scraper/tenant-charges`, this.transactionsController.runTenantChargeScraper);
+    this.router.get(`${this.path}/populate-tenants`, this.transactionsController.populateTenants);
+    this.router.get(`${this.path}/link-occupancies`, apiKeyMiddleware, this.transactionsController.linkOccupanciesToTenants);
   }
 }
 

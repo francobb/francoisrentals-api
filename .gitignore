@@ -49,7 +49,7 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
-# Optional npm cache directory
+# Optional npm cache
 .npm
 
 # Optional eslint cache
@@ -120,6 +120,9 @@ dist
 #mongodb
 data/
 
+#postgresDB
+pg_data
+
 # TernJS port file
 .tern-port
 
@@ -134,5 +137,10 @@ data/
 .pnp.*
 /.idea/
 
-req/
+src/req
 /src/inspo
+/src/services/clients/serviceaccount.json
+
+# AI Assistant temporary files
+context.txt
+/assistant-id.txt

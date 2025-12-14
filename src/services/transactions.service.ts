@@ -1,53 +1,138 @@
-import transactionsModel from '@models/transactions.model';
-import { ITransaction } from '@interfaces/transactions.interface';
-import { logger } from '@utils/logger';
-import SearchQueryBuilder from '@search/transactions.search';
-import { IQuery } from '@utils/interfaces';
+import { FindAllTransactionsDto } from '@dtos/findAllTransactions';
+import { Transaction } from '@models/transactions.pg_model';
+import { AppDataSource } from '@databases';
+import { TenantCharge } from '@models/tenant-charge.pg_model';
+import { IsNull, Not, Repository } from 'typeorm';
+import { Tenant } from '@/models/tenant.pg_model';
+import { FindAllTenantChargesDto } from '@/dtos/findAllTenantCharges.dto';
+import { Property } from '@/models/property.pg_model';
 
-type IDate = string | number | Date;
-
-class TransactionService {
-  public transactions = transactionsModel;
-
-  public async searchTransaction(query: IQuery) {
-    const { from, to } = query;
-    let { location, outcome, payeePayer } = query;
-
-    location = location ?? undefined;
-    outcome = outcome ?? 'income';
-    payeePayer = payeePayer ?? undefined;
-
-    const queryDates = getDateRange(from, to);
-    const sq = new SearchQueryBuilder().withDate(queryDates).withLocation(location).withOutcome(outcome).withPayeePayer(payeePayer).build();
-    const [transactions] = await Promise.all([this.transactions.find(sq).lean()]);
-
-    return transactions;
-  }
-
-  public async addManyTransactions(transactions: ITransaction[]) {
-    this.transactions.insertMany(transactions, (error, result) => {
-      error ? logger.error(error) : logger.info(':::::transactions inserted:::::', result);
-    });
-  }
+export interface RentSnapshot {
+  tenantName: string;
+  propertyName: string;
+  unitName: string;
+  chargeAmount: number;
+  outstandingBalance: number;
+  chargeDate: Date;
 }
 
-const getDateRange = (from: IDate, to: IDate) => {
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30);
+class TransactionService {
+  private transactionRepository: Repository<Transaction> = AppDataSource.getRepository(Transaction);
+  private tenantRepository: Repository<Tenant> = AppDataSource.getRepository(Tenant);
+  private tenantChargeRepository: Repository<TenantCharge> = AppDataSource.getRepository(TenantCharge);
 
-  let fromDate = from ? new Date(from) : thirtyDaysAgo;
-  let toDate = to ? new Date(to) : today;
+  public async findAllTransactions(query: FindAllTransactionsDto): Promise<Transaction[]> {
+    const { limit = 100, offset = 0, startDate, endDate } = query;
 
-  if (from && !to) {
-    toDate = new Date(fromDate);
-    toDate.setDate(fromDate.getDate() + 30);
-  } else if (to && !from) {
-    fromDate = new Date(toDate);
-    fromDate.setDate(toDate.getDate() - 30);
+    const queryBuilder = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.property', 'property')
+      .orderBy('transaction.postedOn', 'DESC')
+      .skip(offset)
+      .take(limit);
+
+    if (startDate) {
+      queryBuilder.andWhere('transaction.postedOn >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('transaction.postedOn <= :endDate', { endDate });
+    }
+
+    return await queryBuilder.getMany();
   }
 
-  return { from: fromDate, to: toDate };
-};
+  public async findAllTenantCharges(query: FindAllTenantChargesDto): Promise<TenantCharge[]> {
+    const { limit = 100, offset = 0, startDate, endDate } = query;
+
+    const queryBuilder = this.tenantChargeRepository
+      .createQueryBuilder('tenant_charge')
+      .leftJoinAndSelect('tenant_charge.property', 'property')
+      .leftJoinAndSelect('tenant_charge.tenant', 'tenant')
+      .orderBy('tenant_charge.occurredOn', 'DESC')
+      .skip(offset)
+      .take(limit);
+
+    if (startDate) {
+      queryBuilder.andWhere('tenant_charge.occurredOn >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('tenant_charge.occurredOn <= :endDate', { endDate });
+    }
+
+    return await queryBuilder.getMany();
+  }
+
+  public async populateTenantsFromTransactions(): Promise<{ created: number; updated: number }> {
+    const transactions = await this.transactionRepository.find({
+      where: {
+        partyId: Not(IsNull()),
+        partyName: Not(IsNull()),
+        type: 'cashIn',
+      },
+      relations: ['property'],
+      order: {
+        postedOn: 'DESC',
+      },
+    });
+
+    if (transactions.length === 0) {
+      return { created: 0, updated: 0 };
+    }
+
+    const tenantMap = new Map<string, { name: string; property: Property }>();
+    for (const transaction of transactions) {
+      if (!tenantMap.has(transaction.partyId) && transaction.property) {
+        tenantMap.set(transaction.partyId, {
+          name: transaction.partyName,
+          property: transaction.property,
+        });
+      }
+    }
+
+    const tenantsToUpsert: Partial<Tenant>[] = [];
+    for (const [externalId, { name, property }] of tenantMap.entries()) {
+      tenantsToUpsert.push({
+        externalId,
+        name,
+        property: property,
+      });
+    }
+
+    if (tenantsToUpsert.length > 0) {
+      const result = await this.tenantRepository.upsert(tenantsToUpsert, ['externalId']);
+      const createdCount = result.generatedMaps.length;
+      const updatedCount = tenantsToUpsert.length - createdCount;
+      return { created: createdCount, updated: updatedCount };
+    }
+
+    return { created: 0, updated: 0 };
+  }
+
+  public async getMonthlyRentSnapshot(): Promise<RentSnapshot[]> {
+    const outstandingCharges = await AppDataSource.getRepository(TenantCharge)
+      .createQueryBuilder('charge')
+      .innerJoin('charge.property', 'property')
+      .innerJoin('property.units', 'unit')
+      .innerJoin('unit.currentOccupancy', 'occupancy')
+      .innerJoin('occupancy.tenant', 'tenant')
+      .select([
+        'tenant.name AS "tenantName"',
+        'property.name AS "propertyName"',
+        'unit.name AS "unitName"',
+        'charge.amount AS "chargeAmount"',
+        'charge.balance AS "outstandingBalance"',
+        'charge.occurredOn AS "chargeDate"',
+      ])
+      .where('charge.balance > 0')
+      .andWhere("charge.occurredOn >= date_trunc('month', CURRENT_DATE)")
+      .orderBy('property.name', 'ASC')
+      .addOrderBy('unit.name', 'ASC')
+      .getRawMany();
+
+    return outstandingCharges;
+  }
+}
 
 export default TransactionService;

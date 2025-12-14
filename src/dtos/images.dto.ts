@@ -11,7 +11,7 @@ import {
 
 @ValidatorConstraint({ name: 'isBuffer', async: false })
 class IsBufferConstraint implements ValidatorConstraintInterface {
-  validate(buffer: any, args: ValidationArguments) {
+  validate(buffer: any) {
     return buffer instanceof Buffer;
   }
 
@@ -22,7 +22,7 @@ class IsBufferConstraint implements ValidatorConstraintInterface {
 
 // Custom decorator to validate Buffer type
 export function IsBuffer(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isBuffer',
       target: object.constructor,

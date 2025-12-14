@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   proxy:
     image: nginx:alpine
@@ -28,7 +26,7 @@ services:
     networks:
       - backend
     depends_on:
-      - mongo
+      - postgres
   mongo:
     image: mongodb/mongodb-community-server
     container_name: mongo
@@ -38,7 +36,17 @@ services:
       - backend
     volumes:
       - data:/data/db
-
+  postgres:
+    image: postgres:latest
+    container_name: local-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: francoisrentals
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
 networks:
   backend:
     driver: bridge
