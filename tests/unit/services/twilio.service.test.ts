@@ -55,7 +55,7 @@ describe('Twilio Service', () => {
       const errorMessage = 'Failed to create message';
       (twilioService.twilioClient.messages.create as jest.Mock) = jest.fn().mockRejectedValueOnce(new Error(errorMessage));
 
-      await expect(twilioService.createRentReminder({ body: 'Test message', to: '1234567890' })).rejects.toThrowError(errorMessage);
+      await expect(twilioService.createRentReminder({ body: 'Test message', to: '1234567890' })).rejects.toThrow(errorMessage);
 
       expect(logger.error).toHaveBeenCalledWith(new Error(errorMessage));
     });
